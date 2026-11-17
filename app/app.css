@@ -121,7 +121,12 @@ body.plain .app{padding-bottom:0}
 .car{display:flex; overflow-x:auto; scroll-snap-type:x mandatory; scrollbar-width:none; padding:10px 0 0; margin:0 calc(-1 * var(--gutter)); outline:none}
 .car::-webkit-scrollbar{display:none}
 .slot{flex:0 0 180px; scroll-snap-align:center; display:flex; justify-content:center; cursor:pointer}
-.fig{transform-origin:50% 90%; will-change:transform, opacity}
+/* Side tutors are smaller, lower and paler; the one in the middle ("on", set by bindCarousel) grows to full size. The swipe
+   itself is plain scrolling, and the size change a transition, so both run at the screen's full frame rate. */
+.fig{transform-origin:50% 90%; transform:translate3d(0,10px,0) scale(.58); opacity:.55; transition:transform .34s cubic-bezier(.2,.8,.2,1), opacity .34s cubic-bezier(.2,.8,.2,1); will-change:transform, opacity}
+.slot.on .fig{transform:translate3d(0,0,0) scale(1); opacity:1}
+.car.snap .fig{transition:none}
+@media (prefers-reduced-motion:reduce){ .fig{transition-duration:.01s} }
 .fig svg{width:180px; height:auto; display:block}
 .car-floor{height:14px; width:170px; margin:-6px auto 0; border-radius:50%; background:radial-gradient(closest-side, #0000001f, transparent)}
 .tinfo{text-align:center; margin-top:14px}
@@ -1363,30 +1368,20 @@ body.landing .app{max-width:1040px}
 .cal-nav:disabled{opacity:.3; cursor:default; transform:none; border-bottom-width:4px}
 .cal-wd, .cal-grid{display:grid; grid-template-columns:repeat(7, minmax(0, 1fr))}
 .cal-wd span{padding:4px 0 6px; text-align:center; font:700 12px var(--font); letter-spacing:.04em; text-transform:uppercase; color:var(--muted)}
-.cal-grid{row-gap:4px; touch-action:pan-y}
+.cal-grid{position:relative; row-gap:4px; touch-action:pan-y; --cr:20px} /* --cr: a day circle's radius (bindCal reads it) */
 .cd{position:relative; display:grid; place-items:center; height:44px; padding:0; border:0; background:none; color:var(--text); font:700 16px var(--font); font-variant-numeric:tabular-nums; cursor:pointer}
 .cd span{position:relative; z-index:1; display:grid; place-items:center; width:40px; height:40px; border-radius:50%}
 .cd:hover:not(:disabled):not(.sel) span{background:var(--fill)}
 .cd.off{color:var(--muted); opacity:.45; cursor:default}
 .cd.today{opacity:1; color:var(--accent-ink); font-weight:800}
 .cd.today span:after{content:""; position:absolute; bottom:4px; left:50%; width:5px; height:5px; margin-left:-2.5px; border-radius:50%; background:var(--accent)}
-/* the band from today to the exam: rounded where it starts and ends and at the ends of each week */
-.cd.band:before, .cd.bout:before{content:""; position:absolute; inset:2px 0; background:var(--accent-soft)} /* bout: cells the tint is leaving */
-@media (prefers-reduced-motion:reduce){ .cd.bout:before{display:none} }
-.cd.bs:before{inset-inline-start:max(0px, calc(50% - 20px)); border-start-start-radius:20px; border-end-start-radius:20px}
-.cd.be:before{inset-inline-end:max(0px, calc(50% - 20px)); border-start-end-radius:20px; border-end-end-radius:20px}
+/* the tint from today to the exam: one rounded bar per week row, from its first day's circle to its last one's. An absolute
+   child of a grid sits in its own grid area and stays out of the day buttons' flow. --n: how many days it spans. */
+.cbar{position:absolute; inset:2px max(0px, calc(100% / var(--n) / 2 - var(--cr))); border-radius:20px; background:var(--accent-soft); pointer-events:none}
 .cd.sel span{background:var(--accent); color:var(--on-accent); font-weight:800; box-shadow:0 3px 0 color-mix(in srgb, var(--accent) 64%, #000)}
-/* the tint runs to the tapped day as one line with a round head, and runs back when the day moves earlier (bindCal sets --d
-   and --t per cell). Each cell is uncovered by a clip whose round end travels 40px past the cell, so cells join without a seam. */
-@keyframes cal-in{from{clip-path:inset(0 100% 0 -40px round 20px)} to{clip-path:inset(0 -40px 0 -40px round 20px)}}
-@keyframes cal-in-r{from{clip-path:inset(0 -40px 0 100% round 20px)} to{clip-path:inset(0 -40px 0 -40px round 20px)}}
+/* bindCal runs the bars' moving end (a clip with a round end); the tapped day pops */
 @keyframes cal-pop{from{transform:scale(.6)}}
-@media (prefers-reduced-motion:no-preference){
-  .cd.gin:before{animation:cal-in var(--t) linear var(--d) both}
-  .cd.bout:before{animation:cal-in var(--t) linear var(--d) both reverse}
-  [dir=rtl] .cd.gin:before, [dir=rtl] .cd.bout:before{animation-name:cal-in-r}
-  .cd.cpop span{animation:cal-pop .34s cubic-bezier(.3,1.6,.5,1) both}
-}
+@media (prefers-reduced-motion:no-preference){ .cd.cpop span{animation:cal-pop .34s cubic-bezier(.3,1.6,.5,1) both} }
 .cd:focus-visible{outline:none}
 .cd:focus-visible span{box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 45%, transparent)}
 .cd.sel:focus-visible span{box-shadow:0 3px 0 color-mix(in srgb, var(--accent) 64%, #000), 0 0 0 5px color-mix(in srgb, var(--accent) 35%, transparent)}
@@ -1400,7 +1395,7 @@ body.landing .app{max-width:1040px}
 .cal-plan.empty svg{width:30px; height:30px; flex:none}
 .sh .mcal{margin:4px 0 12px}
 .sh #calPlan{margin-bottom:16px}
-@media (max-width:360px){ .cd span{width:36px; height:36px} .cd.bs:before{inset-inline-start:max(0px, calc(50% - 18px))} .cd.be:before{inset-inline-end:max(0px, calc(50% - 18px))} .ob-say-art{width:76px} .ob-bub{font-size:19px} }
+@media (max-width:360px){ .cd span{width:36px; height:36px} .cal-grid{--cr:18px}.ob-say-art{width:76px} .ob-bub{font-size:19px} }
 
 /* ---------- polish (Marek, 2026-11-17): the app's name on the rail, the lesson-end numbers, the course's look ---------- */
 /* Kvizoo above the menu, only where the tab bar is a rail on the left */

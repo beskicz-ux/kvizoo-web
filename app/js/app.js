@@ -325,7 +325,9 @@ function fileRows(d) {
   return rows + up;
 }
 function viewFiles() {
-  view().innerHTML = frame("files", { title: t("filesTitle"), sub: t("filesSub"), btn: t("next"),
+  // Super simple (Marek, 2026-11-17: "still a lot of text"): the title, the files, add more, the page count and one line on
+  // rights. File types and limits are left to the picker and to the error messages, which say them when they matter.
+  view().innerHTML = frame("files", { title: t("filesTitle"), btn: t("next"),
     body: `<div id="list"></div>
       <label class="ob-drop" id="drop">${ic.upload}<b id="dropTxt"></b><input type="file" id="pick" accept="${ACCEPT}" multiple hidden></label>
       <p class="ob-err" id="err" hidden role="alert"></p><div class="ob-sum" id="total" hidden></div><p class="ob-note">${t("filesNote")}</p>` });
@@ -434,34 +436,71 @@ export function bindCal(startIso, onPick) {
   let sel = startIso && startIso >= min && startIso <= max ? startIso : null;
   let [y, m] = (sel || t0).split("-").map(Number); m--;
   const first = t0.slice(0, 7), last = max.slice(0, 7), grid = $("#calGrid");
-  // The tint is drawn cell by cell but moves as one line: after a pick a rounded head runs at a steady speed from the old end
-  // to the tapped day (each cell is uncovered as the head crosses it, and the head is 40px long, so a cell is still filling
-  // while the next one starts); when the day moves earlier the same runs backwards. `was` is the pick before this one (undefined = no motion: a month turn). CSS runs it only without reduced motion.
+  // The tint is one rounded bar per week row, under the day buttons, from today to the exam day. After a pick the bar's end
+  // runs at a steady speed from the old day to the tapped one, row after row; going back it runs backwards and stops exactly
+  // on the new day's rounded end. Marek, 2026-11-17: going back left a bit "cut off". The tint used to be drawn cell by cell,
+  // so the new last day was cut to its round end at once, while the old tint was still running back towards it.
+  // `was` is the pick before this one (undefined = no motion: a month turn). No motion under reduced motion.
+  let run = 0;
   const draw = (focus, was) => {
+    const token = ++run;
     const cur = ymd(y, m, 1).slice(0, 7);
     $("#calMonth").textContent = monthName(y, m);
     $("#calPrev").disabled = cur <= first; $("#calNext").disabled = cur >= last;
-    const lead = (new Date(y, m, 1, 12).getDay() + 6) % 7, len = new Date(y, m + 1, 0).getDate();
+    const lead = (new Date(y, m, 1, 12).getDay() + 6) % 7, len = new Date(y, m + 1, 0).getDate(), rows = Math.ceil((lead + len) / 7);
+    const move = was !== undefined && !!sel && was !== sel && !matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const dayAt = (r, c) => { const d = r * 7 + c - lead + 1; return d >= 1 && d <= len ? ymd(y, m, d) : null; };
+    // [first, last] column of row r tinted when the exam is on `end`; null when none is
+    const span = (r, end) => {
+      let s = null, e = null;
+      if (end) for (let c = 0; c < 7; c++) { const day = dayAt(r, c); if (day && day >= t0 && day <= end) { if (s === null) s = c; e = c; } }
+      return s === null ? null : [s, e];
+    };
+    // both lines spelled out: on an absolute child a missing end line means the grid's edge, not "one row"
+    const bar = (r, s, e) => `<i class="cbar" style="grid-row:${r + 1} / ${r + 2};grid-column:${s + 1} / ${e + 2};--n:${e - s + 1}"></i>`;
+    // While moving, a row's bar is as long as the longer of its old and new tint, and a clip shows only up to the moving end.
+    const plan = [];
+    let bars = "", still = "";
+    for (let r = 0; r < rows; r++) {
+      const now = span(r, sel), old = move ? span(r, was) : null;
+      if (now) still += bar(r, now[0], now[1]);
+      if (!now && !old) continue;
+      const s = (now || old)[0], e = Math.max(now ? now[1] : -1, old ? old[1] : -1);
+      bars += bar(r, s, e);
+      plan.push({ s, e, from: old ? old[1] : null, to: now ? now[1] : null });
+    }
     let html = "";
-    const move = was !== undefined && sel && was !== sel, back = move && was && was > sel;
-    const inMove = day => move && (back ? day > sel && day <= was : day >= t0 && day <= sel && (!was || day > was));
-    let n = 0, k = 0;
-    for (let d = 1; d <= len; d++) if (inMove(ymd(y, m, d))) n++;
-    const w = grid.clientWidth / 7 || 44, tau = n ? Math.min(45, 320 / n) : 0, T1 = Math.round(tau * (w + 40) / w); // tau: ms per cell
     for (let i = 0; i < lead; i++) html += `<span class="cd blank"></span>`;
     for (let d = 1; d <= len; d++) {
-      const day = ymd(y, m, d), col = (lead + d - 1) % 7, off = day < min || day > max;
-      // the tint runs from today to the exam day; it is rounded where it starts and ends, and at the ends of each week row
-      const band = sel && day >= t0 && day <= sel;
-      const mv = inMove(day), out = mv && back, end = out ? was : sel;
-      const cls = ["cd", off && "off", day === t0 && "today", day === sel && "sel", band && "band", mv && (out ? "bout" : "gin"), move && day === sel && "cpop", // not "pop": that's the map popover in base.css
-        (band || out) && (day === t0 || col === 0 || d === 1) && "bs", (band || out) && (day === end || col === 6 || d === len) && "be"].filter(Boolean).join(" ");
-      let st = "";
-      if (mv) { const i = out ? n - 1 - k : k; k++; st = ` style="--d:${Math.round(i * tau)}ms;--t:${T1}ms"`; }
-      html += `<button type="button" class="${cls}"${st} data-d="${day}"${off ? " disabled" : ""} aria-pressed="${day === sel}" aria-label="${esc(fmtDay(day))}"${day === t0 ? ' aria-current="date"' : ""}><span>${d}</span></button>`;
+      const day = ymd(y, m, d), off = day < min || day > max;
+      const cls = ["cd", off && "off", day === t0 && "today", day === sel && "sel", sel && day >= t0 && day <= sel && "tint", move && day === sel && "cpop"].filter(Boolean).join(" "); // "cpop", not "pop": that's the map popover in base.css
+      html += `<button type="button" class="${cls}" data-d="${day}"${off ? " disabled" : ""} aria-pressed="${day === sel}" aria-label="${esc(fmtDay(day))}"${day === t0 ? ' aria-current="date"' : ""}><span>${d}</span></button>`;
     }
-    grid.innerHTML = html;
+    grid.innerHTML = (move ? bars : still) + html;
     if (focus) grid.querySelector(`[data-d="${focus}"]`)?.focus();
+    const cw = grid.clientWidth / 7;
+    if (!move || !cw) return;
+    const els = [...grid.querySelectorAll(".cbar")], css = getComputedStyle(grid), rtl = css.direction === "rtl";
+    const pad = Math.max(0, cw / 2 - (parseFloat(css.getPropertyValue("--cr")) || 20));
+    // how much of a bar starting at column s shows when its row is tinted up to column c (px)
+    const reach = (p, c) => c === null ? 0 : (c - p.s + 1) * cw - 2 * pad;
+    const legs = plan.map((p, i) => ({ el: els[i], full: reach(p, p.e), a: reach(p, p.from), b: reach(p, p.to) })).filter(g => g.a !== g.b);
+    if (was && was > sel) legs.reverse(); // going back, the bottom row moves first
+    const dist = legs.reduce((x, g) => x + Math.abs(g.b - g.a), 0), total = Math.min(320, 45 * dist / cw); // a day every 45 ms, 0.32 s at most
+    const clip = (g, h) => rtl ? `inset(0 0 0 ${g.full - h}px round 20px)` : `inset(0 ${g.full - h}px 0 0 round 20px)`;
+    let at = 0;
+    const anims = legs.map(g => {
+      const ms = total * Math.abs(g.b - g.a) / dist;
+      const a = g.el.animate([{ clipPath: clip(g, g.a) }, { clipPath: clip(g, g.b) }], { duration: ms, delay: at, easing: "linear", fill: "both" });
+      at += ms;
+      return a;
+    });
+    // once it has landed, swap in the plain bars (they look the same, and they follow the page if it is resized)
+    Promise.all(anims.map(a => a.finished)).then(() => {
+      if (token !== run || !grid.isConnected) return;
+      grid.querySelectorAll(".cbar").forEach(b => b.remove());
+      grid.insertAdjacentHTML("afterbegin", still);
+    }, () => { });
   };
   const choose = (day, focus) => {
     const was = sel;
@@ -522,53 +561,58 @@ export function carouselHtml() {
 }
 export function bindCarousel(startId, onChange) {
   const c = $("#car"), n = pickable().length, slots = [...c.children];
-  let cur = -1, abs = n, settle = null;
-  // Smooth on a phone (Marek, 2026-11-17: "glitchy"): the slots are measured once (and again when the width changes), so a
-  // frame of a swipe costs one read (scrollLeft) and then only writes, at most once per frame, and only for the figures
-  // that changed. Before, every scroll event measured all 21 slots between writes, a CSS transition chased the finger
-  // and a filter came and went mid-swipe.
-  let x0 = 0, W = 180, seenW = -1, raf = 0;
-  const last = new Array(slots.length).fill(-1);
+  let cur = -1, abs = -1, settle = null, raf = 0, touching = false;
+  // Smooth on a phone (Marek, 2026-11-17, twice: "glitchy", then "it bites"). The figures used to be resized from JavaScript
+  // on every scroll frame. His screen recording shows the swipe moving at 60 frames a second and the sizes changing at 30
+  // (a phone saving battery runs scripts at half speed), so the figures stepped. Now the swipe only slides them (the
+  // browser's own scrolling), and when another tutor reaches the middle, it grows and the last one shrinks through a CSS
+  // transition, which the browser also runs by itself at full speed. Script only swaps the "on" class.
+  let x0 = 0, W = 180, seenW = -1;
   const measure = () => { // x0: where slot 0's middle sits in the scrolled content; W: a slot's width
     const sr = slots[0].getBoundingClientRect(), cr = c.getBoundingClientRect();
     W = sr.width || 180; x0 = c.scrollLeft + sr.left + W / 2 - cr.left; seenW = c.clientWidth;
   };
   // how far to scroll so slot i sits exactly in the middle of the carousel
   const centre = i => { if (c.clientWidth !== seenW) measure(); return x0 + i * W - c.clientWidth / 2; };
-  const paint = () => {
-    raf = 0;
-    if (!c.isConnected) return; // the step was left before this frame (Back, or a fast test): nothing to paint
-    if (c.clientWidth !== seenW) measure();
-    const mid = c.scrollLeft + c.clientWidth / 2;
-    let best = 0, bd = 1e9;
-    for (let i = 0; i < slots.length; i++) {
-      const dist = Math.abs(x0 + i * W - mid) / W, k = Math.round(Math.min(dist, 1.4) * 200) / 200;
-      if (dist < bd) { bd = dist; best = i; }
-      if (k === last[i]) continue;
-      last[i] = k;
-      const f = slots[i].firstChild.style;
-      f.transform = `translate3d(0,${k * 10}px,0) scale(${1 - k * 0.42})`;
-      f.opacity = 1 - k * 0.45;
+  // the "on" figure is full size. instant: no transition (first paint, and the jump between copies below)
+  const mark = (i, instant) => {
+    if (i !== abs) {
+      if (instant) c.classList.add("snap");
+      slots[abs]?.classList.remove("on"); slots[i].classList.add("on"); abs = i;
+      if (instant) { void c.offsetWidth; c.classList.remove("snap"); }
     }
-    abs = best;
-    const i = best % n;
-    if (i !== cur) { cur = i; $("#tName").textContent = pickable()[i].name; $("#tTag").textContent = persona(pickable()[i].id, "tag") || ""; [...$("#dots").children].forEach((d, j) => d.classList.toggle("on", j === i)); onChange(pickable()[i]); }
+    const t = i % n;
+    if (t !== cur) { cur = t; $("#tName").textContent = pickable()[t].name; $("#tTag").textContent = persona(pickable()[t].id, "tag") || ""; [...$("#dots").children].forEach((d, j) => d.classList.toggle("on", j === t)); onChange(pickable()[t]); }
   };
-  // Once the swipe has fully stopped on a copy, jump to the same tutor in the middle copy. The jump must look like nothing,
-  // so it never happens mid-swipe or mid-snap (that cut the motion short).
+  const track = () => {
+    raf = 0;
+    if (!c.isConnected) return; // the step was left before this frame (Back, or a fast test)
+    if (c.clientWidth !== seenW) measure();
+    mark(Math.max(0, Math.min(slots.length - 1, Math.round((c.scrollLeft + c.clientWidth / 2 - x0) / W))));
+  };
+  // Once the swipe has stopped on a copy and the figures have finished growing, jump to the same tutor in the middle copy.
+  // The jump must look like nothing, so never mid-swipe, mid-snap or mid-transition.
   const recentre = () => {
-    if (abs >= n && abs < 2 * n) return;
-    c.scrollLeft = centre(abs % n + n); paint(); // painted in the same frame as the jump, so nothing flickers
+    if (!c.isConnected || touching || (abs >= n && abs < 2 * n)) return;
+    const j = abs % n + n;
+    c.classList.add("snap");
+    c.scrollLeft = centre(j); slots[abs].classList.remove("on"); slots[j].classList.add("on"); abs = j;
+    void c.offsetWidth; c.classList.remove("snap");
   };
+  const later = ms => { clearTimeout(settle); settle = setTimeout(recentre, ms); };
   const go = (k, smooth = true) => c.scrollTo({ left: centre(Math.max(0, Math.min(slots.length - 1, k))), behavior: smooth ? "smooth" : "auto" });
-  // scrollend fires after momentum and snapping are done; where it doesn't exist (older Safari), wait for a quiet 300 ms
+  // scrollend fires after momentum and snapping are done; where it doesn't exist (older Safari), wait for a quiet moment
   const hasEnd = "onscrollend" in window;
-  c.addEventListener("scroll", () => { raf ||= requestAnimationFrame(paint); if (!hasEnd) { clearTimeout(settle); settle = setTimeout(recentre, 300); } }, { passive: true });
-  if (hasEnd) c.addEventListener("scrollend", recentre);
+  c.addEventListener("scroll", () => { raf ||= requestAnimationFrame(track); clearTimeout(settle); if (!hasEnd) later(500); }, { passive: true });
+  if (hasEnd) c.addEventListener("scrollend", () => later(400));
+  c.addEventListener("touchstart", () => { touching = true; }, { passive: true });
+  c.addEventListener("touchend", () => { touching = false; later(500); }, { passive: true });
+  c.addEventListener("touchcancel", () => { touching = false; later(500); }, { passive: true });
   slots.forEach((s, i) => s.onclick = () => go(i));
   c.tabIndex = 0; c.onkeydown = e => { if (e.key === "ArrowRight") go(abs + 1); if (e.key === "ArrowLeft") go(abs - 1); };
   const startI = Math.max(0, pickable().findIndex(x => x.id === startId));
-  requestAnimationFrame(() => { go(n + startI, false); paint(); });
+  mark(n + startI, true); // before the first paint, so the chosen tutor is never drawn small
+  requestAnimationFrame(() => { go(n + startI, false); });
   return { get: () => pickable()[Math.max(0, cur)] };
 }
 function viewTutor() {
