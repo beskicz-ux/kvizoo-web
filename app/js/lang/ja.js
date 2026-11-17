@@ -4,6 +4,7 @@ export default {
  "todayNot": "今日も少し学ぼう。",
  "doneOf": "{y}個中{x}個完了",
  "brand": "Kvizoo",
+ "docTitle": "スライドから試験対策 · Kvizoo",
  "next": "続ける",
  "back": "戻る",
  "close": "閉じる",

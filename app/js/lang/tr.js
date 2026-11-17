@@ -4,6 +4,7 @@ export default {
  "todayNot": "Bugün biraz çalış.",
  "doneOf": "{y} içinden {x} tamam",
  "brand": "Kvizoo",
+ "docTitle": "Slaytlarından sınava hazırlık · Kvizoo",
  "next": "Devam",
  "back": "Geri",
  "close": "Kapat",

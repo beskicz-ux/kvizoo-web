@@ -4,6 +4,7 @@ export default {
  "todayNot": "आज थोड़ा पढ़ लो।",
  "doneOf": "{y} में से {x} पूरे",
  "brand": "Kvizoo",
+ "docTitle": "तुम्हारी स्लाइड से एग्ज़ाम की तैयारी · Kvizoo",
  "next": "आगे बढ़ो",
  "back": "वापस",
  "close": "बंद करो",

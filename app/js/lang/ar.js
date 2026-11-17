@@ -4,6 +4,7 @@ export default {
  "todayNot": "تعلّم قليلاً اليوم.",
  "doneOf": "{x} من {y} مكتملة",
  "brand": "Kvizoo",
+ "docTitle": "استعد لامتحانك من شرائحك · Kvizoo",
  "next": "تابع",
  "back": "رجوع",
  "close": "إغلاق",

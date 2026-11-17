@@ -4,6 +4,7 @@ export default {
  "todayNot": "Belajar sedikit hari ini.",
  "doneOf": "{x} dari {y} selesai",
  "brand": "Kvizoo",
+ "docTitle": "Persiapan ujian dari slide-mu · Kvizoo",
  "next": "Lanjut",
  "back": "Kembali",
  "close": "Tutup",

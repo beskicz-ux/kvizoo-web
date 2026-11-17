@@ -19,6 +19,7 @@ export async function setLang(l) {
   store.set("lang", l);
   document.documentElement.lang = l;
   document.documentElement.dir = RTL.includes(l) ? "rtl" : "ltr";
+  document.title = t("docTitle"); // the tab follows the student's language; index.html has the Czech one for crawlers without JS
 }
 const dict = () => D[lang()] || D.en;
 // For tests/i18n.test.mjs: every loaded dictionary (cs and en always, the others after loadLang).
@@ -56,6 +57,7 @@ export const fmtShortMonth = d => { try { return d.toLocaleDateString(lang(), { 
 
 D.cs = {
     brand: "Kvizoo",
+    docTitle: "Příprava na zkoušku ze tvých slidů · Kvizoo",
     next: "Pokračovat",
     back: "Zpět",
     close: "Zavřít",
@@ -542,6 +544,7 @@ D.cs = {
   };
 D.en = {
     brand: "Kvizoo",
+    docTitle: "Exam prep from your slides · Kvizoo",
     next: "Continue",
     back: "Back",
     close: "Close",

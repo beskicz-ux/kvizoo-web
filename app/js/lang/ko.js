@@ -4,6 +4,7 @@ export default {
  "todayNot": "오늘 조금 공부해요.",
  "doneOf": "{y}개 중 {x}개 완료",
  "brand": "Kvizoo",
+ "docTitle": "내 슬라이드로 시험 대비 · Kvizoo",
  "next": "계속",
  "back": "뒤로",
  "close": "닫기",

@@ -4,6 +4,7 @@ export default {
  "todayNot": "Dnes sa ešte uč.",
  "doneOf": "{x} z {y} hotovo",
  "brand": "Kvizoo",
+ "docTitle": "Príprava na skúšku z tvojich slajdov · Kvizoo",
  "next": "Pokračovať",
  "back": "Späť",
  "close": "Zavrieť",

@@ -4,6 +4,7 @@ export default {
  "todayNot": "Poucz się dziś trochę.",
  "doneOf": "{x} z {y} gotowe",
  "brand": "Kvizoo",
+ "docTitle": "Przygotowanie do egzaminu z Twoich slajdów · Kvizoo",
  "next": "Dalej",
  "back": "Wstecz",
  "close": "Zamknij",

@@ -4,6 +4,7 @@ export default {
  "todayNot": "Позанимайся сегодня немного.",
  "doneOf": "{x} из {y} готово",
  "brand": "Kvizoo",
+ "docTitle": "Подготовка к экзамену по твоим слайдам · Kvizoo",
  "next": "Дальше",
  "back": "Назад",
  "close": "Закрыть",

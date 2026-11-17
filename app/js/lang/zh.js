@@ -4,6 +4,7 @@ export default {
  "todayNot": "今天学一点吧。",
  "doneOf": "已完成 {x}/{y}",
  "brand": "Kvizoo",
+ "docTitle": "用你的幻灯片备考 · Kvizoo",
  "next": "继续",
  "back": "返回",
  "close": "关闭",

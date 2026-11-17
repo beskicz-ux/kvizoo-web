@@ -4,6 +4,7 @@ export default {
  "todayNot": "আজ একটু পড়ো।",
  "doneOf": "{y}টির মধ্যে {x}টি শেষ",
  "brand": "Kvizoo",
+ "docTitle": "তোমার স্লাইড থেকে পরীক্ষার প্রস্তুতি · Kvizoo",
  "next": "এগিয়ে যাও",
  "back": "ফিরে যাও",
  "close": "বন্ধ করো",

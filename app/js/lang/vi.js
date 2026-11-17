@@ -4,6 +4,7 @@ export default {
  "todayNot": "Hôm nay học một chút nhé.",
  "doneOf": "Xong {x}/{y}",
  "brand": "Kvizoo",
+ "docTitle": "Ôn thi từ slide của bạn · Kvizoo",
  "next": "Tiếp tục",
  "back": "Quay lại",
  "close": "Đóng",
