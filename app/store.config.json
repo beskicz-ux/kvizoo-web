@@ -5,7 +5,7 @@
     "name": "Marek Malecha",
     "id": "11763850",
     "address": "Příčná 2207, 347 01 Tachov",
-    "email": "beskicz@gmail.com"
+    "email": "hello@kvizoo.com"
   },
   "currency": "Kč",
   "plans": [
@@ -29,11 +29,179 @@
           "A plan built around your test date",
           "Progress on all your devices",
           "Cancel anytime, it runs to the end of the month"
+        ],
+        "es": [
+          "300 diapositivas al mes para cursos nuevos",
+          "Tarjetas, cuestionarios, completar huecos y unir parejas",
+          "Un plan según la fecha de tu examen",
+          "Tu progreso en todos tus dispositivos",
+          "Cancela cuando quieras; sigue activo hasta fin de mes"
+        ],
+        "zh": [
+          "每月 300 张幻灯片，用于新课程",
+          "闪卡、测验、填空和配对",
+          "围绕你的考试日期制定的计划",
+          "所有设备同步进度",
+          "随时取消，用到月底"
+        ],
+        "hi": [
+          "नए कोर्सों के लिए हर महीने 300 स्लाइड",
+          "फ़्लैशकार्ड, क्विज़, खाली जगह भरो और मिलान",
+          "तुम्हारी टेस्ट की तारीख के हिसाब से बना प्लान",
+          "तुम्हारे सभी डिवाइस पर प्रगति",
+          "कभी भी कैंसिल करो, महीने के अंत तक चलता है"
+        ],
+        "ar": [
+          "300 شريحة شهريًا للكورسات الجديدة",
+          "بطاقات تعليمية واختبارات وملء فراغات ومطابقة",
+          "خطة مبنية حول موعد اختبارك",
+          "تقدمك على كل أجهزتك",
+          "ألغِ في أي وقت، ويبقى فعّالًا حتى نهاية الشهر"
+        ],
+        "pt": [
+          "300 slides por mês para cursos novos",
+          "Flashcards, quizzes, completar lacunas e unir pares",
+          "Um plano montado para a data da sua prova",
+          "Progresso em todos os seus dispositivos",
+          "Cancele quando quiser; vale até o fim do mês"
+        ],
+        "fr": [
+          "300 slides par mois pour de nouveaux cours",
+          "Flashcards, quiz, textes à trous et associations",
+          "Un plan construit autour de la date de ton examen",
+          "Ta progression sur tous tes appareils",
+          "Résiliable à tout moment, actif jusqu'à la fin du mois"
+        ],
+        "de": [
+          "300 Folien pro Monat für neue Kurse",
+          "Karteikarten, Quizze, Lückentexte und Zuordnen",
+          "Ein Plan rund um dein Prüfungsdatum",
+          "Fortschritt auf all deinen Geräten",
+          "Jederzeit kündbar, läuft bis Monatsende"
+        ],
+        "ru": [
+          "300 слайдов в месяц на новые курсы",
+          "Карточки, тесты, пропуски и пары",
+          "План под дату твоего экзамена",
+          "Прогресс на всех твоих устройствах",
+          "Отмена в любой момент, действует до конца месяца"
+        ],
+        "ja": [
+          "新しいコースに月300スライド",
+          "フラッシュカード、クイズ、穴埋め、ペア合わせ",
+          "テスト日に合わせた学習計画",
+          "すべての端末で進捗を同期",
+          "いつでも解約OK、月末まで使えます"
+        ],
+        "bn": [
+          "নতুন কোর্সের জন্য মাসে ৩০০টি স্লাইড",
+          "ফ্ল্যাশকার্ড, কুইজ, শূন্যস্থান পূরণ ও জোড়া মেলানো",
+          "তোমার পরীক্ষার তারিখ ধরে বানানো পরিকল্পনা",
+          "তোমার সব ডিভাইসে অগ্রগতি",
+          "যেকোনো সময় বাতিল করো, মাসের শেষ পর্যন্ত চলবে"
+        ],
+        "id": [
+          "300 slide sebulan untuk kursus baru",
+          "Kartu belajar, kuis, isian, dan pencocokan",
+          "Rencana belajar sesuai tanggal ujianmu",
+          "Kemajuan di semua perangkatmu",
+          "Batalkan kapan saja, tetap aktif sampai akhir bulan"
+        ],
+        "tr": [
+          "Yeni kurslar için ayda 300 slayt",
+          "Bilgi kartları, testler, boşluk doldurma ve eşleştirme",
+          "Sınav tarihine göre hazırlanan plan",
+          "İlerlemen tüm cihazlarında",
+          "İstediğin zaman iptal et, ay sonuna kadar sürer"
+        ],
+        "ko": [
+          "새 코스용 슬라이드 매달 300장",
+          "플래시카드, 퀴즈, 빈칸 채우기, 짝 맞추기",
+          "시험 날짜에 맞춘 학습 계획",
+          "모든 기기에서 진도 동기화",
+          "언제든 해지, 그달 말까지 이용 가능"
+        ],
+        "vi": [
+          "300 slide mỗi tháng cho khóa học mới",
+          "Thẻ ghi nhớ, bài kiểm tra, điền chỗ trống và ghép cặp",
+          "Kế hoạch theo ngày thi của bạn",
+          "Tiến độ trên mọi thiết bị",
+          "Hủy bất cứ lúc nào, dùng đến hết tháng"
+        ],
+        "it": [
+          "300 slide al mese per nuovi corsi",
+          "Flashcard, quiz, completamenti e abbinamenti",
+          "Un piano costruito sulla data del tuo esame",
+          "Progressi su tutti i tuoi dispositivi",
+          "Disdici quando vuoi, resta attivo fino a fine mese"
+        ],
+        "pl": [
+          "300 slajdów miesięcznie na nowe kursy",
+          "Fiszki, quizy, uzupełnianie luk i dopasowywanie",
+          "Plan ułożony pod datę egzaminu",
+          "Postęp na wszystkich urządzeniach",
+          "Anulujesz w każdej chwili, działa do końca miesiąca"
+        ],
+        "uk": [
+          "300 слайдів на місяць для нових курсів",
+          "Картки, квізи, пропущені слова та пари",
+          "План під дату твого тесту",
+          "Прогрес на всіх пристроях",
+          "Скасовуй будь-коли, діє до кінця місяця"
+        ],
+        "sk": [
+          "300 slajdov mesačne na nové kurzy",
+          "Kartičky, kvízy, dopĺňanie a spájanie",
+          "Plán podľa dátumu testu",
+          "Postup na všetkých zariadeniach",
+          "Zrušíš kedykoľvek, platí do konca mesiaca"
         ]
       },
       "default": true,
-      "badge": { "cs": "Na tuhle zkoušku", "en": "For this exam" },
-      "pitch": { "cs": "Tenhle předmět a ještě kousek dalšího.", "en": "This subject, with room to spare." }
+      "badge": {
+        "cs": "Na tuhle zkoušku",
+        "en": "For this exam",
+        "es": "Para este examen",
+        "zh": "备战这次考试",
+        "hi": "इस एग्ज़ाम के लिए",
+        "ar": "لهذا الامتحان",
+        "pt": "Para esta prova",
+        "fr": "Pour cet examen",
+        "de": "Für diese Prüfung",
+        "ru": "Под этот экзамен",
+        "ja": "この試験向け",
+        "bn": "এই পরীক্ষার জন্য",
+        "id": "Untuk ujian ini",
+        "tr": "Bu sınav için",
+        "ko": "이번 시험용",
+        "vi": "Cho kỳ thi này",
+        "it": "Per questo esame",
+        "pl": "Na ten egzamin",
+        "uk": "Для цього іспиту",
+        "sk": "Na túto skúšku"
+      },
+      "pitch": {
+        "cs": "Tenhle předmět a ještě kousek dalšího.",
+        "en": "This subject, with room to spare.",
+        "es": "Esta asignatura, con margen de sobra.",
+        "zh": "够这门科目用，还有余量。",
+        "hi": "यह विषय, और थोड़ी अतिरिक्त जगह भी।",
+        "ar": "لهذه المادة، مع مساحة إضافية.",
+        "pt": "Esta matéria, com folga.",
+        "fr": "Cette matière, avec de la marge.",
+        "de": "Dieses Fach, mit Luft nach oben.",
+        "ru": "Этот предмет — и ещё с запасом.",
+        "ja": "この科目を、余裕をもって。",
+        "bn": "এই বিষয়টা, সঙ্গে বাড়তি জায়গাও।",
+        "id": "Cukup untuk mata kuliah ini, bahkan lebih.",
+        "tr": "Bu ders için fazlasıyla yeterli.",
+        "ko": "이 과목을 넉넉하게.",
+        "vi": "Đủ cho môn này, còn dư nữa.",
+        "it": "Questa materia, con spazio in più.",
+        "pl": "Ten przedmiot, z zapasem.",
+        "uk": "Цей предмет, ще й із запасом.",
+        "sk": "Tento predmet a ešte kúsok ďalšieho."
+      }
     },
     {
       "id": "max",
@@ -53,10 +221,160 @@
           "Every subject of your term at once",
           "Everything in PRO",
           "Cancel anytime, it runs to the end of the month"
+        ],
+        "es": [
+          "1.500 diapositivas al mes, 5× más que PRO",
+          "Todas las asignaturas del semestre a la vez",
+          "Todo lo de PRO",
+          "Cancela cuando quieras; sigue activo hasta fin de mes"
+        ],
+        "zh": [
+          "每月 1,500 张幻灯片，是 PRO 的 5 倍",
+          "一次搞定这学期的所有科目",
+          "包含 PRO 的全部功能",
+          "随时取消，用到月底"
+        ],
+        "hi": [
+          "हर महीने 1,500 स्लाइड, PRO से 5×",
+          "सेमेस्टर के सारे विषय एक साथ",
+          "PRO की हर चीज़",
+          "कभी भी कैंसिल करो, महीने के अंत तक चलता है"
+        ],
+        "ar": [
+          "1500 شريحة شهريًا، 5 أضعاف PRO",
+          "كل مواد فصلك الدراسي دفعة واحدة",
+          "كل ما في PRO",
+          "ألغِ في أي وقت، ويبقى فعّالًا حتى نهاية الشهر"
+        ],
+        "pt": [
+          "1.500 slides por mês, 5× o PRO",
+          "Todas as matérias do semestre de uma vez",
+          "Tudo do PRO",
+          "Cancele quando quiser; vale até o fim do mês"
+        ],
+        "fr": [
+          "1 500 slides par mois, 5× plus que PRO",
+          "Toutes les matières de ton semestre d'un coup",
+          "Tout ce qu'inclut PRO",
+          "Résiliable à tout moment, actif jusqu'à la fin du mois"
+        ],
+        "de": [
+          "1.500 Folien pro Monat, 5× so viele wie PRO",
+          "Alle Fächer deines Semesters auf einmal",
+          "Alles aus PRO",
+          "Jederzeit kündbar, läuft bis Monatsende"
+        ],
+        "ru": [
+          "1 500 слайдов в месяц, в 5 раз больше PRO",
+          "Все предметы семестра сразу",
+          "Всё, что есть в PRO",
+          "Отмена в любой момент, действует до конца месяца"
+        ],
+        "ja": [
+          "月1,500スライド、PROの5倍",
+          "学期のすべての科目を一度に",
+          "PROのすべての機能",
+          "いつでも解約OK、月末まで使えます"
+        ],
+        "bn": [
+          "মাসে ১,৫০০টি স্লাইড, PRO-র ৫×",
+          "তোমার সেমিস্টারের সব বিষয় একসাথে",
+          "PRO-র সবকিছু",
+          "যেকোনো সময় বাতিল করো, মাসের শেষ পর্যন্ত চলবে"
+        ],
+        "id": [
+          "1.500 slide sebulan, 5× PRO",
+          "Semua mata kuliah semestermu sekaligus",
+          "Semua fitur PRO",
+          "Batalkan kapan saja, tetap aktif sampai akhir bulan"
+        ],
+        "tr": [
+          "Ayda 1.500 slayt, PRO'nun 5 katı",
+          "Dönemindeki tüm dersler aynı anda",
+          "PRO'daki her şey",
+          "İstediğin zaman iptal et, ay sonuna kadar sürer"
+        ],
+        "ko": [
+          "매달 슬라이드 1,500장, PRO의 5배",
+          "이번 학기 모든 과목을 한 번에",
+          "PRO의 모든 기능",
+          "언제든 해지, 그달 말까지 이용 가능"
+        ],
+        "vi": [
+          "1.500 slide mỗi tháng, gấp 5 lần PRO",
+          "Mọi môn trong học kỳ cùng lúc",
+          "Mọi thứ trong PRO",
+          "Hủy bất cứ lúc nào, dùng đến hết tháng"
+        ],
+        "it": [
+          "1.500 slide al mese, 5× PRO",
+          "Tutte le materie del semestre insieme",
+          "Tutto ciò che c'è in PRO",
+          "Disdici quando vuoi, resta attivo fino a fine mese"
+        ],
+        "pl": [
+          "1500 slajdów miesięcznie, 5× więcej niż PRO",
+          "Wszystkie przedmioty z semestru naraz",
+          "Wszystko z PRO",
+          "Anulujesz w każdej chwili, działa do końca miesiąca"
+        ],
+        "uk": [
+          "1 500 слайдів на місяць, 5× більше, ніж PRO",
+          "Усі предмети семестру одразу",
+          "Усе з PRO",
+          "Скасовуй будь-коли, діє до кінця місяця"
+        ],
+        "sk": [
+          "1 500 slajdov mesačne, 5× viac ako PRO",
+          "Všetky predmety semestra naraz",
+          "Všetko z PRO",
+          "Zrušíš kedykoľvek, platí do konca mesiaca"
         ]
       },
-      "badge": { "cs": "Nejvýhodnější", "en": "Best value" },
-      "pitch": { "cs": "5× víc slidů za necelý dvojnásobek.", "en": "5× the slides for twice the price." }
+      "badge": {
+        "cs": "Nejvýhodnější",
+        "en": "Best value",
+        "es": "Más rentable",
+        "zh": "最划算",
+        "hi": "सबसे फ़ायदेमंद",
+        "ar": "أفضل قيمة",
+        "pt": "Mais vantajoso",
+        "fr": "Meilleure offre",
+        "de": "Bestes Angebot",
+        "ru": "Выгоднее всего",
+        "ja": "いちばんお得",
+        "bn": "সবচেয়ে সাশ্রয়ী",
+        "id": "Paling hemat",
+        "tr": "En avantajlı",
+        "ko": "최고의 가성비",
+        "vi": "Tiết kiệm nhất",
+        "it": "Più conveniente",
+        "pl": "Najkorzystniejszy",
+        "uk": "Найвигідніше",
+        "sk": "Najvýhodnejšie"
+      },
+      "pitch": {
+        "cs": "5× víc slidů za necelý dvojnásobek.",
+        "en": "5× the slides for twice the price.",
+        "es": "5× más diapositivas por el doble de precio.",
+        "zh": "两倍的价格，5 倍的幻灯片。",
+        "hi": "दोगुनी कीमत में 5× स्लाइड।",
+        "ar": "5 أضعاف الشرائح بضعف السعر.",
+        "pt": "5× mais slides pelo dobro do preço.",
+        "fr": "5× plus de slides pour deux fois le prix.",
+        "de": "5× so viele Folien zum doppelten Preis.",
+        "ru": "В 5 раз больше слайдов за двойную цену.",
+        "ja": "2倍の料金で、スライドは5倍。",
+        "bn": "দ্বিগুণ দামে ৫× স্লাইড।",
+        "id": "5× lebih banyak slide, harganya dua kali lipat.",
+        "tr": "İki kat fiyata 5 kat slayt.",
+        "ko": "두 배 가격에 슬라이드는 5배.",
+        "vi": "Gấp 5 lần slide với giá gấp đôi.",
+        "it": "5× le slide per il doppio del prezzo.",
+        "pl": "5× więcej slajdów za podwójną cenę.",
+        "uk": "5× більше слайдів, а ціна навіть не вдвічі вища.",
+        "sk": "5× viac slajdov za necelú dvojnásobnú cenu."
+      }
     }
   ]
 }

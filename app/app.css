@@ -1208,6 +1208,14 @@ body.landing .app{max-width:1040px}
 .ld-copy{display:flex; flex-direction:column; align-items:center; width:100%; max-width:520px}
 .ld-h{font:800 clamp(30px, 8.4vw, 52px)/1.06 var(--head); letter-spacing:-.02em; margin:0; max-width:16ch; text-wrap:balance}
 .ld-h em{font-style:normal; color:var(--accent)}
+/* Chinese, Japanese and Korean: a character is about 2ch wide, so the 16ch cap split the landing headline mid-word
+   ("スライドか / ら、"). Each half of the headline keeps to its own line when it fits; the Japanese one breaks only at
+   the zero-width spaces between its phrases (ja.js landTitle1/2), and never runs past the column (.ld clips it).
+   Korean text breaks between words, not syllables. */
+:is(:lang(ja), :lang(zh), :lang(ko)) .ld-h{max-width:none; overflow-wrap:anywhere}
+:is(:lang(ja), :lang(zh), :lang(ko)) .ld-h em{display:inline-block}
+:lang(ja) .ld-h{word-break:keep-all}
+html:lang(ko){word-break:keep-all; overflow-wrap:break-word}
 .ld-sub{color:var(--muted); font-size:17px; line-height:1.45; margin:12px 0 0; max-width:36ch; text-wrap:balance}
 .ld-cta{display:flex; flex-direction:column; gap:12px; width:min(100%, 360px); margin-top:24px}
 .ld-b{display:flex; align-items:center; justify-content:center; gap:10px; min-height:54px; padding:0 22px; border-radius:16px; box-sizing:border-box; cursor:pointer;

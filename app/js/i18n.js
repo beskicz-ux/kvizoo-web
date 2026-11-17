@@ -21,18 +21,21 @@ export async function setLang(l) {
   document.documentElement.dir = RTL.includes(l) ? "rtl" : "ltr";
 }
 const dict = () => D[lang()] || D.en;
+// For tests/i18n.test.mjs: every loaded dictionary (cs and en always, the others after loadLang).
+export const dicts = D;
+// A text missing or blank in the student's language falls back to English (Czech keeps its own), then Czech, never a blank.
 export const t = (k, vars) => {
   const l = lang();
-  let s = dict()[k] ?? (l === "cs" ? undefined : D.en[k]) ?? D.cs[k] ?? k;
+  let s = dict()[k] || (l === "cs" ? undefined : D.en[k]) || D.cs[k] || k;
   if (vars) s = s.replace(/\{(\w+)\}/g, (m, v) => vars[v] ?? m);
   return s;
 };
 export const errText = code => dict()["err" + code] || (lang() !== "cs" && D.en["err" + code]) || dict().errserver || D.cs.errserver;
 // Plurals by the language's own rules (Intl.PluralRules), # is the number.
 export function pl(key, n) {
-  const forms = dict()["pl_" + key] || D.en["pl_" + key];
+  const forms = dict()["pl_" + key] || D.en["pl_" + key] || D.cs["pl_" + key] || { other: "#" };
   let cat = "other"; try { cat = new Intl.PluralRules(lang()).select(n); } catch (e) { }
-  return (forms[cat] || forms.other).replace("#", n.toLocaleString(lang()));
+  return (forms[cat] || forms.other || "#").replace("#", n.toLocaleString(lang()));
 }
 export const days = n => pl("days", n);
 export const pages = n => pl("pages", n);
