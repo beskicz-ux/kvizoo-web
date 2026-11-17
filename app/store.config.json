@@ -1,0 +1,62 @@
+{
+  "testMode": true,
+  "google": { "clientId": "190146205617-7s1vsvt3qj2fusuh8t8j8vl07vggpo73.apps.googleusercontent.com" },
+  "operator": {
+    "name": "Marek Malecha",
+    "id": "11763850",
+    "address": "Příčná 2207, 347 01 Tachov",
+    "email": "beskicz@gmail.com"
+  },
+  "currency": "Kč",
+  "plans": [
+    {
+      "id": "pro",
+      "slides": 300,
+      "price": { "czk": 287, "usd": 13.80 },
+      "interval": "month",
+      "name": { "cs": "PRO", "en": "PRO" },
+      "features": {
+        "cs": [
+          "300 slidů měsíčně na nové kurzy",
+          "Kartičky, kvízy, doplňování a spojování",
+          "Plán podle data testu",
+          "Pokrok na všech zařízeních",
+          "Zrušíš kdykoli, platí do konce měsíce"
+        ],
+        "en": [
+          "300 slides a month for new courses",
+          "Flashcards, quizzes, gap fills and matching",
+          "A plan built around your test date",
+          "Progress on all your devices",
+          "Cancel anytime, it runs to the end of the month"
+        ]
+      },
+      "default": true,
+      "badge": { "cs": "Na tuhle zkoušku", "en": "For this exam" },
+      "pitch": { "cs": "Tenhle předmět a ještě kousek dalšího.", "en": "This subject, with room to spare." }
+    },
+    {
+      "id": "max",
+      "slides": 1500,
+      "price": { "czk": 486, "usd": 27.60 },
+      "interval": "month",
+      "name": { "cs": "MAX", "en": "MAX" },
+      "features": {
+        "cs": [
+          "1 500 slidů měsíčně, 5× víc než PRO",
+          "Všechny předměty semestru najednou",
+          "Všechno z PRO",
+          "Zrušíš kdykoli, platí do konce měsíce"
+        ],
+        "en": [
+          "1,500 slides a month, 5× PRO",
+          "Every subject of your term at once",
+          "Everything in PRO",
+          "Cancel anytime, it runs to the end of the month"
+        ]
+      },
+      "badge": { "cs": "Nejvýhodnější", "en": "Best value" },
+      "pitch": { "cs": "5× víc slidů za necelý dvojnásobek.", "en": "5× the slides for twice the price." }
+    }
+  ]
+}

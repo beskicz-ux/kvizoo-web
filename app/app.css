@@ -1,0 +1,1480 @@
+/* Penny courses redesign (design/DESIGN.md, mockup3, settings, mockup2). Loaded after base.css and pc.css. */
+:root{
+  --bg:#FAF6EF; --surface:#fff; --line:#E8E0D3; --text:#1F2330; --muted:#6F6A62;
+  --accent:#E9773A; --accent-ink:#B4521D; --accent-soft:#FBE3D3; --done:#2E7D74; --star:#F2B630; --wrong:#D2443A;
+  --lockink:#A39A8C; --ringbg:#00000014; --lockbg:#ECE6DC; --lockedge:#D6CCBC; --dline:#00000014; --dtext:#5F574B;
+  --head:"Bricolage Grotesque", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font:"Figtree", "Segoe UI", system-ui, -apple-system, sans-serif;
+  /* base.css tokens follow the new palette */
+  --ink:var(--text); --ink-strong:var(--text); --wolf:var(--muted); --card:var(--surface); --paper:var(--surface); --paper-ink:var(--text); --fill:#F2ECE2; --hare:#B9B0A3;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme=light]){
+    --bg:#141821; --surface:#1D2230; --line:#2C3343; --text:#F3EEE6; --muted:#9BA3B4;
+    --accent:#F39A62; --accent-ink:#FFC29B; --accent-soft:#3A2A22; --done:#5FBFB2;
+    --lockink:#6A7286; --ringbg:#ffffff1a; --lockbg:#2A3040; --lockedge:#1B202C; --dline:#ffffff1a; --dtext:#C8CDD8;
+    --fill:#232938; --hare:#5A6274; color-scheme:dark;
+  }
+}
+:root[data-theme=dark]{
+  --bg:#141821; --surface:#1D2230; --line:#2C3343; --text:#F3EEE6; --muted:#9BA3B4;
+  --accent:#F39A62; --accent-ink:#FFC29B; --accent-soft:#3A2A22; --done:#5FBFB2;
+  --lockink:#6A7286; --ringbg:#ffffff1a; --lockbg:#2A3040; --lockedge:#1B202C; --dline:#ffffff1a; --dtext:#C8CDD8;
+  --fill:#232938; --hare:#5A6274; color-scheme:dark;
+  --green-soft:#1f3a12; --blue-soft:#10303f; --red-soft:#3d1b1d; --yellow-soft:#3a3214; --purple-soft:#2e2140;
+  --green-ink:#79d634; --blue-ink:#49c0f8; --red-ink:#ff7878;
+}
+:root[data-theme=light]{
+  --green-soft:#d7ffb8; --blue-soft:#ddf4ff; --red-soft:#ffdfe0; --yellow-soft:#fff5d3; --purple-soft:#f5e8ff;
+  --green-ink:#58a700; --blue-ink:#1899d6; --red-ink:#ea2b2b;
+}
+body{background:var(--bg); color:var(--text); font-family:var(--font); font-weight:500}
+h1,h2,h3,.ob-h,.title{font-family:var(--head)}
+.btn{--c:var(--accent); --lip:var(--accent-ink); font-family:var(--head); border-radius:999px}
+.btn.ok{--c:var(--done); --lip:color-mix(in srgb, var(--done) 70%, #000)}
+.app{max-width:560px}
+body.has-tabs .app{padding-bottom:calc(100px + env(safe-area-inset-bottom))}
+body.plain .app{padding-bottom:0}
+.empty{text-align:center; color:var(--muted); padding:40vh 0 0}
+[dir=rtl] .ch, [dir=rtl] .ob-bk svg, [dir=rtl] .set-x + h1 ~ svg{transform:scaleX(-1)}
+
+/* ---------- buttons ---------- */
+.btn-p{display:flex; align-items:center; justify-content:center; width:100%; min-height:56px; border:0; border-radius:999px; background:var(--accent); color:#fff;
+  font:800 17px var(--head); text-decoration:none; cursor:pointer; padding:0 20px; box-sizing:border-box; transition:transform .12s, opacity .12s}
+.btn-p:active{transform:scale(.98)}
+.btn-p[disabled]{opacity:.45; pointer-events:none}
+.btn-p + .btn-p{margin-top:10px}
+.btn-t{display:flex; align-items:center; justify-content:center; gap:6px; width:100%; min-height:48px; border:0; background:none; color:var(--accent-ink); font:700 15px var(--font); text-decoration:none; cursor:pointer}
+.btn-t.sm{width:auto; min-height:36px; font-size:14px}
+.btn-t svg{width:18px; height:18px}
+
+/* ---------- onboarding frame ---------- */
+.ob{display:flex; flex-direction:column; min-height:100dvh; padding:max(12px, env(safe-area-inset-top)) 0 0; box-sizing:border-box}
+.ob-hd{display:flex; align-items:center; gap:12px; min-height:48px}
+.ob-bk{width:44px; height:44px; flex:none; border:0; background:none; color:var(--text); display:grid; place-items:center; margin-inline-start:-10px; cursor:pointer; border-radius:12px}
+.ob-bk svg{width:26px; height:26px}
+.ob-bkpad{width:34px; flex:none}
+.ob-segs{flex:1; display:flex; gap:6px}
+.ob-segs i{flex:1; height:6px; border-radius:6px; background:var(--line)}
+.ob-segs i.on{background:var(--accent)}
+.ob-h{font:800 30px/1.12 var(--head); letter-spacing:-.01em; margin:22px 0 0; color:var(--text)}
+.ob-sub{color:var(--muted); font-size:16px; line-height:1.5; margin:10px 0 0}
+.ob-body{flex:1; display:flex; flex-direction:column; padding:18px 0 12px}
+.ob-foot{position:sticky; bottom:0; padding:12px 0 calc(16px + env(safe-area-inset-bottom)); background:linear-gradient(transparent, var(--bg) 18%); z-index:5}
+.ob-note{color:var(--muted); font-size:14px; margin:10px 0 0}
+.ob-note.c{text-align:center}
+.ob-note a,.ob-legal a{color:var(--accent-ink); font-weight:700}
+.ob-err{color:var(--wrong); font-weight:700; font-size:15px; margin:10px 0 0}
+.ob-legal{text-align:center; font-size:13px; color:var(--muted); margin:8px 0 0}
+.ob-mid{flex:1; display:flex; flex-direction:column; justify-content:center}
+.ob-center{align-items:center; justify-content:center; text-align:center; gap:4px}
+.ob-center .ham{width:150px; height:150px}
+.ob-center .ob-foot{width:100%}
+
+/* welcome */
+.ob-top{display:flex; justify-content:flex-end; align-items:center; gap:10px; min-height:48px}
+.ob-lang{display:flex; align-items:center; gap:6px; border:1px solid var(--line); background:var(--surface); color:var(--text); border-radius:999px; padding:7px 12px; font:700 14px var(--font); cursor:pointer}
+.ob-lang svg{width:18px; height:18px}
+.ob-wbody{flex:1; display:flex; flex-direction:column; justify-content:center; padding:10px 0 20px}
+.ob-hero{width:150px; margin:0 0 18px}
+.ob-hero .ham{width:150px; height:150px; display:block}
+.ob-display{font:800 40px/1.05 var(--head); letter-spacing:-.02em; margin:0}
+.ob-display em{font-style:normal; color:var(--accent)}
+.ob-chips{display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin-top:22px}
+.ob-chips span{background:var(--surface); border:1px solid var(--line); border-radius:999px; padding:7px 13px; font:700 14px var(--font)}
+.ob-chips i{font-style:normal; color:var(--muted)}
+
+/* files */
+.ob-file{display:flex; align-items:center; gap:12px; background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:12px 12px 12px 14px; margin-bottom:10px}
+.ob-file .t{flex:1; min-width:0}
+.ob-file b{display:block; font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.ob-file .t span{color:var(--muted); font-size:14px}
+.ob-fk{flex:none; width:44px; height:44px; border-radius:12px; display:grid; place-items:center; font:800 11px var(--head); color:#fff; background:#D2443A}
+.ob-fk.pptx{background:#E07A12}
+.ob-fk.doc{background:#2B6CD4}
+.ob-fk.txt{background:#5E6B7A}
+.ob-x{width:36px; height:36px; border:0; background:none; color:var(--muted); display:grid; place-items:center; cursor:pointer; border-radius:10px}
+.ob-x svg{width:20px; height:20px}
+.ob-bar{height:6px; background:var(--line); border-radius:6px; overflow:hidden; margin-top:8px}
+.ob-bar i{display:block; height:100%; background:var(--accent); border-radius:6px; transition:width .2s}
+.ob-drop{display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; min-height:170px; border:2px dashed color-mix(in srgb, var(--accent) 45%, var(--line)); border-radius:20px;
+  background:color-mix(in srgb, var(--accent-soft) 45%, transparent); color:var(--accent-ink); cursor:pointer; text-align:center; padding:16px}
+.ob-drop svg{width:34px; height:34px}
+.ob-drop b{font:700 16px var(--font)}
+.ob-drop.more{min-height:64px; flex-direction:row}
+.ob-drop.more svg{width:22px; height:22px}
+.ob-drop.over{background:var(--accent-soft)}
+.ob-sum{display:flex; gap:10px; align-items:center; margin-top:14px; color:var(--muted); font-size:15px}
+.ob-sum svg{width:22px; height:22px; color:var(--accent); flex:none}
+.ob-sum b{color:var(--text)}
+.ob-sum.over{color:var(--wrong)} .ob-sum.over svg, .ob-sum.over b{color:var(--wrong)}
+
+/* date */
+.badge{display:inline-flex; align-items:center; gap:8px; padding:8px 16px; border-radius:999px; font:800 16px var(--head)}
+.badge svg{width:20px; height:20px}
+.badge.sprint{background:color-mix(in srgb, var(--wrong) 14%, var(--surface)); color:var(--wrong)}
+.badge.tempo{background:var(--accent-soft); color:var(--accent-ink)}
+.badge.chill{background:color-mix(in srgb, var(--done) 16%, var(--surface)); color:var(--done)}
+
+/* tutor carousel */
+.car{display:flex; overflow-x:auto; scroll-snap-type:x mandatory; scrollbar-width:none; padding:10px 0 0; margin:0 calc(-1 * var(--gutter)); outline:none}
+.car::-webkit-scrollbar{display:none}
+.slot{flex:0 0 180px; scroll-snap-align:center; display:flex; justify-content:center; cursor:pointer}
+.fig{transform-origin:50% 90%; will-change:transform, opacity}
+.fig svg{width:180px; height:auto; display:block}
+.car-floor{height:14px; width:170px; margin:-6px auto 0; border-radius:50%; background:radial-gradient(closest-side, #0000001f, transparent)}
+.tinfo{text-align:center; margin-top:14px}
+.tinfo b{display:block; font:800 30px var(--head)}
+.tinfo .ttag{display:block; margin-top:2px; color:var(--wolf); font-size:16px; font-weight:700; line-height:1.3}
+.tinfo .ttag:empty{display:none}
+.dots{display:flex; justify-content:center; gap:6px; margin-top:12px}
+.dots i{width:7px; height:7px; border-radius:9px; background:var(--line); transition:width .15s}
+.dots i.on{width:20px; background:var(--accent)}
+
+/* account and forms */
+.subrow .sq{flex:none; width:40px; height:40px; border-radius:12px; background:var(--accent); color:#fff; display:grid; place-items:center; font:800 17px var(--head)}
+.ob-form{display:flex; flex-direction:column}
+.ob-lbl{font:700 14px var(--font); margin:12px 0 6px}
+.ob-lbl span{color:var(--muted); font-weight:500}
+.ob-in{width:100%; box-sizing:border-box; min-height:52px; border:1.5px solid var(--line); border-radius:14px; background:var(--surface); color:var(--text); font:500 17px var(--font); padding:0 14px; outline:none}
+.ob-in:focus{border-color:var(--accent); box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent)}
+.ob-in.code{text-align:center; letter-spacing:.2em; text-transform:uppercase; font-weight:800; font-size:22px}
+.ob-form .ob-in + .ob-in{margin-top:10px}
+.ob-form .btn-p{margin-top:16px}
+.ob-two{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+.ob-two.one{grid-template-columns:1fr}
+/* Continue with Google: Google's own button, then "or" above the email form; once used, one line says which address */
+.ob-g{width:100%; margin-top:4px}
+.ob-gwrap{position:relative; height:56px; border-radius:999px; overflow:hidden}
+.ob-gwrap .ob-gface{min-height:56px; gap:10px; font-size:17px; pointer-events:none}
+.ob-gwrap:hover .ob-gface{border-color:var(--accent)}
+.ob-gwrap:active .ob-gface{transform:scale(.98)}
+.ob-gwrap:focus-within{outline:3px solid var(--accent); outline-offset:2px}
+.ob-gbtn{position:absolute; inset:-4px 0 auto 0; transform-origin:0 0; opacity:.01; color-scheme:light}
+.ob-or{display:flex; align-items:center; gap:12px; margin:16px 0 0; color:var(--muted); font-size:14px; font-weight:700}
+.ob-or::before,.ob-or::after{content:""; flex:1; height:1.5px; background:var(--line)}
+/* the new-account step: two buttons under the tutor (Google, or a new account), then short screens */
+.ob-foot .ob-g{margin:0 0 10px}
+.ob-foot .ob-note{margin:12px 0 0}
+.acc-art{align-items:center; min-height:150px}
+.acc-art > *{display:block; width:min(58%, 220px); height:auto}
+/* year of birth: a field that opens a sheet with a wheel of years; the wheel's middle row is the pick */
+.ob-pick{display:flex; align-items:center; justify-content:space-between; gap:10px; text-align:start; cursor:pointer; font-variant-numeric:tabular-nums}
+.ob-pick.empty span{color:var(--muted)}
+.ob-pick svg{width:22px; height:22px; flex:none; color:var(--muted)}
+.sh .wheel{margin:6px 0 14px}
+.wheel{--pad:calc((var(--rows, 3) - 1) / 2 * 44px); position:relative; height:calc(var(--rows, 3) * 44px); border:1.5px solid var(--line); border-radius:14px; background:var(--surface); overflow:hidden}
+.wheel:before{content:""; position:absolute; inset:var(--pad) 8px; border-radius:10px; background:var(--accent-soft); pointer-events:none}
+.wheel:has(.wh-list:focus-visible){border-color:var(--accent); box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent)}
+.wh-list{position:relative; height:100%; overflow-y:auto; overscroll-behavior:contain; scroll-snap-type:y mandatory; scrollbar-width:none; outline:none;
+  -webkit-mask-image:linear-gradient(transparent, #000 38%, #000 62%, transparent); mask-image:linear-gradient(transparent, #000 38%, #000 62%, transparent)}
+.wh-list::-webkit-scrollbar{display:none}
+.wh-pad{display:block; height:var(--pad)}
+.wh-o{display:grid; place-items:center; height:44px; scroll-snap-align:center; color:var(--muted); font:700 19px var(--font); font-variant-numeric:tabular-nums; cursor:pointer; user-select:none; -webkit-user-select:none}
+.wh-o.on{color:var(--accent-ink); font:800 23px var(--head)}
+.ob-check{display:flex; gap:10px; align-items:flex-start; margin-top:14px; font-size:15px; line-height:1.4; cursor:pointer}
+.ob-check input{width:22px; height:22px; flex:none; accent-color:var(--accent); margin:0}
+.ob-check a{color:var(--accent-ink); font-weight:700}
+.ob-login{display:flex; flex-direction:column; align-items:center; text-align:center; padding-top:20px}
+.ob-login .ob-form{width:100%; margin-top:18px}
+.ob-login .ob-g{margin-top:20px}
+.ob-mini{width:96px; height:96px}
+
+/* unlock, legal, wait */
+.ob-test{background:var(--accent-soft); color:var(--accent-ink); border-radius:14px; padding:10px 14px; font-weight:700; font-size:14px; margin-top:14px}
+.ob-plan{background:var(--surface); border:1.5px solid var(--line); border-radius:20px; padding:18px; margin-bottom:12px}
+.ob-plan h2{font:800 20px var(--head); margin:0}
+.ob-plan .price{font:800 32px var(--head); color:var(--accent-ink); margin:4px 0 10px}
+.ob-plan ul{list-style:none; padding:0; margin:0}
+.ob-plan li{display:flex; gap:8px; align-items:flex-start; margin:6px 0}
+.ob-plan li svg{width:20px; height:20px; color:var(--done); flex:none; margin-top:2px}
+.ob-legalpage h2{font:800 18px var(--head); margin:22px 0 6px}
+.ob-legalpage p{margin:0; color:var(--text); line-height:1.55}
+.ob-legalpage a{color:var(--accent-ink)}
+.ob-legalpage{padding-bottom:40px}
+.ob-wait{text-align:center}
+.ob-wait .pc-hero{margin:4px auto 0}
+.ob-wait .ob-h{margin-top:12px}
+.ob-wait .pc-steps,.ob-wait .pc-build,.ob-wait .pc-code{text-align:start}
+
+/* ---------- bottom sheet ---------- */
+.sh-dim{position:fixed; inset:0; background:#0007; z-index:60; opacity:0; transition:opacity .2s}
+.sh-dim.in{opacity:1}
+.sh{position:fixed; left:0; right:0; bottom:0; z-index:61; max-width:520px; margin:0 auto; max-height:88dvh; overflow:auto; box-sizing:border-box; background:var(--surface); color:var(--text);
+  border-radius:26px 26px 0 0; padding:8px 18px calc(18px + env(safe-area-inset-bottom)); transform:translateY(100%); transition:transform .26s cubic-bezier(.2,.8,.2,1); overscroll-behavior:contain}
+.sh.in{transform:none}
+.sh:not(.in),.sh-dim:not(.in){pointer-events:none} /* a closing sheet never catches a tap */
+/* the same pop-up as a card in the middle of the screen (year of birth), like the phone's own picker */
+.sh.mid{top:50%; bottom:auto; left:20px; right:20px; max-width:340px; max-height:calc(100dvh - 40px); border-radius:26px; padding:20px 18px 18px;
+  transform:translateY(-50%) scale(.94); opacity:0; transition:transform .2s cubic-bezier(.2,.8,.2,1), opacity .2s; box-shadow:0 18px 50px #0005}
+.sh.mid.in{transform:translateY(-50%); opacity:1}
+.sh.mid .sh-hdl{display:none}
+@media (prefers-reduced-motion:reduce){ .sh.mid{transition:none} }
+.sh-hdl{width:44px; height:5px; border-radius:5px; background:var(--line); margin:4px auto 10px}
+.sh-h{font:800 22px var(--head); text-align:center; margin:4px 0 16px}
+.sh-search{display:flex; align-items:center; gap:10px; border:1.5px solid var(--line); border-radius:16px; padding:0 14px; min-height:52px; color:var(--muted)}
+.sh-search svg{width:20px; height:20px; flex:none}
+.sh-search input{flex:1; min-width:0; border:0; background:none; outline:none; color:var(--text); font:500 17px var(--font)}
+.sh-list{display:flex; flex-direction:column; gap:8px; margin:14px 0}
+/* The language sheet: title and search stay put and only the list scrolls, in a thin rounded bar inside the sheet's
+   padding (it used to be the whole sheet's native bar, running along the rounded edge). */
+.sh-lang{display:flex; flex-direction:column; overflow:hidden}
+.sh-lang > *{flex:none}
+.sh-lang .sh-list{flex:1 1 auto; min-height:0; overflow-y:auto; overscroll-behavior:contain; margin-inline-end:-12px; padding-inline-end:6px}
+.sh-lang .lrow{flex:none}
+.sh-lang .sh-list::-webkit-scrollbar{width:6px}
+.sh-lang .sh-list::-webkit-scrollbar-track{background:transparent}
+.sh-lang .sh-list::-webkit-scrollbar-thumb{background:var(--line); border-radius:99px}
+.sh-lang .sh-list::-webkit-scrollbar-thumb:hover{background:var(--muted)}
+.sh-lang .sh-list::-webkit-scrollbar-button{display:none; width:0; height:0}
+@supports (-moz-appearance:none){ .sh-lang .sh-list{scrollbar-width:thin; scrollbar-color:var(--line) transparent} }
+.lrow,.subrow{display:flex; align-items:center; gap:12px; width:100%; border:1.5px solid var(--line); background:var(--surface); color:var(--text); border-radius:16px; padding:12px 14px; text-align:start; font:inherit; cursor:pointer; box-sizing:border-box}
+.lrow.on,.subrow.on{border-color:#3B82F6; background:color-mix(in srgb, #3B82F6 9%, var(--surface))}
+.lrow b{font:700 17px var(--font)}
+.lrow small{color:var(--muted); font-size:14px}
+.flag{width:36px; height:24px; border-radius:6px; overflow:hidden; flex:none; box-shadow:0 0 0 1px #0000000f}
+.flag svg{width:100%; height:100%; display:block}
+.lok{margin-inline-start:auto; width:28px; height:28px; border-radius:50%; background:#3B82F6; color:#fff; display:grid; place-items:center; flex:none}
+.lok svg{width:16px; height:16px}
+.sh-note{color:var(--muted); font-size:14px; text-align:center; margin:0 0 12px}
+.subrow div{flex:1; min-width:0}
+.subrow b{display:block; font:800 16px var(--head)}
+.subrow small{color:var(--muted); font-size:14px}
+.subrow.add .sq{background:var(--fill); color:var(--muted)}
+.subrow.busy{cursor:progress} .subrow.busy .sq{font-size:0}
+.subrow.busy .sq:after{content:""; width:18px; height:18px; border-radius:50%; border:3px solid var(--line); border-top-color:var(--accent); animation:spin .8s linear infinite}
+.chips{display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin:6px 0 18px}
+.chip{border:1.5px solid var(--line); background:var(--surface); color:var(--text); border-radius:999px; padding:10px 16px; font:700 15px var(--font); cursor:pointer}
+.chip.on{border-color:var(--accent); background:var(--accent-soft); color:var(--accent-ink)}
+.sh-car{padding-bottom:4px}
+.sh .car{margin:0 -18px}
+
+/* ---------- tab bar: 4 chunky icons, no labels ---------- */
+.nav{background:var(--surface); border-top:1px solid var(--line)}
+.nav-in{max-width:560px; padding:10px 14px calc(10px + env(safe-area-inset-bottom) * 0); justify-content:space-around}
+.nav a{width:62px; height:58px; border-radius:16px; border:2.5px solid transparent; box-sizing:border-box}
+.nav a svg{width:40px; height:40px}
+.nav a.on{background:color-mix(in srgb, var(--tc) 14%, var(--surface)); border-color:var(--tc)}
+
+/* ---------- top bar ---------- */
+.tb{display:flex; align-items:center; justify-content:space-between; gap:8px; padding:max(10px, env(safe-area-inset-top)) 0 10px; position:sticky; top:0; z-index:12; background:var(--bg)}
+.subj{display:flex; align-items:center; gap:8px; min-width:0; background:var(--surface); border:1px solid var(--line); border-radius:999px; padding:6px 12px 6px 6px; font:800 15px var(--head); color:var(--text); cursor:pointer}
+.subj b{overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:34vw}
+.subj .sq{width:28px; height:28px; flex:none; border-radius:50%; background:var(--accent); color:#fff; display:grid; place-items:center; font:800 13px var(--head)}
+.subj svg{width:16px; height:16px; color:var(--muted); flex:none}
+.mets{display:flex; gap:12px; align-items:center; flex:none}
+.met{display:flex; align-items:center; gap:5px; font:800 15px var(--head); color:var(--text); text-decoration:none; white-space:nowrap}
+.met.ready{color:#22A06B}
+.met svg{width:26px; height:26px; flex:none}
+
+/* ---------- map ---------- */
+body.map-page .app{padding-left:0; padding-right:0}
+.mtop{position:sticky; top:0; z-index:12; background:var(--bg); padding:0 var(--gutter); box-shadow:0 6px 10px -8px #0003}
+.mtop .tb{position:static}
+.unitwrap{padding:0 0 10px}
+.unit{border-radius:16px; padding:12px 0 12px 16px; display:flex; align-items:center; gap:10px; color:#fff; overflow:hidden; box-shadow:0 4px 0 color-mix(in srgb, var(--uc, #3B82F6) 70%, #000); min-height:64px; transition:background .25s}
+[dir=rtl] .unit{padding:12px 16px 12px 0}
+.unit > div:not(.ut){flex:1; min-width:0}
+.unit .ut{width:46px; height:46px; flex:none; margin:-4px 0 -4px -6px}
+.unit .ut svg{width:46px; height:46px; display:block}
+.unit small{display:block; font:700 12px var(--font); opacity:.9; letter-spacing:.04em; text-transform:uppercase}
+.unit b{display:block; font:800 19px var(--head); margin-top:1px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.unotes{align-self:stretch; display:flex; align-items:center; padding:0 18px; margin:-12px 0; border-inline-start:2px solid #0000002e; color:var(--uc, #3B82F6)}
+.unotes svg{width:30px; height:30px}
+body.map-page .pc-unlock{margin:10px var(--gutter) 0}
+.mapv{position:relative; overflow:hidden}
+.mw{position:relative; margin:0 auto; max-width:100%}
+.band{position:absolute; left:0; right:0}
+.band svg{position:absolute; inset:0; display:block}
+.div{position:absolute; left:0; right:0; display:flex; align-items:center; gap:12px; padding:0 22px; transform:translateY(-50%); z-index:2}
+.div:before,.div:after{content:""; flex:1; height:2px; background:var(--dline)}
+.div span{background:var(--surface); padding:6px 14px; border-radius:12px; box-shadow:0 2px 8px #0001; font:800 14px var(--head); color:var(--dtext); text-align:center; max-width:60%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.div span small{display:block; font:700 11px var(--font); opacity:.75; letter-spacing:.05em; text-transform:uppercase}
+.n{position:absolute; transform:translate(-50%,-50%); z-index:2; isolation:isolate}
+.n .c{--nc:var(--chc); --nl:color-mix(in srgb, var(--nc) 62%, #000); width:70px; height:58px; border-radius:50%; display:grid; place-items:center; border:none; position:relative; color:#fff; cursor:pointer; padding:0;
+  background:linear-gradient(118deg, transparent 0 32%, #ffffff3d 32% 48%, transparent 48%), radial-gradient(110% 80% at 50% 12%, #ffffff40, transparent 60%), var(--nc); box-shadow:0 6px 0 var(--nl), 0 11px 16px -6px #0004}
+.n .c:active{transform:translateY(3px); box-shadow:0 2px 0 var(--nl)}
+.n .c svg{width:30px; height:30px; filter:drop-shadow(0 2px 0 #0002)}
+.n.gold .c{--nc:#F2B630; color:#8A5A00}
+.n.cur .c{width:82px; height:68px; box-shadow:0 7px 0 var(--nl), 0 12px 16px -6px #0004}
+.n.cur .c:before{content:""; position:absolute; inset:-12px; border-radius:50%; z-index:-1; border:5px solid color-mix(in srgb, var(--chc) 40%, #fff);
+  box-shadow:0 5px 0 color-mix(in srgb, var(--chc) 60%, #000 0%), inset 0 5px 0 color-mix(in srgb, var(--chc) 60%, #000 0%); animation:halo 1.8s ease-in-out infinite}
+@keyframes halo{50%{transform:scale(1.07); opacity:.55}}
+@media (prefers-reduced-motion:reduce){ .n.cur .c:before{animation:none} }
+.n.cur .c svg{width:34px; height:34px}
+.n.nlock .c{--nc:var(--lockbg); --nl:var(--lockedge); color:var(--lockink); box-shadow:0 6px 0 var(--nl); background:var(--nc)}
+.n.nlock .c svg{filter:none}
+.n.test .c{width:76px; height:63px; box-shadow:0 7px 0 var(--nl), 0 12px 16px -6px #0004}
+.n.nlock.cur .c,.n.nlock.test .c{box-shadow:0 7px 0 var(--nl)}
+.n .tick{position:absolute; right:-4px; bottom:-2px; width:24px; height:24px; border-radius:50%; background:var(--surface); color:var(--chc); display:grid; place-items:center; box-shadow:0 2px 4px #0003}
+.n .tick svg{width:15px; height:15px; filter:none}
+.n.gold .tick{color:#C98A00}
+.n .start{position:absolute; left:50%; bottom:calc(100% + 18px); z-index:3; transform:translateX(-50%); background:var(--surface); color:var(--chc); font:800 14px var(--head); padding:7px 14px; border-radius:12px; border:2px solid var(--chc); white-space:nowrap; box-shadow:0 4px 10px #0002; letter-spacing:.02em; pointer-events:none}
+.n .start:after{content:""; position:absolute; left:50%; top:100%; margin-left:-7px; border:7px solid transparent; border-top-color:var(--chc)}
+.tut{position:absolute; z-index:2; width:84px; transform:translate(-50%,-62%); pointer-events:none}
+.tut svg{width:84px; height:auto; display:block}
+.exam{position:absolute; transform:translate(-50%,-50%); z-index:2; text-align:center; width:240px}
+/* before buying: after the 3 gray lessons, one quiet card says how much more the full course has (taps open the store) */
+.mmore{position:absolute; transform:translateX(-50%); z-index:2; width:min(calc(100% - 32px), 360px); box-sizing:border-box; display:flex; align-items:center; gap:12px;
+  padding:14px 16px; background:var(--surface); color:var(--text); border:2px solid var(--edge, var(--line)); border-radius:16px; text-decoration:none}
+.mmore .ul-ic{flex:none; width:40px; height:40px; border-radius:50%; display:grid; place-items:center; background:var(--fill, #eef0f5); color:var(--muted)}
+.mmore .ul-ic svg{width:20px; height:20px}
+.mmore span{flex:1; min-width:0; display:flex; flex-direction:column; gap:2px}
+.mmore b{font:800 17px var(--head, inherit)}
+.mmore small{font-size:14px; color:var(--muted); font-weight:600}
+.mmore em{font-style:normal; font-size:14px; font-weight:800; color:var(--blue)}
+.mmore .ul-go{flex:none; color:var(--muted)}
+.mmore .ul-go svg{width:18px; height:18px}
+/* The goal node: a gold coin the same size as a level with a trophy, always bright (like Anna's). */
+.exam{--ef:#FFC531; --el:#E0A410; --ei:#7A4F00; --er:#FFC531}
+.exam .eb{position:relative; width:max-content; margin:14px auto 0}
+.exam .rg{position:absolute; left:50%; top:50%; overflow:visible; pointer-events:none}
+.exam .rg path{fill:none; stroke-width:7.5; stroke-linecap:round}
+.exam .rg-t{stroke:color-mix(in srgb, var(--er) 24%, transparent)}
+.exam .rg-p{stroke:var(--er)}
+.exam .c{width:76px; height:63px; border-radius:50%; display:grid; place-items:center; color:var(--ei);
+  background:linear-gradient(118deg, transparent 0 32%, #ffffff47 32% 48%, transparent 48%), radial-gradient(110% 80% at 50% 12%, #ffffff4d, transparent 60%), var(--ef); box-shadow:0 7px 0 var(--el), 0 12px 16px -6px #0004}
+.exam .c svg{width:34px; height:34px; filter:drop-shadow(0 2px 0 #ffffff59)}
+.exam b{display:block; font:800 16px var(--head); margin-top:22px; color:var(--dtext)}
+.exam small{font:700 13px var(--font); color:var(--dtext); opacity:.8}
+
+/* ---------- pages: notes, review ---------- */
+.pg{padding:6px 0 24px}
+.pg-h{font:800 28px var(--head); margin:8px 0 4px}
+.pg-sub{color:var(--muted); margin:0 0 16px}
+.nch{margin-top:18px}
+.nch-h{background:var(--chc); color:#fff; border-radius:16px; padding:12px 16px; box-shadow:0 4px 0 color-mix(in srgb, var(--chc) 70%, #000); margin-bottom:10px}
+.nch-h small{display:block; font:700 12px var(--font); text-transform:uppercase; letter-spacing:.04em; opacity:.9}
+.nch-h b{font:800 18px var(--head)}
+.note{background:var(--surface); border:1px solid var(--line); border-radius:16px; margin-bottom:8px; overflow:hidden}
+.note summary{list-style:none; display:flex; align-items:center; justify-content:space-between; gap:10px; padding:14px 16px; font:700 16px var(--font); cursor:pointer}
+.note summary::-webkit-details-marker{display:none}
+.note summary .ch{width:18px; height:18px; color:var(--muted); flex:none; transition:transform .15s}
+.note[open] summary .ch{transform:rotate(90deg)}
+.note .md{padding:0 16px 12px; font-size:16px}
+.note .pc-source{padding:0 16px 14px; margin:0}
+.note-empty{color:var(--muted); font-size:15px; margin:4px 2px 0}
+.rvs{display:flex; flex-direction:column; gap:10px}
+.rv{display:flex; align-items:center; gap:14px; background:var(--surface); border:1px solid var(--line); border-radius:18px; padding:14px 16px; color:var(--text); text-decoration:none}
+.rv.off{opacity:.55}
+.rv-ic{width:48px; height:48px; border-radius:14px; display:grid; place-items:center; flex:none; background:var(--fill)}
+.rv-ic svg{width:34px; height:34px}
+.rv.purple .rv-ic{background:color-mix(in srgb, #A855F7 14%, var(--surface))}
+.rv.red .rv-ic{background:color-mix(in srgb, #E5446D 14%, var(--surface)); color:#E5446D}
+.rv.blue .rv-ic{background:color-mix(in srgb, #3B82F6 14%, var(--surface))}
+.rv div{flex:1}
+.rv b{display:block; font:800 17px var(--head)}
+.rv span{color:var(--muted); font-size:14px}
+.rv .ch{width:18px; height:18px; color:var(--muted)}
+
+/* ---------- profile ---------- */
+.prof-hero{position:relative; margin:0 calc(-1 * var(--gutter)); background:var(--accent-soft); padding:max(22px, env(safe-area-inset-top)) var(--gutter) 0; overflow:hidden; min-height:300px; display:flex; flex-direction:column}
+.prof-t h1{font:800 32px var(--head); margin:0}
+.prof-t p{color:var(--muted); margin:4px 0 0; font-size:16px}
+.prof-gear{position:absolute; top:max(18px, env(safe-area-inset-top)); inset-inline-end:var(--gutter); width:48px; height:48px; display:grid; place-items:center; color:var(--text); border-radius:14px}
+.prof-gear svg{width:34px; height:34px}
+.prof-art{margin:auto auto -36px; width:220px}
+.prof-art svg{width:220px; height:auto; display:block}
+.grp{font:800 13px var(--font); letter-spacing:.06em; text-transform:uppercase; color:var(--muted); margin:22px 4px 10px}
+.ptiles{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+.pt{display:flex; align-items:center; gap:12px; background:var(--surface); border:1.5px solid var(--line); border-radius:18px; padding:14px}
+.pt > svg{width:36px; height:36px; flex:none}
+.pt b{display:block; font:800 22px/1.1 var(--head)}
+.pt span{color:var(--muted); font-size:14px}
+.pt div{min-width:0}
+.pchs{background:var(--surface); border:1.5px solid var(--line); border-radius:18px; overflow:hidden}
+.pch{display:flex; align-items:center; gap:12px; padding:12px 14px; border-bottom:1px solid var(--line)}
+.pch:last-child{border-bottom:0}
+.pch .sq{width:38px; height:38px; border-radius:12px; background:var(--chc); color:#fff; display:grid; place-items:center; font:800 16px var(--head); flex:none}
+.pch div{flex:1; min-width:0}
+.pch b{display:block; font:800 15px var(--head); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.pch .bar{height:8px; background:var(--fill); border-radius:8px; overflow:hidden; margin-top:6px}
+.pch .bar i{display:block; height:100%; background:var(--chc); border-radius:8px}
+/* the plan sheet: slides used this paid month */
+.pl-meter{margin:4px 0 16px}
+.pl-meter .bar{height:10px; background:var(--fill); border-radius:10px; overflow:hidden}
+.pl-meter .bar i{display:block; height:100%; background:var(--accent); border-radius:10px}
+.pl-meter small{display:block; margin-top:6px; color:var(--muted); font-size:14px}
+.sh-el .btn-p + .sh-note, .sheet .btn-s + .sh-note{margin-top:8px}
+.pch em{font:800 15px var(--head); font-style:normal; color:var(--chc); min-width:44px; text-align:end}
+
+/* ---------- settings ---------- */
+.set{padding-bottom:32px}
+.set-h{display:grid; grid-template-columns:48px 1fr 48px; align-items:center; position:sticky; top:0; z-index:12; background:var(--bg); padding:max(8px, env(safe-area-inset-top)) 0 8px; border-bottom:1px solid var(--line); margin:0 calc(-1 * var(--gutter)); padding-inline:var(--gutter)}
+.set-h h1{font:800 22px var(--head); text-align:center; margin:0}
+.set-x{width:44px; height:44px; display:grid; place-items:center; color:var(--text); margin-inline-start:-8px}
+.set-x svg{width:26px; height:26px}
+.sgrp{background:var(--surface); border:1.5px solid var(--line); border-radius:20px; overflow:hidden}
+.srow{display:flex; align-items:center; gap:14px; width:100%; min-height:62px; padding:10px 14px; border:0; border-bottom:1px solid var(--line); background:none; color:var(--text); font:inherit; text-align:start; cursor:pointer; box-sizing:border-box}
+.srow:last-child{border-bottom:0}
+.srow > b{font:700 17px var(--font); white-space:nowrap}
+.srow .sv{margin-inline-start:auto; color:var(--muted); font-size:16px; text-align:end; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0}
+.srow .ch{width:18px; height:18px; color:var(--muted); flex:none}
+.srow.static{cursor:default}
+.srow.muted > b{color:var(--muted)}
+.s-ic{width:38px; height:38px; border-radius:11px; display:grid; place-items:center; flex:none; color:#fff}
+.s-ic svg{width:21px; height:21px}
+.s-ic.stut{background:#5AA2FF; overflow:hidden; place-items:start center; box-shadow:inset 0 -3px 0 #0002}
+.s-ic.stut svg{width:44px; height:auto; margin-top:-4px; flex:none}
+.flash .face .lbl{gap:12px}
+.soon{background:var(--fill); color:var(--muted); border-radius:999px; padding:3px 10px; font:700 13px var(--font)}
+.sw{appearance:none; -webkit-appearance:none; width:52px; height:30px; border-radius:30px; background:var(--line); position:relative; flex:none; cursor:pointer; margin:0; transition:background .15s}
+.sw:before{content:""; position:absolute; top:3px; left:3px; width:24px; height:24px; border-radius:50%; background:#fff; box-shadow:0 1px 3px #0003; transition:transform .15s}
+.sw:checked{background:#22A06B}
+.sw:checked:before{transform:translateX(22px)}
+[dir=rtl] .sw:checked:before{transform:translateX(22px)}
+.set-foot{text-align:center; color:var(--muted); margin:18px 0 0; font-weight:600}
+.set-foot a{color:var(--muted); text-decoration:none; font-weight:700}
+.set-foot a.del{color:var(--wrong)}
+
+/* ---------- done screen ---------- */
+.done-screen .title{background:none; -webkit-text-fill-color:currentColor; color:var(--accent)}
+/* The celebration. Every resting state is the final one, so reduced motion (base.css switches all animation off) just shows the result. Transform and opacity only. */
+.cel-art{transform-origin:50% 100%; animation:celDance 1.1s ease-in-out .1s 3}
+.cel-art svg{display:block}
+.cel .jump .body,.cel .jump .tbody{animation-iteration-count:3}
+.cel .title{animation:celPop .5s cubic-bezier(.3,1.5,.5,1) .15s both}
+.cel-stars{display:flex; justify-content:center; align-items:flex-end; gap:10px; height:48px; margin-top:var(--s4)}
+.cel-stars i{position:relative; width:38px; height:38px; color:var(--line)}
+.cel-stars i:nth-child(2){width:48px; height:48px}
+.cel-stars svg{display:block; width:100%; height:100%}
+.cel-stars b{position:absolute; inset:0; color:var(--star); animation:celStar .5s cubic-bezier(.3,1.6,.5,1) .6s both}
+.cel-stars i:nth-child(2) b{animation-delay:.9s} .cel-stars i:nth-child(3) b{animation-delay:1.2s}
+.cel .statboxes{margin-top:var(--s4)}
+.cel .sbox{animation-delay:.3s} .cel .sbox:nth-child(2){animation-delay:.42s} .cel .sbox:nth-child(3){animation-delay:.54s}
+.cel .sbox .v{font-variant-numeric:tabular-nums}
+@keyframes celDance{25%{transform:translateX(-6px) rotate(-7deg)}75%{transform:translateX(6px) rotate(7deg)}}
+@keyframes celPop{from{opacity:0; transform:scale(.6)}}
+@keyframes celStar{from{opacity:0; transform:scale(0) rotate(-50deg)}}
+
+/* ---------- mid-lesson cheer ---------- */
+/* The tutor rises from behind the answer bar (z-index under .dock and .feedback), says one line and leaves. Fixed and click-through: it never moves the question or eats a tap. */
+.cheer{position:fixed; z-index:24; right:max(var(--gutter), calc(50vw - 320px + var(--gutter))); bottom:0; display:flex; align-items:flex-end; gap:8px; max-width:calc(100vw - 2 * var(--gutter)); direction:ltr; pointer-events:none; animation:cheerPop 1.6s ease-out both}
+/* the calm line after two misses sits at the top instead, over the progress bar: down there it would cover the right answer the student is reading */
+.cheer.soft{top:calc(env(safe-area-inset-top) + 6px); bottom:auto!important; align-items:center; animation:cheerSoft 2.6s ease-out both}
+.cheer.soft > svg{width:60px; height:66px}
+.cheer.soft .cheer-b{margin-bottom:0; max-width:230px} .cheer.soft .cheer-b:after{bottom:calc(50% - 6px)}
+.cheer > svg{flex:none; width:84px; height:92px; overflow:visible}
+.cheer-b{position:relative; margin-bottom:38px; max-width:200px; padding:8px 12px; border:2px solid var(--line); border-radius:16px; background:var(--surface); color:var(--text); font:800 15px/1.25 var(--head); unicode-bidi:plaintext; box-shadow:0 4px 0 #0000001a}
+.cheer-b:after{content:""; position:absolute; right:-7px; bottom:12px; width:10px; height:10px; background:inherit; border:2px solid var(--line); border-left:0; border-bottom:0; transform:rotate(45deg)}
+@keyframes cheerPop{0%{opacity:0; transform:translateY(105%)}12%{opacity:1; transform:translateY(-12px)}22%{transform:translateY(0)}34%{transform:translateY(-14px)}46%,84%{opacity:1; transform:translateY(0)}100%{opacity:0; transform:translateY(105%)}}
+@keyframes cheerSoft{0%,100%{opacity:0; transform:translateY(-24px)}10%,90%{opacity:1; transform:translateY(0)}}
+
+/* ---------- polish from the "unslop" checklist ---------- */
+/* balanced headline wrapping, no orphan words */
+.ob-h,.ob-display,.pg-h,.prof-t h1,.sh-h,.done-screen .title{text-wrap:balance}
+.ob-sub,.pg-sub,.ob-note{text-wrap:pretty}
+/* numbers that change don't jump */
+.met,.pt b,.pch em,.dbig b,.dbig span,.ob-plan .price,.srow .sv,.unit small,.exam small,.ob-sum,.pc-code b{font-variant-numeric:tabular-nums}
+/* loading state instead of a lone "…" */
+.loading{display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; min-height:70dvh; color:var(--muted); animation:loadIn .2s .3s both}
+/* a quick load shows nothing instead of a spinner that flashes for a frame */
+@keyframes loadIn{from{opacity:0}}
+.loading i{width:44px; height:44px; border-radius:50%; border:4px solid var(--line); border-top-color:var(--accent); animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){ .loading i{animation-duration:2.4s} }
+/* nested corners: inner radius = outer radius − padding */
+.sgrp .srow:first-child{border-radius:18px 18px 0 0} .sgrp .srow:last-child{border-radius:0 0 18px 18px}
+
+/* match pairs: one row per pair, both boxes the same height, short terms left, definitions right */
+.pc-match.mx{display:grid; grid-template-columns:minmax(0,2fr) minmax(0,3fr); gap:10px; align-items:stretch}
+.pc-match.mx .opt{min-height:56px; height:100%; margin:0; padding:10px 12px; justify-content:flex-start; align-items:center; text-align:start; font-size:15px; line-height:1.3; text-wrap:pretty}
+.pc-match.mx .ml{font-weight:800}
+.pc-match.mx .mr{font-weight:600; font-size:14px}
+.pc-match.mx .opt{transition:opacity .35s ease, filter .35s ease, transform .35s ease}
+.pc-match.mx .opt.gone{opacity:.28; filter:grayscale(1); transform:scale(.97); box-shadow:none; pointer-events:none}
+@media (prefers-reduced-motion:reduce){.pc-match.mx .opt{transition:none}}
+
+/* flashcard: two big choices (Nevím / Vím) */
+.grades.two{grid-template-columns:1fr 1fr; gap:12px}
+.grades.two .btn{min-height:64px; font-size:17px; border-radius:18px}
+.grades.two .btn small{font-size:12px}
+
+/* RTL: course content stays in the slides' language, so each text piece picks its own direction (Czech titles truncate at the end, not the start) */
+html[dir=rtl] :is(b, h1, p, small, .tb-name, .md, .q, .opt){unicode-bidi:plaintext}
+
+/* ---------- side panel next to the map (wide screens) ---------- */
+.side{display:none; flex-direction:column; gap:16px; position:sticky; top:20px; padding-top:14px}
+.sc{background:var(--surface); border:1px solid var(--line); border-radius:20px; padding:18px; box-shadow:0 3px 0 var(--line)}
+.sc-ready{display:grid; grid-template-columns:64px 1fr; gap:14px; align-items:center}
+.sc-ready > svg{width:64px; height:64px}
+.sc-ready b,.sc-exam b{display:block; font:800 26px var(--head); font-variant-numeric:tabular-nums; line-height:1.1}
+.sc-ready span,.sc-exam span{color:var(--muted); font-size:15px}
+.sc-exam{grid-column:1 / -1; display:grid; grid-template-columns:64px 1fr; gap:14px; align-items:center; border-top:1px solid var(--line); padding-top:14px}
+.sc-exam svg{width:44px; height:44px; justify-self:center}
+.sc-h{display:flex; justify-content:space-between; align-items:baseline; gap:10px; margin-bottom:12px}
+.sc-h b{font:800 17px var(--head)}
+.sc-h span{color:var(--muted); font-variant-numeric:tabular-nums}
+.bar.goal{height:12px; border-radius:6px; background:var(--line); overflow:hidden}
+.bar.goal i{display:block; height:100%; border-radius:6px; background:#22A06B}
+.schs{display:flex; flex-direction:column; gap:6px}
+.sch{display:flex; align-items:center; gap:10px; padding:8px; margin:0 -8px; border-radius:12px; color:var(--text); text-decoration:none}
+.sch:hover{background:color-mix(in srgb, var(--chc) 10%, transparent)}
+.sch .sq{width:30px; height:30px; flex:none; border-radius:9px; background:var(--chc); color:#fff; display:grid; place-items:center; font:800 14px var(--head)}
+.sch div{flex:1; min-width:0}
+.sch b{display:block; font-weight:700; font-size:15px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.sch .bar{height:6px; border-radius:3px; background:var(--line); margin-top:5px; overflow:hidden}
+.sch .bar i{display:block; height:100%; background:var(--chc)}
+.sch em{font:800 14px var(--head); font-style:normal; color:var(--chc); min-width:40px; text-align:end; font-variant-numeric:tabular-nums}
+.side .pc-unlock{margin:0}
+
+/* ---------- tablet and up: the tab bar becomes a rail on the left, content stays one readable column ---------- */
+.nav a .nl{display:none}
+@media (min-width:768px){
+  :root{--rail:96px}
+  .nav{top:0; bottom:0; inset-inline-start:0; inset-inline-end:auto; width:var(--rail); border-top:0; border-inline-end:1px solid var(--line); padding:max(20px, env(safe-area-inset-top)) 0 20px; align-items:flex-start}
+  .nav-in{flex-direction:column; align-items:center; justify-content:flex-start; gap:12px; padding:0; max-width:none}
+  body.has-tabs{padding-inline-start:var(--rail)}
+  body.has-tabs .app{padding-bottom:48px}
+  .app{max-width:640px}
+  body.map-page .app{max-width:668px}
+  .subj b{max-width:280px}
+  /* the map is a rounded card on wide screens instead of a hard strip */
+  .mapv{margin-top:12px; border-radius:28px; box-shadow:0 0 0 1px var(--line), 0 4px 0 var(--line); isolation:isolate}
+  .sh{top:50%; bottom:auto; max-width:480px; border-radius:26px; padding-bottom:22px; transform:translateY(-50%) scale(.96); opacity:0; transition:transform .2s, opacity .2s}
+  .sh.in{transform:translateY(-50%); opacity:1}
+  .sh-hdl{display:none}
+}
+/* desktop: labelled rail, map + side panel */
+@media (min-width:1200px){
+  :root{--rail:250px}
+  .nav-in{align-items:stretch; padding:0 18px}
+  .nav a{width:auto; height:58px; display:flex; align-items:center; justify-content:flex-start; gap:16px; padding:0 14px}
+  .nav a .nl{display:block; position:static; width:auto; height:auto; clip:auto; overflow:visible; font:800 16px var(--head); letter-spacing:.04em; text-transform:uppercase; color:var(--muted)}
+  .nav a.on .nl{color:var(--tc)}
+  .nav a:hover:not(.on){background:color-mix(in srgb, var(--tc) 8%, transparent)}
+  body.map-page .app{max-width:1060px; padding-inline:28px}
+  .mlay{display:grid; grid-template-columns:minmax(0,620px) 340px; justify-content:center; gap:32px; align-items:start}
+  .side{display:flex}
+  .mmain > .pc-unlock{display:none}
+}
+
+/* ---------- streak + week strip in the side panel (like Penny's) ---------- */
+.sc-streak .sc-st{display:flex; align-items:center; gap:12px; margin-bottom:14px}
+.sc-streak .sc-st svg{width:40px; height:40px; flex:none}
+.sc-streak .sc-st b{display:block; font:800 19px var(--head)}
+.sc-streak .sc-st span{color:var(--muted); font-size:14px}
+.wk{display:grid; grid-template-columns:repeat(7,1fr); gap:6px; text-align:center}
+.wk span{display:block; font:800 12px var(--head); color:var(--muted); text-transform:uppercase; margin-bottom:5px}
+.wk i{display:grid; place-items:center; aspect-ratio:1; border-radius:50%; background:var(--line)}
+.wk i svg{width:60%; height:60%}
+.wk .on i{background:#FFE3BF}
+.wk .now span{color:var(--text)}
+.wk .now i{box-shadow:0 0 0 2px var(--text)}
+@media (prefers-color-scheme:dark){ :root:not([data-theme=light]) .wk .on i{background:#4A3417} }
+:root[data-theme=dark] .wk .on i{background:#4A3417}
+
+/* ---------- motion: smooth scrolling, a soft fade between screens, eased presses and bars ---------- */
+@media (prefers-reduced-motion:no-preference){
+  html{scroll-behavior:smooth}
+  #view > *{animation:viewIn .24s cubic-bezier(.2,.8,.2,1)}
+  :is(.btn, .opt, .sch, .lrow, .nav a, .n .c, .chip){transition:transform .12s ease, box-shadow .12s ease, background-color .2s ease, border-color .2s ease, color .2s ease}
+  .pc-match.mx .opt{transition:opacity .35s ease, filter .35s ease, transform .12s ease, box-shadow .12s ease, background-color .2s ease, border-color .2s ease}
+  :is(.bar, .prog, .goal) i{transition:width .5s cubic-bezier(.2,.8,.2,1)}
+}
+@keyframes viewIn{from{opacity:0}}
+
+/* ---------- readiness ring round each open level (replaces the START bubble and the pulsing halo) ---------- */
+.n.cur .c:before{display:none}
+.n .rg{position:absolute; left:50%; top:50%; pointer-events:none; overflow:visible}
+.n .rg path{fill:none; stroke-width:7.5; stroke-linecap:round}
+.n .rg-t{stroke:color-mix(in srgb, var(--chc) 22%, transparent)}
+.n .rg-p{stroke:var(--chc)}
+.n.gold .rg-p{stroke:#F2B630}
+@media (prefers-reduced-motion:no-preference){ .n .rg-p{transition:stroke-dasharray .6s cubic-bezier(.2,.8,.2,1)} }
+
+/* ---------- the top bar stays solid; the chapter card floats over the map, so the path shows round it ---------- */
+.mtop{background:none; box-shadow:none; padding:0}
+.mtop .tb{background:var(--bg); padding-inline:var(--gutter); box-shadow:0 6px 10px -8px #0003}
+.unitwrap{padding:8px var(--gutter) 0}
+.mtop .unit{box-shadow:0 4px 0 color-mix(in srgb, var(--uc, #3B82F6) 70%, #000), 0 10px 22px -6px #0005}
+.mtop + .mapv{margin-top:-80px}
+@media (min-width:768px){ .mtop .tb, .unitwrap{padding-inline:0} .mtop .tb{box-shadow:none} }
+
+/* ---------- map: plain app background like Penny's (no illustrated bands), Penny-style chapter card ---------- */
+.mapv, body.map-page .mapv{background:none; box-shadow:none; border-radius:0}
+.unit{padding:14px 14px 14px 18px; box-shadow:0 4px 0 color-mix(in srgb, var(--uc, #3B82F6) 72%, #000)}
+.mtop .unit{box-shadow:0 4px 0 color-mix(in srgb, var(--uc, #3B82F6) 72%, #000)}
+.unit b{white-space:normal; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical}
+.guide{flex:none; display:flex; align-items:center; gap:8px; padding:10px 14px; border-radius:14px; border:2px solid #ffffff73; color:#fff; font:800 14px var(--head); letter-spacing:.05em; text-transform:uppercase; text-decoration:none; box-shadow:0 3px 0 #0000002e}
+.guide svg{width:20px; height:20px}
+.guide:active{transform:translateY(2px); box-shadow:none}
+@media (max-width:420px){ .guide{padding:8px 10px; font-size:12px; gap:6px} .guide svg{width:18px; height:18px} }
+/* level icons: thicker white strokes so they read on every chapter colour */
+.n .c svg{stroke-width:2.8; filter:drop-shadow(0 2px 0 #00000038)}
+.n.cur .c svg{stroke-width:2.8}
+
+/* ---------- practice hub (Penny's "Procvičovat") ---------- */
+.prac{padding-top:14px}
+.banner{position:relative; overflow:hidden; display:flex; align-items:center; min-height:150px; margin-bottom:18px; padding:22px; border-radius:20px; background:var(--pc); box-shadow:0 4px 0 var(--pl); color:#fff; isolation:isolate}
+.banner .t{position:relative; z-index:2; flex:1; min-width:0; max-width:62%}
+.banner h2{color:#fff; font:800 26px var(--head)}
+.banner p{margin:6px 0 0; font-size:16px; font-weight:700; opacity:.95}
+.banner .art{position:absolute; right:12px; bottom:-6px; width:128px; height:138px; z-index:2}
+.banner .art svg{width:100%; height:100%; overflow:visible}
+.banner .arc{position:absolute; right:-40px; bottom:-120px; width:280px; height:280px; border-radius:50%; border:26px solid #ffffff2e; z-index:1}
+.banner .cloud{position:absolute; z-index:1; right:-20px; bottom:-30px; width:220px; height:60px; border-radius:40px; background:#ffffff38}
+.c-green{--pc:#58CC02; --pl:#58A700} .c-blue{--pc:#1CB0F6; --pl:#1899D6} .c-red{--pc:#FF4B4B; --pl:#EA2B2B}
+.c-orange{--pc:#FF9600; --pl:#E58700} .c-yellow{--pc:#FFC800; --pl:#E5B400} .c-purple{--pc:#CE82FF; --pl:#A568CC}
+.sec{font:800 21px var(--head); margin:24px 0 12px}
+.tiles{display:grid; grid-template-columns:1fr; gap:12px}
+@media (min-width:600px){ .tiles{grid-template-columns:1fr 1fr} }
+.tile{display:flex; align-items:center; gap:14px; min-height:96px; padding:12px 16px; border:2px solid var(--line); border-radius:18px; background:var(--surface); box-shadow:0 4px 0 var(--line); color:var(--text); text-decoration:none}
+.tile:active{transform:translateY(4px); box-shadow:none}
+.tile.off{cursor:default} .tile.off:active{transform:none; box-shadow:0 4px 0 var(--line)}
+.tile.off .pic{filter:saturate(.35); opacity:.6}
+.tile .t{flex:1; min-width:0}
+.tile b{display:block; font:800 19px var(--head); line-height:1.2}
+.tile .t span{display:block; font-size:15px; color:var(--muted); margin-top:2px}
+.tile .pic{width:68px; height:68px; border-radius:50%; display:grid; place-items:center; flex:none; color:#fff; background:var(--pc); box-shadow:0 4px 0 var(--pl)}
+.tile .pic svg{width:34px; height:34px}
+.tile .badge{min-width:30px; height:30px; padding:0 8px; border-radius:15px; display:grid; place-items:center; background:#FF4B4B; color:#fff; font:800 15px var(--head)}
+.tile.hero{background:var(--pc); border-color:var(--pl); box-shadow:0 4px 0 var(--pl); min-height:116px}
+.tile.hero b, .tile.hero .t span{color:#fff}
+.tile.hero .pic{background:#ffffff40; box-shadow:none}
+.tile.hero.off{opacity:.75}
+
+/* ---------- side panel: today's tasks, readiness, tutor ---------- */
+.task{display:flex; align-items:center; gap:12px; padding:10px 0; color:var(--text); text-decoration:none; border-top:1px solid var(--line)}
+.task:first-of-type{border-top:0}
+.task .ico{width:36px; height:36px; border-radius:50%; display:grid; place-items:center; flex:none; background:var(--blue-soft); color:var(--blue-ink)}
+.task .ico svg{width:20px; height:20px}
+.task b{font-weight:700; font-size:15px; overflow:hidden; text-overflow:ellipsis; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical}
+.task:hover b{color:var(--blue-ink)}
+a.sc{color:var(--text); text-decoration:none}
+.sc-ready b{font-size:24px}
+.sc-ask{display:flex; align-items:center; gap:14px}
+.sc-ask svg{width:64px; height:64px; flex:none}
+.sc-ask b{display:block; font:800 17px var(--head)}
+.sc-ask span{color:var(--muted); font-size:15px}
+
+/* ---------- desktop map page (Duolingo-like spacing): map 590 · gap 48 · side 370, stats row on top of the side column ---------- */
+@media (min-width:1200px){
+  body.map-page .app{max-width:calc(590px + 48px + 370px + 56px)}
+  .mlay{grid-template-columns:minmax(0,590px) 370px; gap:48px}
+  .mlay > .mmain{position:relative}
+  /* the course switcher + readiness + countdown sit above the side cards; the map column starts with the unit header */
+  .mtop{padding-top:24px; background:var(--bg)}
+  .mtop .tb{position:absolute; top:18px; left:calc(100% + 48px); width:370px; padding:0; background:none; box-shadow:none}
+  .unitwrap{padding:0 0 12px}
+  .unit,.mtop .unit{min-height:90px; padding:16px 18px 16px 22px; box-sizing:border-box}
+  .unit b{font-size:22px}
+  .side{top:0; padding-top:96px}
+  /* chapter divider: thin line, muted title, no pill */
+  .div{padding:0 8px}
+  .div:before,.div:after{height:1px; background:var(--line)}
+  .div span{background:none; box-shadow:none; padding:0 6px; color:var(--muted); font:700 16px var(--head)}
+  .div span small{font-size:11px}
+}
+
+/* ---------- thin rounded page scrollbar on desktop (phones keep the native one) ---------- */
+@media (min-width:768px) and (hover:hover){
+  html::-webkit-scrollbar{width:8px; height:8px; background:transparent}
+  html::-webkit-scrollbar-track{background:transparent}
+  html::-webkit-scrollbar-thumb{background:var(--line); border-radius:99px}
+  html::-webkit-scrollbar-thumb:hover{background:var(--muted)}
+  html::-webkit-scrollbar-button{display:none; width:0; height:0}
+  @supports (-moz-appearance:none){ html{scrollbar-width:thin; scrollbar-color:var(--line) transparent} }
+}
+
+/* =====================================================================
+   v3 PALETTE "Midnight & Violet" (Marek's pick, 2026-11-11): one token set for every screen. Change colours here only.
+   Base: bg, surface, fill (sunken), line (1px dividers), edge (2px card borders), text, muted,
+   accent (+ink, soft), good, info, wrong, gold (the exam goal), and --ch1..--ch6: each chapter of a course
+   gets its own colour (banner, nodes, bars), like sections in Duolingo. Same weight, so none shouts.
+   ===================================================================== */
+:root{
+  --bg:#F5F5FA; --surface:#FFFFFF; --fill:#ECECF5; --line:#E2E3EE; --edge:#D8DAE8; --text:#161A2D; --muted:#61667D;
+  --accent:#6C5CE7; --accent-ink:#4B3CC4; --accent-soft:#E8E5FF; --on-accent:#FFFFFF;
+  --good:#12A37F; --good-soft:#DAF3EB; --info:#2F8FE8; --info-soft:#DFEEFC; --wrong:#E0445A; --wrong-soft:#FCE1E5; --gold:#F5A524;
+  --ch1:#6C5CE7; --ch2:#F08A3A; --ch3:#12A37F; --ch4:#2F8FE8; --ch5:#E5446D; --ch6:#D9A01A;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme=light]){
+    --bg:#0F1222; --surface:#171B30; --fill:#1E233D; --line:#232945; --edge:#2D3455; --text:#EEF0FA; --muted:#959BB8;
+    --accent:#8F83FF; --accent-ink:#C3BCFF; --accent-soft:#272450; --on-accent:#FFFFFF;
+    --good:#3FC98F; --good-soft:#15342B; --info:#5AA9FF; --info-soft:#18294A; --wrong:#FF6B7E; --wrong-soft:#3D1C25; --gold:#FFBE4D;
+    --ch1:#8F83FF; --ch2:#FF9A55; --ch3:#3FC98F; --ch4:#5AA9FF; --ch5:#F2668B; --ch6:#F0BE45;
+  }
+}
+:root[data-theme=dark]{
+  --bg:#0F1222; --surface:#171B30; --fill:#1E233D; --line:#232945; --edge:#2D3455; --text:#EEF0FA; --muted:#959BB8;
+  --accent:#8F83FF; --accent-ink:#C3BCFF; --accent-soft:#272450; --on-accent:#FFFFFF;
+  --good:#3FC98F; --good-soft:#15342B; --info:#5AA9FF; --info-soft:#18294A; --wrong:#FF6B7E; --wrong-soft:#3D1C25; --gold:#FFBE4D;
+  --ch1:#8F83FF; --ch2:#FF9A55; --ch3:#3FC98F; --ch4:#5AA9FF; --ch5:#F2668B; --ch6:#F0BE45;
+}
+/* Everything else derives from the base tokens. :root:root:root outranks the older per-theme blocks above and in base.css. */
+:root:root:root{
+  --done:var(--good); --star:var(--gold);
+  --hare:color-mix(in srgb, var(--muted) 60%, var(--surface));
+  --lockbg:color-mix(in srgb, var(--edge) 75%, var(--surface)); --lockedge:color-mix(in srgb, var(--edge) 80%, #000); --lockink:color-mix(in srgb, var(--muted) 75%, var(--surface));
+  --ringbg:color-mix(in srgb, var(--text) 9%, transparent); --dline:var(--line); --dtext:var(--muted);
+  --ink:var(--text); --ink-strong:var(--text); --wolf:var(--muted); --card:var(--surface); --paper:var(--surface); --paper-ink:var(--text);
+  --green:var(--good); --green-lip:color-mix(in srgb, var(--good) 78%, #000); --green-ink:var(--good); --green-soft:var(--good-soft);
+  --blue:var(--info); --blue-lip:color-mix(in srgb, var(--info) 78%, #000); --blue-ink:var(--info); --blue-soft:var(--info-soft);
+  --red:var(--wrong); --red-lip:color-mix(in srgb, var(--wrong) 78%, #000); --red-ink:var(--wrong); --red-soft:var(--wrong-soft);
+  --yellow:var(--gold); --yellow-lip:color-mix(in srgb, var(--gold) 80%, #000); --yellow-soft:color-mix(in srgb, var(--gold) 16%, var(--surface));
+  --purple:var(--ch3); --purple-lip:color-mix(in srgb, var(--ch3) 78%, #000); --purple-soft:color-mix(in srgb, var(--ch3) 14%, var(--surface));
+}
+/* hard-coded colours from earlier passes, now on tokens */
+.lrow.on,.subrow.on{border-color:var(--info); background:color-mix(in srgb, var(--info) 9%, var(--surface))}
+.lok{background:var(--info)}
+.met.ready{color:var(--good)}
+.sw:checked{background:var(--good)}
+.bar.goal i{background:var(--good)}
+.rv.purple .rv-ic{background:color-mix(in srgb, var(--ch3) 14%, var(--surface))}
+.rv.red .rv-ic{background:color-mix(in srgb, var(--wrong) 14%, var(--surface)); color:var(--wrong)}
+.rv.blue .rv-ic{background:color-mix(in srgb, var(--info) 14%, var(--surface))}
+.wk .on i, :root[data-theme=dark] .wk .on i{background:color-mix(in srgb, var(--accent) 22%, var(--surface))}
+@media (prefers-color-scheme:dark){ :root:not([data-theme=light]) .wk .on i{background:color-mix(in srgb, var(--accent) 22%, var(--surface))} }
+.n.gold .c{--nc:var(--gold)} .n.gold .rg-p{stroke:var(--gold)}
+.c-green{--pc:var(--good)} .c-blue{--pc:var(--info)} .c-red{--pc:var(--wrong)} .c-orange{--pc:var(--accent)} .c-yellow{--pc:var(--gold)} .c-purple{--pc:var(--accent)}
+.c-green,.c-blue,.c-red,.c-orange,.c-yellow,.c-purple{--pl:color-mix(in srgb, var(--pc) 75%, #000)}
+.tile .badge{background:var(--wrong)}
+.btn-p{background:var(--accent); color:var(--on-accent)}
+
+/* ---------- cards: one style everywhere (2px edge, 16px radius, no drop shadow) ---------- */
+.sc,.pt,.pchs,.ob-plan{border:2px solid var(--edge); border-radius:16px; box-shadow:none}
+.tile{border-color:var(--edge); box-shadow:0 3px 0 var(--edge)}
+/* section headings are real headings, not small grey caps */
+.grp{font:800 22px var(--head); letter-spacing:-.01em; text-transform:none; color:var(--text); margin:28px 0 12px}
+.sc-h b{font-size:19px}
+
+/* ---------- one desktop frame (map, practice, progress): 592 content · 48 gap · 368 side, stats row on top of the side ---------- */
+.side-tb{display:none}
+@media (min-width:1200px){
+  body.framed .app{max-width:calc(592px + 48px + 368px + 56px); padding-inline:28px; padding-bottom:48px}
+  .mlay{display:grid; grid-template-columns:minmax(0,592px) 368px; gap:48px; justify-content:center; align-items:start}
+  .mlay > .mmain{position:relative; min-width:0}
+  .mmain .tb, .mtop .tb{display:none}
+  .mmain > .pc-unlock{display:none}
+  .side{display:flex; position:sticky; top:0; padding-top:20px; gap:20px}
+  .side-tb{display:block}
+  .side-tb .tb{position:static; padding:0; background:none; box-shadow:none; min-height:48px}
+  .side-tb .subj b{max-width:150px}
+  body .side .pc-unlock{margin:0; width:100%; box-sizing:border-box; padding:18px 20px; gap:16px; border-radius:16px}
+  .side .pc-unlock svg{width:36px; height:36px}
+  .side .pc-unlock b{font:800 19px var(--head)}
+  .side .pc-unlock span{font-size:15px; margin-top:2px}
+  .pg-practice .mmain, .pg-progress .mmain, .pg-notes .mmain{padding-top:28px}
+  /* the Practice and Notes banners start at the same height as the Progress hero */
+  .pg-practice .mmain > .pg, .pg-notes .mmain > .pg{padding-top:0}
+  .pg-practice .mmain > .pg > .banner:first-child, .pg-notes .mmain > .pg > .banner:first-child{margin-top:0; min-height:176px; box-sizing:border-box}
+  .prof-hero{margin:0; border-radius:20px; min-height:260px; padding-top:22px}
+}
+
+/* =====================================================================
+   PHASE 2 · PAGES
+   ===================================================================== */
+/* ---------- map: top-down, START bubble over the current level, dividers name the chapter below them ---------- */
+.n .start{bottom:calc(100% + 30px); color:var(--chc); border-color:var(--edge); border-width:2px; box-shadow:0 3px 0 var(--edge); font:800 14px var(--head); letter-spacing:.06em; text-transform:uppercase; animation:startBob 1.6s ease-in-out infinite}
+.n .start:after{border-top-color:var(--edge)}
+@keyframes startBob{50%{transform:translate(-50%,-4px)}}
+@media (prefers-reduced-motion:reduce){ .n .start{animation:none} }
+.div span{color:var(--text)}
+.div span small{color:var(--chc, var(--muted)); opacity:1}
+.exam b{color:var(--text)}
+@media (min-width:1200px){
+  .n{transform:translate(-50%,-50%) scale(1.16)}
+  .exam{transform:translate(-50%,-50%) scale(1.16)}
+  .tut{width:124px} .tut svg{width:124px}
+  .div:before,.div:after{height:2px; background:var(--line)}
+  .div span{color:var(--text); font:800 19px var(--head); padding:0 10px}
+  .div span small{font:800 12px var(--font); letter-spacing:.08em; margin-bottom:2px}
+  .mtop{padding-top:20px}
+}
+
+/* ---------- PHASE 2: Practice (one hero, calm outlined rows) ---------- */
+.prac .banner{box-shadow:none; min-height:176px}
+.prac .banner .t{max-width:60%}
+.hero-go{display:inline-flex; align-items:center; margin-top:14px; padding:10px 18px; border-radius:14px; background:#fff; color:#4B3CC4; font:800 16px var(--head); text-decoration:none; box-shadow:0 3px 0 #0002}
+.hero-go:active{transform:translateY(3px); box-shadow:none}
+.prows{display:flex; flex-direction:column; gap:14px}
+.prow{position:relative; display:flex; align-items:center; gap:12px; min-height:100px; padding:16px 108px 16px 20px; border:2px solid var(--edge); border-radius:16px; background:var(--surface); box-shadow:0 4px 0 var(--edge); color:var(--text); text-decoration:none; overflow:hidden; isolation:isolate}
+.prow:hover{background:var(--fill)}
+.prow:active{transform:translateY(4px); box-shadow:none}
+.prow.off{cursor:default} .prow.off:active{transform:none; box-shadow:0 4px 0 var(--edge)} .prow.off:hover{background:var(--surface)}
+.prow .t{flex:1; min-width:0}
+.prow b{display:block; font:800 19px var(--head); line-height:1.2}
+.prow .t span{display:block; margin-top:3px; font-size:15px; color:var(--muted)}
+.prow .badge{position:relative; z-index:2; min-width:30px; height:30px; padding:0 8px; border-radius:15px; display:grid; place-items:center; background:var(--wrong); color:#fff; font:800 15px var(--head)}
+.prow .ill{position:absolute; right:20px; top:50%; translate:0 -50%; width:68px; height:68px; border-radius:50%; display:grid; place-items:center; background:var(--pc); box-shadow:0 5px 0 var(--pl); color:#fff}
+.prow .ill i{display:none}
+.prow .ill svg{width:32px; height:32px}
+.prow.off .ill{opacity:.8}
+
+/* ---------- PHASE 2: Progress (rounded banner, then identity, then sections) ---------- */
+.prof .prof-hero{margin:14px var(--gutter) 0; border-radius:20px; min-height:200px; padding:0; display:block; background:var(--accent-soft)}
+.prof-hero i{position:absolute; border-radius:50%; background:color-mix(in srgb, var(--accent) 14%, transparent)}
+.prof-hero .pb1{width:220px; height:220px; left:-60px; bottom:-120px}
+.prof-hero .pb2{width:90px; height:90px; right:12%; top:-30px}
+.prof-hero .pb3{width:28px; height:28px; left:22%; top:26px; background:color-mix(in srgb, var(--accent) 24%, transparent)}
+.prof .prof-art{position:absolute; left:50%; bottom:-6px; translate:-50% 0; margin:0; width:170px}
+.prof .prof-art svg{width:170px}
+.prof .prof-gear{top:12px; inset-inline-end:12px; background:var(--surface); border:2px solid var(--edge)}
+.prof .prof-gear svg{width:26px; height:26px}
+.prof > .prof-t{padding:18px var(--gutter) 4px}
+.prof-meta{display:flex; align-items:center; gap:8px; font-weight:700}
+.prof-meta svg{width:22px; height:22px}
+@media (min-width:1200px){
+  .prof .prof-hero{margin:0; min-height:240px}
+  .prof .prof-art, .prof .prof-art svg{width:200px}
+  .prof > .prof-t{padding:20px 0 4px}
+  .pg-progress .pg, .pg-practice .pg, .pg-notes .pg{padding-inline:0}
+}
+/* Mobile map: the unlock card must not touch the chapter banner. */
+body.map-page .mmain > .pc-unlock{margin-top:14px}
+
+/* ---------- store page (rebuilt 2026-11-11): reasons + one buy panel. Pick a plan (radio cards), tick the consent, one button.
+   Phone: hero, title, exam, then the buy panel, then what you get. Desktop: two columns, the panel top right, NOT sticky
+   (a sticky panel taller than the window cut Pro off). The panel is short enough that the button shows on the first screen. ---------- */
+.st .st-grid{display:flex; flex-direction:column; gap:20px; padding-bottom:calc(28px + env(safe-area-inset-bottom))}
+.st-hero{position:relative; display:flex; align-items:flex-end; gap:12px; margin-top:4px; padding:12px 14px 0; border-radius:20px; background:var(--accent-soft); overflow:hidden; min-height:104px}
+.st-art{width:92px; flex:none; margin-bottom:-6px}
+.st-art svg{width:100%; height:auto; display:block}
+.st-say{position:relative; align-self:center; margin:0 0 8px; padding:10px 12px; border-radius:16px; background:var(--surface); border:2px solid var(--edge); font:700 15px/1.35 var(--font); color:var(--text)}
+.st-say::before{content:""; position:absolute; left:-9px; bottom:16px; width:14px; height:14px; background:var(--surface); border-left:2px solid var(--edge); border-bottom:2px solid var(--edge); rotate:45deg}
+.st .ob-h{margin-top:16px; font-size:26px; line-height:1.2}
+.st-urg{display:flex; flex-wrap:wrap; align-items:center; gap:6px 10px; margin:10px 0 0; font-weight:700; color:var(--text)}
+.st-urg span{padding:2px 10px; border-radius:99px; background:color-mix(in srgb, var(--gold) 22%, transparent); color:var(--text); font-size:14px; font-weight:800}
+.st-tap{display:flex; gap:10px; align-items:center; margin:10px 0 0; padding:10px 14px; border-radius:14px; background:var(--fill); font-weight:700; color:var(--text)}
+.st-tap svg{width:20px; height:20px; flex:none; color:var(--muted)}
+.st-top .ob-sub{margin:8px 0 0}
+.st-h{font:800 20px var(--head); margin:0 0 10px; color:var(--text)}
+.st .st-more > * + *{margin-top:28px}
+.st-more #feats:empty{display:none}
+
+/* the buy panel */
+.st-pay{display:flex; flex-direction:column; gap:12px; padding:16px; border:2px solid var(--edge); border-radius:20px; background:var(--surface); min-width:0}
+.st-pay .ob-check, .st-pay .ob-note, .st-pay .ob-err{margin:0}
+.st-opts{border:0; margin:0; padding:0; display:flex; flex-direction:column; gap:10px; min-width:0}
+.sr{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap}
+.st-opt{position:relative; display:flex; align-items:center; gap:12px; padding:12px 14px; border:2px solid var(--edge); border-radius:16px; background:var(--surface); cursor:pointer; transition:border-color .15s, background .15s}
+.st-opt:hover{border-color:color-mix(in srgb, var(--accent) 45%, var(--edge))}
+.st-opt.on{border-color:var(--accent); background:color-mix(in srgb, var(--accent) 7%, var(--surface)); box-shadow:0 3px 0 color-mix(in srgb, var(--accent) 35%, transparent)}
+.st-opt input{position:absolute; opacity:0; width:1px; height:1px; margin:0}
+.st-opt:has(input:focus-visible){outline:3px solid var(--accent); outline-offset:2px}
+.st-dot{width:22px; height:22px; flex:none; border-radius:50%; border:2px solid var(--edge); box-sizing:border-box; background:var(--surface)}
+.st-opt.on .st-dot{border-color:var(--accent); box-shadow:inset 0 0 0 4px var(--surface); background:var(--accent)}
+.st-o-t{flex:1; min-width:0; display:flex; flex-direction:column}
+.st-o-t em{align-self:flex-start; font-style:normal; font-size:12px; font-weight:800; letter-spacing:.03em; text-transform:uppercase; color:var(--accent-ink); margin-bottom:1px}
+.st-o-t b{font:800 18px var(--head); color:var(--text)}
+.st-o-t small{color:var(--muted); font-weight:600; font-size:14px; line-height:1.35}
+.st-o-p{flex:none; display:flex; flex-direction:column; align-items:flex-end; text-align:end; max-width:40%}
+.st-o-p b{font:800 22px var(--head); color:var(--text); white-space:nowrap}
+.st-o-p small{color:var(--muted); font-weight:700; font-size:13px; line-height:1.25}
+.st-consent{font-size:14px; padding:10px 12px; border-radius:14px; background:var(--fill)}
+.st-consent.miss{outline:2px solid var(--wrong)}
+.st-buy{width:100%}
+.st-test{margin:0; text-align:center; font-size:13px; font-weight:700; color:var(--accent-ink)}
+.st-proon{display:flex; flex-direction:column; gap:6px}
+.st-proon p{margin:0}
+.st-pname{margin:0; font:800 18px var(--head)}
+.st-perday{color:var(--muted); font-weight:700; font-size:14px}
+.st-free{align-self:center; color:var(--muted); font-weight:800; text-decoration:none; padding:2px 8px; font-size:15px}
+.st-free:hover{color:var(--text)}
+
+/* what you get, what unlocks, the timeline */
+.st-feats{list-style:none; margin:0; padding:0}
+.st-feats li{display:flex; gap:8px; align-items:flex-start; margin:6px 0}
+.st-feats li svg{width:20px; height:20px; color:var(--good); flex:none; margin-top:2px}
+.st-units{list-style:none; margin:0; padding:0; border:2px solid var(--edge); border-radius:16px; overflow:hidden; background:var(--surface)}
+.st-units li{display:flex; align-items:center; gap:12px; padding:12px 16px}
+.st-units li + li{border-top:1px solid var(--line)}
+.st-units i{width:34px; height:34px; flex:none; display:grid; place-items:center; border-radius:10px; background:color-mix(in srgb, var(--chc) 16%, transparent); color:var(--chc)}
+.st-units i svg{width:18px; height:18px}
+.st-units b{flex:1; min-width:0; font-weight:800}
+.st-u{flex:1; min-width:0; display:flex; flex-direction:column; gap:2px}
+.st-ul{color:var(--muted); font-size:13px; line-height:1.35; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden}
+.st-est{margin:0 0 12px; font-weight:700; line-height:1.4; color:var(--text)}
+.st-units.cut li:nth-child(n+4){display:none}
+.st-all{margin-top:8px; padding:6px 2px; border:0; background:none; color:var(--accent-ink); font:800 15px var(--font); cursor:pointer}
+.st-units small{color:var(--muted); font-weight:700; white-space:nowrap}
+.st-tl{list-style:none; margin:0; padding:0}
+.st-tl li{position:relative; display:flex; gap:14px; align-items:flex-start; padding-bottom:18px}
+.st-tl li:last-child{padding-bottom:0}
+.st-tl li:not(:last-child)::after{content:""; position:absolute; left:13px; top:30px; bottom:2px; width:2px; background:var(--edge)}
+.st-tl i{width:28px; height:28px; flex:none; border-radius:50%; display:grid; place-items:center; border:2px solid var(--edge); background:var(--surface); box-sizing:border-box}
+.st-tl i svg{width:16px; height:16px}
+.st-tl .done i{background:var(--good); border-color:var(--good); color:#fff}
+.st-tl .now i{border-color:var(--accent); box-shadow:inset 0 0 0 5px var(--surface); background:var(--accent)}
+.st-tl .ex i{border-color:var(--gold)}
+.st-tl small{display:block; color:var(--muted); font-weight:700; font-size:13px; text-transform:uppercase; letter-spacing:.04em}
+.st-tl b{display:block; font-weight:800; margin-top:2px}
+.btn-s{display:flex; align-items:center; justify-content:center; width:100%; min-height:52px; border:2px solid var(--edge); border-radius:999px; background:var(--surface); color:var(--text);
+  font:800 16px var(--head); cursor:pointer; padding:0 20px; box-sizing:border-box; transition:transform .12s}
+.btn-s:active{transform:scale(.98)}
+.btn-s[disabled]{opacity:.45; pointer-events:none}
+.sh-p{margin:0 0 12px; text-align:center; color:var(--muted); font-weight:700}
+.sh .btn-p, .sh .btn-s{margin-top:8px}
+@media (min-width:1000px){
+  body.store .app{max-width:1040px}
+  .st .st-grid{display:grid; grid-template-columns:minmax(0,1fr) 420px; grid-template-areas:"top pay" "more pay"; grid-template-rows:auto 1fr; column-gap:48px; row-gap:18px; align-items:start; padding-top:0}
+  .st-top{grid-area:top} .st-pay{grid-area:pay; padding:18px} .st-more{grid-area:more}
+  .st-hero{min-height:132px} .st-art{width:116px}
+  .st .ob-h{font-size:30px}
+}
+
+/* ---------- store, livelier (Marek: "looks boring", 2026-11-11): violet hero with the headline and a calendar page,
+   PRO / MAX as coloured wordmarks, chunky 3D plan cards with the badge on the top edge, a chunky CTA with a soft shine. ---------- */
+.st-hero{align-items:center; justify-content:space-between; gap:8px; min-height:0; padding:18px 4px 18px 18px; isolation:isolate;
+  background:linear-gradient(135deg, #7A5CF0 0%, #6C5CE7 45%, #C04FD8 100%); box-shadow:0 5px 0 #4B3CC4}
+.st-hx{position:relative; z-index:1; min-width:0; flex:1}
+.st .st-hero .ob-h{margin:0; color:#fff; font-size:27px; line-height:1.12; letter-spacing:-.01em; text-wrap:balance}
+.st-hero .st-art{width:104px; margin:0 -2px -24px 0; align-self:flex-end; position:relative; z-index:1; filter:drop-shadow(0 4px 0 #0002)}
+.st-spark{position:absolute; z-index:0; border-radius:50%; background:#fff; opacity:.16; pointer-events:none}
+.st-spark.s1{width:150px; height:150px; right:-40px; top:-60px}
+.st-spark.s2{width:70px; height:70px; right:110px; bottom:-34px; opacity:.1}
+.st-spark.s3{width:12px; height:12px; left:46%; top:16px; opacity:.5; box-shadow:26px 30px 0 -3px #fff, -40px 54px 0 -4px #ffffffaa}
+.st-urg{margin:12px 0 0; gap:10px; flex-wrap:nowrap; color:#fff}
+.st-urg > span{display:flex; flex-direction:column; padding:0; background:none; color:#fff; font-size:15px; line-height:1.25}
+.st-urg > span b{font:800 16px var(--head); color:#fff}
+.st-urg > span small{font-weight:700; font-size:13px; color:#ffffffcc}
+.st-cal{flex:none; width:40px; height:42px; display:grid; place-items:center; padding-top:12px; box-sizing:border-box; border-radius:9px; font:900 19px/1 var(--head); font-style:normal; color:#161A2D;
+  background:linear-gradient(#FF5A6E 0 12px, #fff 12px); box-shadow:0 3px 0 #0003}
+.st-top .st-tap, .st-top .ob-sub{margin-top:14px}
+
+.st-opts{display:grid; grid-auto-rows:1fr; gap:16px; padding-top:8px} /* both plan cards the same height */
+.st-opt{border-width:2px 2px 4px; border-radius:18px; padding:16px 14px 14px; transition:transform .12s, border-color .15s, background .15s}
+.st-opt:active{transform:translateY(2px)}
+.st-opt.on{border-color:var(--accent); background:color-mix(in srgb, var(--accent) 8%, var(--surface)); box-shadow:none}
+.st-opt.pl-pro.on{border-color:#E69A1A; background:color-mix(in srgb, #F5A524 10%, var(--surface))}
+.st-dot{display:grid; place-items:center; color:transparent; width:26px; height:26px; transition:background .15s, border-color .15s}
+.st-dot svg{width:16px; height:16px}
+.st-opt.on .st-dot{box-shadow:none; background:var(--accent); border-color:var(--accent); color:#fff}
+.st-opt.pl-pro.on .st-dot{background:#E69A1A; border-color:#E69A1A}
+.st-o-t em{position:absolute; top:-12px; left:14px; margin:0; padding:3px 10px; border-radius:99px; font-size:11.5px; letter-spacing:.05em; color:#fff; background:var(--accent); box-shadow:0 2px 0 #4B3CC4}
+.st-opt.pl-pro .st-o-t em{background:#F5A524; color:#3A2400; box-shadow:0 2px 0 #C47F0C}
+.st-o-t b{font:900 22px/1.1 var(--head); letter-spacing:.04em; font-style:italic; width:max-content;
+  background:linear-gradient(90deg, var(--accent), color-mix(in srgb, #D04FE0 70%, var(--accent))); -webkit-background-clip:text; background-clip:text; color:transparent}
+.st-opt.pl-pro .st-o-t b{background-image:linear-gradient(90deg, #F08A3A, #E5446D)}
+.st-o-t small{margin-top:3px}
+.st-o-p b{font-size:24px}
+
+.st-consent{background:none; padding:2px 2px}
+.st-buy{position:relative; overflow:hidden; min-height:58px; font-size:18px; letter-spacing:.01em; box-shadow:0 5px 0 #4B3CC4; transition:transform .1s, box-shadow .1s}
+.st-buy:active{transform:translateY(3px); box-shadow:0 2px 0 #4B3CC4}
+.st-buy::after{content:""; position:absolute; top:0; bottom:0; left:-40%; width:30%; background:linear-gradient(100deg, transparent, #ffffff55, transparent); transform:skewX(-18deg); animation:stShine 3.6s ease-in-out 1s infinite}
+@keyframes stShine{0%, 70%{left:-40%} 100%{left:130%}}
+@media (prefers-reduced-motion:reduce){ .st-buy::after{animation:none; display:none} }
+.st-pay{border-width:2px 2px 4px}
+.st-feats li svg{box-sizing:border-box; width:22px; height:22px; padding:3px; border-radius:50%; background:var(--good); color:#fff; margin-top:1px}
+@media (min-width:1000px){
+  .st-hero{padding:26px 8px 26px 28px}
+  .st .st-hero .ob-h{font-size:34px}
+  .st-hero .st-art{width:150px; margin-bottom:-30px}
+}
+
+/* Map unlock card: matches the store's payment card. */
+/* A solid violet button-card on a lip (like the buy button): white text, a gold lock coin, an arrow chip. Hover lifts it,
+   pressing pushes it onto its lip. Same violet as the store hero so the tap continues straight into the store. */
+body .pc-unlock{position:relative; overflow:hidden; isolation:isolate; gap:14px; align-items:center; border:none; color:#fff;
+  background:linear-gradient(135deg, #7B6CF6, #5A49E0); box-shadow:0 6px 0 #4234B8, 0 12px 20px -8px #4234B888; transition:transform .12s ease, box-shadow .12s ease, filter .2s ease}
+.pc-unlock:before{content:""; position:absolute; right:-40px; top:-60px; width:170px; height:170px; border-radius:50%; background:#ffffff14; z-index:-1}
+.pc-unlock .ul-ic{width:46px; height:46px; flex:none; display:grid; place-items:center; border-radius:50%; background:#FFC531; color:#7A4F00; box-shadow:0 3px 0 #E0A410}
+.pc-unlock .ul-ic svg, body .side .pc-unlock .ul-ic svg{width:22px; height:22px}
+.pc-unlock div{flex:1; min-width:0}
+.pc-unlock b{color:#fff}
+.pc-unlock span{color:#ffffffd9}
+.pc-unlock .ul-go{flex:none; display:grid; place-items:center; width:38px; height:38px; border-radius:50%; background:#fff; color:#5A49E0; box-shadow:0 3px 0 #ffffff59}
+.pc-unlock .ul-go svg, body .side .pc-unlock .ul-go svg{width:20px; height:20px}
+@media (hover:hover){ .pc-unlock:hover{transform:translateY(-2px); box-shadow:0 8px 0 #4234B8, 0 16px 24px -8px #4234B8aa; filter:brightness(1.06)} .pc-unlock:hover .ul-go{transform:translateX(2px)} }
+.pc-unlock:active{transform:translateY(5px); box-shadow:0 1px 0 #4234B8; filter:none}
+.pc-unlock .ul-go{transition:transform .15s ease}
+@media (prefers-reduced-motion:reduce){ .pc-unlock, .pc-unlock .ul-go{transition:none} .pc-unlock:hover{transform:none} }
+/* The rest of a paid course being written: a status, not a button, so a quiet card like the side cards (.sc),
+   with a blue coin like the running step on the wait page and a slim green bar. Never lifts or presses. */
+body .pc-unlock.pc-rest, body .side .pc-unlock.pc-rest{background:var(--surface); color:var(--text); border:2px solid var(--edge, var(--line)); border-radius:16px; box-shadow:none; transform:none; filter:none; transition:none; padding:18px; gap:14px}
+body .pc-unlock.pc-rest:before{display:none}
+body .pc-rest .ul-ic{width:44px; height:44px; background:var(--blue-soft); color:var(--blue-ink); box-shadow:none}
+body .pc-rest b, body .side .pc-rest b{color:var(--text); font:800 19px var(--head)}
+body .pc-rest span, body .side .pc-rest span{color:var(--muted); font-size:15px; font-weight:600; margin-top:2px}
+body .pc-rest .rest-bar{background:var(--fill); height:6px; margin-top:10px}
+body .pc-rest .rest-bar i{background:linear-gradient(90deg,var(--green) 0 40%,#89e219 50%,var(--green) 60% 100%) 0 0/250% 100%}
+body .pc-rest .rest-win{color:var(--text); font-weight:700}
+/* phone and tablet: a slim pill floating over the map (placeSlim() puts it just above the tab bar) */
+body.map-page .pc-unlock.pc-rest.slim{position:fixed; left:50%; transform:translateX(-50%); bottom:84px; z-index:15; margin:0;
+  width:min(calc(100% - 32px), 420px); box-sizing:border-box; padding:10px 14px; gap:12px; border-radius:999px;
+  box-shadow:0 10px 28px -10px #161a2d40, 0 2px 0 var(--edge, var(--line)); animation:pcslim .4s cubic-bezier(.2,.9,.3,1.2) both}
+body.map-page:has(.pc-rest.slim) .mapv{padding-bottom:84px} /* the last lessons scroll clear of the pill */
+@keyframes pcslim{from{opacity:0; transform:translate(-50%,16px)}}
+body .pc-rest.slim .ul-ic{width:34px; height:34px}
+body .pc-rest.slim .ul-ic svg{width:18px; height:18px}
+body .pc-rest.slim b{display:flex; justify-content:space-between; gap:8px; font-size:15px; white-space:nowrap}
+body .pc-rest.slim b small{font:700 13px var(--body, inherit); color:var(--muted); font-variant-numeric:tabular-nums}
+body .pc-rest.slim .rest-bar{height:5px; margin-top:6px}
+@media (prefers-reduced-motion:reduce){ body.map-page .pc-unlock.pc-rest.slim{animation:none} }
+
+/* gold sheet: a gold coin on top, the gold button in gold */
+.gold-ic{width:76px; height:64px; margin:4px auto 10px; border-radius:50%; display:grid; place-items:center; color:#7A4F00;
+  background:linear-gradient(118deg, transparent 0 32%, #ffffff47 32% 48%, transparent 48%), #FFC531; box-shadow:0 6px 0 #E0A410}
+.gold-ic svg{width:36px; height:36px}
+.sh .gold-ic + .sh-h{text-align:center} .sh .gold-ic ~ .sh-p{text-align:center}
+.sh .btn-p.gold-go{background:#FFC531; box-shadow:0 4px 0 #E0A410; color:#5C3B00}
+
+/* ---------- map like Anna's: a banner per unit, one size for every level, a name under each, a tutor per unit ---------- */
+.mtop + .mapv{margin-top:0}
+.ubn{position:absolute; left:0; right:0; z-index:3; padding:0 var(--gutter)}
+@media (min-width:768px){ .ubn{padding:0} }
+.ubn .unit{min-height:84px; padding:14px 14px 14px 18px; box-sizing:border-box}
+.ubn .unit b{font-size:20px}
+.n.cur .c{width:76px; height:63px; box-shadow:0 7px 0 var(--nl), 0 12px 16px -6px #0004}
+.n.cur .c svg{width:32px; height:32px}
+.n .c{width:76px; height:63px; box-shadow:0 7px 0 var(--nl), 0 12px 16px -6px #0004}
+.n.nlock .c{box-shadow:0 7px 0 var(--nl)}
+.n .nl{position:absolute; left:50%; top:calc(100% + 18px); transform:translateX(-50%); width:150px; text-align:center; font:800 13px/1.3 var(--head); color:var(--text);
+  display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; pointer-events:none}
+.n.nlock .nl{color:var(--muted)}
+.n.cur .nl{top:calc(100% + 24px)}
+.n .nl i{display:inline-block; margin-left:6px; padding:0 5px; border:1.5px solid var(--edge); border-radius:6px; font:800 11px/16px var(--font); font-style:normal; color:var(--muted); vertical-align:1px}
+.n .start{bottom:calc(100% + 18px)}
+.tut{width:96px} .tut svg{width:96px}
+@media (min-width:1200px){ .tut{width:110px} .tut svg{width:110px} }
+.exam .eb{position:relative}
+.exam .etut{position:absolute; left:calc(100% + 34px); top:50%; width:92px; transform:translateY(-58%); pointer-events:none}
+.exam .etut svg{width:92px; height:auto; display:block}
+
+/* daily goal: one clean list, one tap saves */
+.goals{display:flex; flex-direction:column; gap:8px; margin-top:12px}
+.goal{display:flex; align-items:center; justify-content:space-between; min-height:56px; padding:0 18px; border:2px solid var(--edge); border-radius:16px; background:var(--surface); color:var(--text); font:800 16px var(--head); cursor:pointer; box-shadow:0 3px 0 var(--edge)}
+.goal span{font:700 15px var(--font); color:var(--muted)}
+.goal:hover{background:var(--fill)}
+.goal:active{transform:translateY(3px); box-shadow:none}
+.goal.on{border-color:var(--accent); background:color-mix(in srgb, var(--accent) 14%, var(--surface)); box-shadow:0 3px 0 var(--accent)}
+.goal.on span{color:var(--accent)}
+
+/* a tutor on the centred screens (course failed to load) */
+.ob-center .teacher{width:150px; height:auto}
+
+/* ---------- notes: a banner with the tutor, chapter banners like the map, numbered rows that tick when read ---------- */
+.notes-pg{padding-top:8px}
+.nbanner{min-height:150px}
+.nbanner h2{margin:0 0 6px; font:800 26px var(--head)}
+.nbanner p{margin:0; font-size:15px; opacity:.95; line-height:1.4}
+.nb-count{display:inline-block; margin-top:12px; padding:4px 10px; border-radius:99px; background:#ffffff33; font:800 13px var(--font)}
+.nch{margin-top:22px}
+.nch-h{display:flex; align-items:center; justify-content:space-between; gap:12px; min-height:72px; box-sizing:border-box; border-radius:18px; margin-bottom:12px}
+.nch-h b{font-size:20px}
+.nch-ic{flex:none; width:44px; height:44px; border-radius:14px; display:grid; place-items:center; background:#ffffff2e}
+.nch-ic svg{width:28px; height:28px}
+.note{display:block; background:var(--surface); border:2px solid var(--edge); border-radius:16px; margin-bottom:10px; box-shadow:0 3px 0 var(--edge); color:var(--text); text-decoration:none}
+.note summary,.note.nlk{display:flex; align-items:center; gap:14px; padding:12px 14px; font:inherit}
+.note summary b,.note.nlk b{flex:1; min-width:0; font:800 16px/1.3 var(--head)}
+.note .nn{flex:none; width:36px; height:36px; border-radius:12px; display:grid; place-items:center; font:800 15px var(--head);
+  background:color-mix(in srgb, var(--chc) 16%, var(--surface)); color:var(--chc)}
+.note .nn svg{width:20px; height:20px}
+.note.read .nn{background:var(--good, #58CC02); color:#fff}
+.note[open]{border-color:var(--chc); box-shadow:0 3px 0 var(--chc)}
+.note[open] summary{border-bottom:2px solid var(--edge)}
+.note .md{padding:14px 18px 6px; line-height:1.6}
+.note .pc-source{padding:0 18px 16px}
+.note:not([open]):hover,.note.nlk:hover{background:var(--fill)}
+.note.nlk{cursor:pointer}
+.note.nlk b{color:var(--muted)}
+.note.nlk .nn{background:var(--fill); color:var(--muted)}
+.nlk-go{flex:none; font:800 12px var(--font); font-style:normal; text-transform:uppercase; letter-spacing:.04em; color:var(--accent); padding:6px 10px; border-radius:10px; border:2px solid var(--edge)}
+
+/* ---------- hover cards on the top bar (mouse only): subjects, readiness, countdown ---------- */
+/* Our own look: a chunky card on a lip like the rest of the app; readiness is a filling flask, the countdown a tear-off
+   calendar with the last week's study days as collected stars. */
+.subj, .met{transition:background-color .15s ease}
+.met{border-radius:12px; padding:6px 8px; margin:-6px -8px}
+@media (hover:hover) and (pointer:fine){ .subj:hover, .subj.popped, .met:hover, .met.popped{background:var(--fill)} }
+.hc{position:fixed; z-index:70; width:330px; box-sizing:border-box; padding:18px; border-radius:22px; background:var(--surface); color:var(--text);
+  border:2px solid var(--line); box-shadow:0 5px 0 var(--line), 0 22px 40px -16px #0006; opacity:0; transform:translateY(-8px) scale(.96); transform-origin:var(--ax) 0;
+  transition:opacity .16s ease, transform .24s cubic-bezier(.2,.9,.3,1.25)}
+.hc.in{opacity:1; transform:none}
+.hc:not(.in){pointer-events:none}
+.hc:before{content:""; position:absolute; top:-9px; left:calc(var(--ax) - 8px); width:14px; height:14px; transform:rotate(45deg); border-radius:4px 0 0 0;
+  background:var(--surface); border:2px solid var(--line); border-right:none; border-bottom:none}
+.hc-top{display:flex; align-items:center; gap:16px}
+.hc-t{min-width:0}
+.hc-t b{display:block; font:800 19px/1.2 var(--head)}
+.hc-t p{margin:4px 0 0; color:var(--muted); font-size:14px; line-height:1.35}
+.hc-row{margin-top:14px}
+.hc-chip{display:inline-block; padding:4px 10px; border-radius:99px; background:var(--fill); font:800 13px var(--head)}
+
+/* readiness: a round flask */
+.flask{--liq:#22C07F; --liq2:#14A866; position:relative; flex:none; width:96px; height:96px; border-radius:50%; overflow:hidden; isolation:isolate;
+  background:color-mix(in srgb, var(--liq) 12%, var(--surface)); box-shadow:inset 0 0 0 4px color-mix(in srgb, var(--liq) 35%, var(--surface)), 0 4px 0 color-mix(in srgb, var(--liq) 30%, var(--line))}
+.fl-liq{position:absolute; left:0; right:0; bottom:0; height:var(--lvl); z-index:-1}
+.fl-liq svg{position:absolute; left:0; bottom:0; width:200%; height:calc(100% + 8px); fill:var(--liq)}
+.fl-liq svg.w2{fill:var(--liq2); opacity:.55; left:-50%}
+.fl-n{position:absolute; inset:0; display:grid; place-items:center; font:800 22px var(--head); color:var(--text); font-variant-numeric:tabular-nums; text-shadow:0 1px 0 #fff8}
+.fl-shine{position:absolute; left:18px; top:14px; width:22px; height:10px; border-radius:50%; background:#ffffffa8; transform:rotate(-30deg)}
+.bub{position:absolute; bottom:6px; width:7px; height:7px; border-radius:50%; background:#ffffffb0; opacity:0}
+.bub.b1{left:30%} .bub.b2{left:55%; width:5px; height:5px} .bub.b3{left:70%; width:6px; height:6px}
+.hc.in .fl-liq{animation:flFill 1s cubic-bezier(.3,.8,.3,1) .15s both}
+.hc.in .fl-liq svg{animation:flWave 2.4s linear infinite}
+.hc.in .fl-liq svg.w2{animation-duration:3.6s; animation-direction:reverse}
+.hc.in .bub{animation:flBub 2.2s ease-in .9s infinite}
+.hc.in .bub.b2{animation-delay:1.5s} .hc.in .bub.b3{animation-delay:2.1s}
+.hc.in .flask{animation:flPop .5s cubic-bezier(.3,1.7,.5,1) both}
+@keyframes flFill{from{height:0}}
+@keyframes flWave{to{transform:translateX(-50%)}}
+@keyframes flBub{0%{opacity:0; transform:translateY(0)} 15%{opacity:1} 100%{opacity:0; transform:translateY(-70px) translateX(4px)}}
+@keyframes flPop{from{transform:scale(.6)}}
+
+/* countdown: a calendar whose number ticks down to the days left, then the road from today to the exam */
+.cal{position:relative; flex:none; width:92px; height:96px}
+.tr-ring{position:absolute; top:2px; left:22px; z-index:3; width:8px; height:16px; border-radius:4px; background:#B8342A}
+.tr-ring.r2{left:auto; right:22px}
+.tr-pg{position:absolute; left:0; right:0; top:8px; bottom:0; border-radius:14px; background:#fff; overflow:hidden; display:grid; place-items:center;
+  box-shadow:inset 0 0 0 2px #E3E5EC, 0 4px 0 #D3D6E0}
+.tr-pg:before{content:""; position:absolute; left:0; right:0; top:0; height:22px; background:#FF5A47}
+.tr-pg b{position:relative; top:11px; font:800 40px var(--head); color:#1F2333; font-variant-numeric:tabular-nums}
+.tr-pg b.tk{animation:calTick .14s ease-out}
+.tr-pg b.land{animation:calLand .45s cubic-bezier(.3,1.8,.5,1)}
+@keyframes calTick{from{transform:translateY(-14px); opacity:.2}}
+@keyframes calLand{0%{transform:translateY(-14px) scale(1); opacity:.2} 60%{transform:scale(1.18); opacity:1} 100%{transform:none}}
+.road{margin-top:16px; padding:14px 12px 12px; border-radius:16px; background:var(--fill)}
+.dys{position:relative; display:grid; grid-template-columns:repeat(var(--n), 1fr); text-align:center}
+.dys:before{content:""; position:absolute; left:calc(50% / var(--n)); right:calc(50% / var(--n)); bottom:11.5px; height:3px; border-radius:2px; background:color-mix(in srgb, var(--muted) 28%, transparent)}
+.dy{position:relative; display:grid; justify-items:center; gap:5px}
+.dy small{font:800 11px var(--head); text-transform:uppercase; color:var(--muted)}
+.dy span{display:grid; place-items:center; width:10px; height:10px; margin:8px 0; border-radius:50%; background:color-mix(in srgb, var(--muted) 55%, var(--fill))}
+.dy.gap span{background:none; box-shadow:none; color:var(--muted); font-weight:800}
+.dy.now small{color:var(--text)}
+.dy.now span{width:26px; height:26px; margin:0; background:var(--surface); box-shadow:inset 0 0 0 3px #7B6CF6}
+.dy.now.done span{background:#22C07F; box-shadow:0 2px 0 #14A866; color:#fff}
+.dy.now.done svg{width:16px; height:16px}
+.dy.ex small{color:#D98A00}
+.dy.ex span{width:26px; height:26px; margin:0; background:#FFC531; color:#7A4F00; box-shadow:0 2px 0 #E0A410}
+.dy.ex svg{width:14px; height:14px}
+.road p{margin:10px 0 0; text-align:center; font:700 14px var(--font); color:var(--muted)}
+.road p b{font:800 15px var(--head); color:var(--text)}
+.hc.in .dy span{animation:dyIn .35s cubic-bezier(.3,1.7,.5,1) calc(.15s + var(--i) * 45ms) both}
+.hc.in .dy.now:not(.done) span{animation:dyIn .35s cubic-bezier(.3,1.7,.5,1) .15s both, dyNow 1.8s ease-in-out .8s infinite}
+@keyframes dyIn{from{transform:scale(0)}}
+@keyframes dyNow{50%{box-shadow:inset 0 0 0 3px #7B6CF6, 0 0 0 5px color-mix(in srgb, #7B6CF6 30%, transparent)}}
+
+/* subjects drop-down */
+.hc-subj{width:300px; padding:10px 8px 8px}
+.hc-lbl{padding:6px 12px 10px; font:800 12px var(--head); letter-spacing:.06em; text-transform:uppercase; color:var(--muted)}
+.hc-list{display:grid; gap:2px; max-height:320px; overflow:auto}
+.hc-list .subrow{border:none; border-radius:12px; padding:10px 12px; background:none}
+.hc-list .subrow:hover{background:var(--fill)}
+.hc-list .subrow.on{background:color-mix(in srgb, var(--info, #3B82F6) 10%, var(--surface))}
+.hc-list .subrow.add{border-top:2px solid var(--line); border-radius:0 0 12px 12px; margin-top:6px; padding-top:14px}
+
+@media (prefers-reduced-motion:reduce){
+  .hc{transition:opacity .12s}
+  .hc.in *, .hc.in .flask{animation:none !important}
+}
+
+/* ---------- landing (logged-out first page), 2026-11-15: Penny turning your stuff into a course on the left, one line and two buttons on the right ---------- */
+/* Duolingo's homepage is the model: a moving picture, a headline, a filled button and an outlined one. Files dropped anywhere
+   still count (the dashed overlay shows while dragging). */
+body.landing .app{max-width:1040px}
+.ld{display:flex; flex-direction:column; min-height:100dvh; padding-top:max(10px, env(safe-area-inset-top)); box-sizing:border-box; overflow-x:clip}
+.ld-top{display:flex; align-items:center; gap:10px; min-height:56px}
+.ld-logo{display:flex; align-items:center; gap:8px; font:800 24px var(--head); letter-spacing:-.01em; color:var(--accent)}
+.ld-gap{flex:1}
+.ld-hero{flex:1; display:grid; grid-template-columns:minmax(0, 1fr); align-items:center; justify-items:center; gap:6px; padding:4px 0 28px; text-align:center}
+.ld-art{position:relative; width:min(100%, 330px); aspect-ratio:1; container-type:inline-size}
+/* The picture: the student's files on the left, Penny in the middle, the course as a path of levels round her up to the
+   exam trophy. Positions come inline in percent of the square box (moves in cqw; the box is square). The timing is one
+   keyframe set per piece, written by app.js next to the picture. Layers so moves don't fight: .fl pops in and bobs,
+   .mv does the moves, the svg holds the tilt. Without motion it's the finished picture: files, Penny, full path. */
+.ld-art > *{position:absolute}
+.ld-art svg{display:block; width:100%; height:auto}
+.fl{z-index:3}
+.fl .mv > svg{rotate:var(--r, 0deg)}
+.fl.in .mv > svg{filter:drop-shadow(0 5px 6px #1d1f3a2e)}
+.fl.nd .mv{transform-origin:50% 60%}
+.cw-penny{z-index:2}
+.cw-penny .mv{transform-origin:50% 92%}
+.ld-road{inset:0; height:100%; z-index:1; overflow:visible; fill:none; stroke-linecap:round; stroke-width:2.2}
+.ld-road .r0{stroke:var(--edge); stroke-dasharray:.01 4.4}
+.ld-road .r1{stroke:var(--accent); stroke-dasharray:100 101}
+.ld-slot{z-index:1}
+.ld-slot .s1, .ld-tro.off .s1{fill:var(--line)}
+.ld-slot .s2, .ld-tro.off .s2{fill:var(--edge)}
+.ld-tro.off .g{fill:var(--surface); stroke:var(--surface)}
+.ld-tro{z-index:2}
+.ld-tro.on{z-index:3}
+.ld-tglow, .ld-glow{aspect-ratio:1; border-radius:50%; pointer-events:none; opacity:0}
+.ld-tglow{z-index:1; background:radial-gradient(closest-side, #ffd76a, #ffd76a55 55%, transparent)}
+.ld-glow{z-index:4; background:radial-gradient(closest-side, #fff7c2, #ffe58a99 45%, transparent)}
+.ld-spk{z-index:5; opacity:0}
+.ld-ping{z-index:2; aspect-ratio:1; border-radius:50%; border:.7cqw solid var(--accent); box-sizing:border-box; opacity:0}
+.cf{z-index:5; aspect-ratio:2; border-radius:1px; opacity:0}
+.ld-copy{display:flex; flex-direction:column; align-items:center; width:100%; max-width:520px}
+.ld-h{font:800 clamp(30px, 8.4vw, 52px)/1.06 var(--head); letter-spacing:-.02em; margin:0; max-width:16ch; text-wrap:balance}
+.ld-h em{font-style:normal; color:var(--accent)}
+.ld-sub{color:var(--muted); font-size:17px; line-height:1.45; margin:12px 0 0; max-width:36ch; text-wrap:balance}
+.ld-cta{display:flex; flex-direction:column; gap:12px; width:min(100%, 360px); margin-top:24px}
+.ld-b{display:flex; align-items:center; justify-content:center; gap:10px; min-height:54px; padding:0 22px; border-radius:16px; box-sizing:border-box; cursor:pointer;
+  font:800 16px var(--head); letter-spacing:.05em; text-transform:uppercase; text-decoration:none; transition:transform .1s var(--ease), box-shadow .1s var(--ease), filter .15s}
+.ld-b svg{width:22px; height:22px; flex:none}
+.ld-go{border:0; background:var(--accent); color:var(--on-accent); box-shadow:0 4px 0 color-mix(in srgb, var(--accent) 66%, #000)}
+.ld-go:hover{filter:brightness(1.06)}
+.ld-have{border:2px solid var(--edge); background:var(--surface); color:var(--accent-ink); box-shadow:0 4px 0 var(--edge)}
+.ld-have:hover{background:var(--fill)}
+.ld-b:active{transform:translateY(4px); box-shadow:0 0 0 transparent}
+.ld-b:focus-visible{outline:3px solid color-mix(in srgb, var(--accent) 60%, transparent); outline-offset:3px}
+.ld-go.busy{pointer-events:none}
+.ld-go.busy svg{animation:ld-spin .8s linear infinite}
+@keyframes ld-spin{to{transform:rotate(360deg)}}
+.ld-resume{align-self:center}
+.ld-types{color:var(--muted); font-size:14px; margin:14px 0 0; max-width:36ch}
+.ld-drag{display:none}
+@media (hover:hover) and (pointer:fine){ .ld-drag{display:inline} }
+.ld .ob-err{max-width:360px}
+/* the three steps: a quiet strip under the hero */
+.ld-steps{display:flex; justify-content:center; gap:20px 48px; flex-wrap:wrap; list-style:none; margin:0; padding:22px 0 18px; border-top:2px solid var(--line)}
+.ld-steps li{display:flex; align-items:center; gap:12px; font:800 14px/1.3 var(--head); letter-spacing:.06em; text-transform:uppercase; color:var(--muted); text-align:start}
+.ld-si{display:grid; place-items:center; width:44px; height:44px; flex:none; border-radius:14px; background:var(--accent-soft); color:var(--accent-ink)}
+.ld-si svg{width:22px; height:22px}
+.ld-steps small{display:block; font:800 11px var(--head); color:var(--accent); letter-spacing:.08em}
+.ld-foot{padding:0 0 calc(14px + env(safe-area-inset-bottom))}
+/* files dragged over the page */
+.ld-over{position:fixed; inset:12px; z-index:50; display:none; place-items:center; border:3px dashed var(--accent); border-radius:28px;
+  background:color-mix(in srgb, var(--accent-soft) 90%, transparent); pointer-events:none}
+.ld.over .ld-over{display:grid}
+.ld-over div{display:flex; flex-direction:column; align-items:center; gap:10px; font:800 26px var(--head); color:var(--accent-ink)}
+.ld-over .ham{width:120px; height:120px}
+@media (max-width:700px){
+  .ld-steps{flex-direction:column; align-items:flex-start; gap:12px; padding-top:18px}
+}
+@media (min-width:860px){
+  .ld-hero{grid-template-columns:minmax(0, 1fr) minmax(0, 1fr); gap:64px; justify-items:center; padding:24px 0 56px}
+  .ld-art{width:100%; max-width:480px}
+  .ld-cta{width:min(100%, 380px)}
+}
+@media (prefers-reduced-motion:no-preference){
+  .fl{animation:ld-pop .6s cubic-bezier(.2,1.5,.4,1) var(--p, 0s) both, ld-bob var(--t, 3s) ease-in-out infinite}
+  .fl.nd{animation:none}
+  .cw-penny{animation:ld-pop .8s cubic-bezier(.2,1.4,.4,1) both, ld-bob 3s ease-in-out infinite}
+  .ld-slot, .ld-tro.off, .ld-road{animation:ld-fade .5s .2s both}
+}
+@keyframes ld-pop{from{transform:scale(0); opacity:0}}
+@keyframes ld-bob{0%, 100%{translate:0 0} 50%{translate:0 -1.4cqw}}
+@keyframes ld-fade{from{opacity:0}}
+@media (prefers-reduced-motion:reduce){ .ld-b{transition:none} .ld-go.busy svg{animation-duration:2.4s} }
+
+/* ---------- 2026-11-12: More menu, same-size subject button, gold finished chapter, settings in the frame ---------- */
+/* the subject button never changes size with the subject's name */
+.tb .subj{flex:1 1 0; width:auto; max-width:250px} /* fills the room the metrics leave, whatever the subject is called */
+.tb .subj b, .side-tb .subj b{flex:1; min-width:0; max-width:none; text-align:start}
+.side-tb .subj{flex:1 1 0; width:auto; max-width:none}
+.subrow b{overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+/* More: five tabs on phones */
+.nav a{min-width:0}
+@media (max-width:767px){ .nav-in{padding-inline:8px} .nav a{width:56px} }
+.more-pop{position:fixed; z-index:60; width:250px; padding:8px; border-radius:18px; background:var(--surface); border:2px solid var(--edge, var(--line)); box-shadow:0 12px 32px -8px #0007; animation:viewIn .15s ease}
+.mm-row{display:flex; align-items:center; gap:14px; width:100%; padding:10px 12px; border:0; border-radius:12px; background:none; color:var(--text); font:800 16px var(--head); text-align:start; cursor:pointer; text-decoration:none; box-sizing:border-box}
+.mm-row:hover{background:var(--fill)}
+.mm-list{display:flex; flex-direction:column; gap:4px; margin-top:8px}
+.mm-list .mm-row{padding:12px; border:1.5px solid var(--line); background:var(--surface)}
+/* a finished chapter: gold banner */
+.unit.ugold{box-shadow:0 4px 0 color-mix(in srgb, var(--gold) 70%, #000); text-shadow:0 1px 0 #0003}
+/* settings inside the desktop frame: title on the left like the other pages, no close button */
+@media (min-width:1200px){
+  .set{max-width:620px; margin:0 auto}
+  .set-h{grid-template-columns:1fr; border-bottom:0; margin:0; padding:24px 0 4px; position:static}
+  .set-h h1{text-align:start; font-size:30px}
+  .set-h .set-x, .set-h > span{display:none}
+}
+/* subject lists: never scroll sideways; a long title rolls out and back after 1 s (rollTitles in course.js) */
+.hc-list{grid-template-columns:minmax(0,1fr); overflow-x:hidden; overflow-y:auto}
+@property --fl{syntax:"<length>"; inherits:false; initial-value:0px}
+.subrow b.long{text-overflow:clip; --fl:0px; -webkit-mask-image:linear-gradient(90deg,transparent,#000 var(--fl),#000 calc(100% - 22px),transparent); mask-image:linear-gradient(90deg,transparent,#000 var(--fl),#000 calc(100% - 22px),transparent)}
+.subrow b.long>span{display:inline-block}
+.subrow b.roll{animation:subfade var(--dur,12s) linear infinite}
+.subrow b.roll>span{animation:subroll var(--dur,12s) ease-in-out infinite}
+/* starts gliding at once (the 1 s wait is in rollTitles), rest at the end, glide back, rest; the left fade only shows while the text is away from its start */
+@keyframes subroll{0%{transform:none} 30%,45%{transform:translateX(var(--roll))} 75%,100%{transform:none}}
+@keyframes subfade{0%{--fl:0px} 6%,69%{--fl:16px} 75%,100%{--fl:0px}}
+@media (prefers-reduced-motion:reduce){.subrow b.roll,.subrow b.roll>span{animation:none}}
+/* More card: plain uppercase words, no icons (Marek, 2026-11-13) */
+.more-pop{width:200px}
+.more-pop .mm-row{padding:12px 14px; font:800 14px var(--head); letter-spacing:.06em; text-transform:uppercase; color:var(--muted)}
+.more-pop .mm-row:hover{color:var(--text)}
+/* "New course" row: same size as a course row, one-line subtitle (Marek, 2026-11-13) */
+.hc-list .subrow.add{border-top:none; border-radius:12px; margin-top:0; padding:10px 12px}
+.subrow small{display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+/* feedback sheet (Contact us, and the question after the first finished lesson) */
+.fb-ta{display:block; width:100%; box-sizing:border-box; margin:6px 0 14px; padding:12px 14px; border:2px solid var(--line); border-radius:14px; background:var(--surface); color:var(--text); font:500 16px/1.45 var(--font); resize:vertical; min-height:120px}
+.fb-ta:focus{outline:none; border-color:var(--accent)}
+/* Contact page: a message and an optional screenshot */
+.fb{max-width:560px; margin:0 auto}
+.fb-sub{color:var(--muted); margin:18px 0 10px; line-height:1.45}
+.fb .fb-ta{min-height:180px}
+.fb-pic{position:relative; width:max-content; max-width:100%}
+.fb-pic img{display:block; max-width:100%; max-height:220px; border-radius:12px; border:2px solid var(--line); margin-bottom:14px}
+.fb-rm{position:absolute; top:6px; right:6px; width:32px; height:32px; border-radius:50%; border:0; background:#000a; color:#fff; display:grid; place-items:center; cursor:pointer}
+.fb-rm svg{width:16px; height:16px}
+.fb-add{justify-content:flex-start; width:auto; margin-bottom:10px}
+
+/* a failed build: write to us, try again, sign out */
+.pc-failed{display:grid; gap:10px}
+
+/* ---------- setup, 2026-11-15: the tutor says the question (source, reminders), the month calendar ---------- */
+.ob-say{display:flex; align-items:center; gap:12px; margin:18px 0 0}
+.ob-say-art{width:92px; flex:none}
+.ob-say-art > *{display:block; width:100%; height:auto}
+.ob-bub{position:relative; flex:1; min-width:0; margin:0; padding:14px 18px; border:2px solid var(--edge); border-radius:18px; background:var(--surface);
+  font:800 21px/1.25 var(--head); letter-spacing:-.005em; color:var(--text); text-wrap:balance}
+/* the tail points at the tutor (on the other side in right-to-left languages, where the row flips) */
+.ob-bub:before{content:""; position:absolute; top:50%; left:-9px; width:14px; height:14px; margin-top:-8px; background:var(--surface);
+  border-left:2px solid var(--edge); border-bottom:2px solid var(--edge); transform:rotate(45deg)}
+[dir=rtl] .ob-bub:before{left:auto; right:-9px; transform:rotate(-135deg)}
+
+/* where did you hear about us */
+.src-grid{display:grid; grid-template-columns:minmax(0, 1fr); gap:10px}
+@media (min-width:520px){ .src-grid{grid-template-columns:repeat(2, minmax(0, 1fr))} }
+.src{display:flex; align-items:center; gap:14px; min-height:62px; padding:10px 16px; border:2px solid var(--edge); border-bottom-width:4px; border-radius:16px;
+  background:var(--surface); color:var(--text); font:800 17px var(--head); text-align:start; cursor:pointer; box-sizing:border-box;
+  transition:transform .1s var(--ease), border-color .12s, background .12s}
+.src:hover{background:var(--fill)}
+.src:active{transform:translateY(2px); border-bottom-width:2px; margin-bottom:2px}
+.src:focus-visible{outline:none; box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 35%, transparent)}
+.src[aria-checked="true"]{border-color:var(--accent); background:color-mix(in srgb, var(--accent) 12%, var(--surface)); color:var(--accent-ink)}
+.src-i{width:32px; height:32px; flex:none}
+.src-i svg{display:block; width:100%; height:100%}
+
+/* reminders: a picture of the browser's question, an arrow at Allow */
+.nf{display:flex; flex-direction:column; width:min(100%, 340px); margin:10px auto 0}
+.nf-box{position:relative; padding:18px 18px 16px; border:2px solid var(--edge); border-radius:16px; background:var(--surface); box-shadow:0 14px 30px -14px #0008; text-align:start}
+.nf-x{position:absolute; top:14px; inset-inline-end:14px; width:18px; height:18px; color:var(--muted)}
+.nf-x svg{display:block; width:100%; height:100%}
+.nf-site{display:block; padding-inline-end:26px; font:700 15px/1.35 var(--font); overflow-wrap:anywhere}
+.nf-row{display:flex; align-items:center; gap:10px; margin:12px 0 18px; color:var(--muted); font-size:15px}
+.nf-row svg{width:20px; height:20px; flex:none}
+.nf-btns{display:flex; justify-content:flex-end; gap:8px}
+.nf-btns span{padding:8px 14px; border:2px solid var(--edge); border-radius:999px; font:800 13px var(--font); letter-spacing:.03em; text-transform:uppercase; color:var(--accent-ink)}
+.nf-btns .on{border-color:var(--accent); background:var(--accent); color:var(--on-accent); box-shadow:0 0 0 4px var(--accent-soft)}
+.nf-arrow{align-self:flex-end; width:34px; height:48px; margin:10px 24px 0; color:var(--accent)}
+@media (prefers-reduced-motion:no-preference){ .nf-arrow{animation:nf-bob 1.4s ease-in-out infinite} }
+@keyframes nf-bob{50%{translate:0 -8px}}
+
+/* the exam date: one month at a time, the days to the exam tinted */
+.ob-date{display:flex; flex-direction:column; gap:14px}
+.mcal{padding:12px 10px 10px; border:2px solid var(--edge); border-radius:20px; background:var(--surface)}
+.cal-hd{display:flex; align-items:center; justify-content:space-between; gap:8px; padding:0 2px 6px}
+.cal-hd b{font:800 18px var(--head); text-transform:capitalize}
+.cal-nav{display:grid; place-items:center; width:40px; height:40px; padding:0; border:2px solid var(--edge); border-bottom-width:4px; border-radius:12px; background:var(--surface); color:var(--text); cursor:pointer}
+.cal-nav svg{width:20px; height:20px}
+.cal-nav.nx svg, [dir=rtl] .cal-nav svg{transform:scaleX(-1)}
+[dir=rtl] .cal-nav.nx svg{transform:none}
+.cal-nav:active{transform:translateY(2px); border-bottom-width:2px}
+.cal-nav:disabled{opacity:.3; cursor:default; transform:none; border-bottom-width:4px}
+.cal-wd, .cal-grid{display:grid; grid-template-columns:repeat(7, minmax(0, 1fr))}
+.cal-wd span{padding:4px 0 6px; text-align:center; font:700 12px var(--font); letter-spacing:.04em; text-transform:uppercase; color:var(--muted)}
+.cal-grid{row-gap:4px; touch-action:pan-y}
+.cd{position:relative; display:grid; place-items:center; height:44px; padding:0; border:0; background:none; color:var(--text); font:700 16px var(--font); font-variant-numeric:tabular-nums; cursor:pointer}
+.cd span{position:relative; z-index:1; display:grid; place-items:center; width:40px; height:40px; border-radius:50%}
+.cd:hover:not(:disabled):not(.sel) span{background:var(--fill)}
+.cd.off{color:var(--muted); opacity:.45; cursor:default}
+.cd.today{opacity:1; color:var(--accent-ink); font-weight:800}
+.cd.today span:after{content:""; position:absolute; bottom:4px; left:50%; width:5px; height:5px; margin-left:-2.5px; border-radius:50%; background:var(--accent)}
+/* the band from today to the exam: rounded where it starts and ends and at the ends of each week */
+.cd.band:before, .cd.bout:before{content:""; position:absolute; inset:2px 0; background:var(--accent-soft)} /* bout: cells the tint is leaving */
+@media (prefers-reduced-motion:reduce){ .cd.bout:before{display:none} }
+.cd.bs:before{inset-inline-start:max(0px, calc(50% - 20px)); border-start-start-radius:20px; border-end-start-radius:20px}
+.cd.be:before{inset-inline-end:max(0px, calc(50% - 20px)); border-start-end-radius:20px; border-end-end-radius:20px}
+.cd.sel span{background:var(--accent); color:var(--on-accent); font-weight:800; box-shadow:0 3px 0 color-mix(in srgb, var(--accent) 64%, #000)}
+/* the tint runs to the tapped day as one line with a round head, and runs back when the day moves earlier (bindCal sets --d
+   and --t per cell). Each cell is uncovered by a clip whose round end travels 40px past the cell, so cells join without a seam. */
+@keyframes cal-in{from{clip-path:inset(0 100% 0 -40px round 20px)} to{clip-path:inset(0 -40px 0 -40px round 20px)}}
+@keyframes cal-in-r{from{clip-path:inset(0 -40px 0 100% round 20px)} to{clip-path:inset(0 -40px 0 -40px round 20px)}}
+@keyframes cal-pop{from{transform:scale(.6)}}
+@media (prefers-reduced-motion:no-preference){
+  .cd.gin:before{animation:cal-in var(--t) linear var(--d) both}
+  .cd.bout:before{animation:cal-in var(--t) linear var(--d) both reverse}
+  [dir=rtl] .cd.gin:before, [dir=rtl] .cd.bout:before{animation-name:cal-in-r}
+  .cd.cpop span{animation:cal-pop .34s cubic-bezier(.3,1.6,.5,1) both}
+}
+.cd:focus-visible{outline:none}
+.cd:focus-visible span{box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 45%, transparent)}
+.cd.sel:focus-visible span{box-shadow:0 3px 0 color-mix(in srgb, var(--accent) 64%, #000), 0 0 0 5px color-mix(in srgb, var(--accent) 35%, transparent)}
+.cal-plan{display:flex; align-items:center; justify-content:space-between; gap:12px; min-height:66px; padding:12px 16px; border-radius:16px; background:var(--fill); box-sizing:border-box}
+.cal-plan .t{min-width:0}
+.cal-plan .t b{display:block; font:800 17px/1.25 var(--head)}
+.cal-plan .t span{display:block; margin-top:2px; color:var(--muted); font-size:14px; font-variant-numeric:tabular-nums}
+.cal-plan .badge{flex:none; padding:6px 12px; font-size:14px}
+.cal-plan .badge svg{width:18px; height:18px}
+.cal-plan.empty{justify-content:flex-start; color:var(--muted); font-weight:700; font-size:15px}
+.cal-plan.empty svg{width:30px; height:30px; flex:none}
+.sh .mcal{margin:4px 0 12px}
+.sh #calPlan{margin-bottom:16px}
+@media (max-width:360px){ .cd span{width:36px; height:36px} .cd.bs:before{inset-inline-start:max(0px, calc(50% - 18px))} .cd.be:before{inset-inline-end:max(0px, calc(50% - 18px))} .ob-say-art{width:76px} .ob-bub{font-size:19px} }
+
+/* ---------- polish (Marek, 2026-11-17): the app's name on the rail, the lesson-end numbers, the course's look ---------- */
+/* Kvizoo above the menu, only where the tab bar is a rail on the left */
+.nav-brand{display:none}
+@media (min-width:768px){
+  .nav-brand{display:block; font:800 19px var(--head); letter-spacing:-.01em; color:var(--accent); text-align:center; margin:0 0 10px}
+}
+@media (min-width:1200px){
+  .nav-brand{font-size:27px; text-align:start; padding:2px 14px; margin-bottom:14px}
+}
+/* lesson end: readiness with its gain, correct, time. All three boxes the same height even when the gain wraps under the number. */
+.cel .sbox{display:flex; flex-direction:column}
+.cel .sbox .h{white-space:nowrap; letter-spacing:.03em}
+.cel .sbox .v{flex:1; flex-wrap:wrap; column-gap:6px; row-gap:2px; align-content:center}
+.sbox .gain{font:800 13px var(--head); font-variant-numeric:tabular-nums; color:var(--good); background:var(--good-soft); border-radius:99px; padding:2px 7px}
+.sbox .gain.dn{color:var(--wrong); background:var(--wrong-soft)}
+/* the course's square with one of our icons instead of the letter */
+.sq.ico svg{display:block; width:68%; height:68%}
+.subj .sq.ico svg{width:64%; height:64%}
+.srow .sq.s-ic{background:var(--accent); font:800 17px var(--head)} .srow .sq.s-ic svg{width:68%; height:68%}
+/* Settings: the sheet that picks them */
+.cl-prev{cursor:default}
+.cl-h{font:800 13px var(--head); text-transform:uppercase; letter-spacing:.05em; color:var(--muted); margin:16px 0 8px}
+.cl-cols{display:grid; grid-template-columns:repeat(8, minmax(0, 1fr)); gap:8px; justify-items:center}
+.cl-col{width:100%; max-width:40px; aspect-ratio:1; border-radius:50%; border:0; padding:0; background:var(--c); color:transparent; display:grid; place-items:center; cursor:pointer}
+.cl-col svg{width:18px; height:18px}
+.cl-col[aria-checked="true"]{color:#fff; box-shadow:0 0 0 3px var(--surface), 0 0 0 6px var(--c)}
+.cl-emos{display:grid; grid-template-columns:repeat(6, minmax(0, 1fr)); gap:8px; margin-bottom:16px}
+/* each icon sits on the picked colour, so the grid shows exactly what the square will look like */
+.cl-emo{height:46px; border-radius:13px; border:0; padding:0; background:var(--cl, var(--accent)); color:#fff; display:grid; place-items:center; cursor:pointer; transition:transform .12s ease}
+.cl-emo svg{display:block; width:30px; height:30px}
+.cl-emo.let{font:800 18px var(--head)}
+.cl-emo[aria-checked="true"]{box-shadow:0 0 0 3px var(--surface), 0 0 0 6px var(--cl, var(--accent))}
+@media (hover:hover){ .cl-emo:hover{transform:translateY(-2px)} }
+@media (prefers-reduced-motion:reduce){ .cl-emo{transition:none} .cl-emo:hover{transform:none} }
+:is(.cl-col, .cl-emo):focus-visible{outline:3px solid var(--accent); outline-offset:3px}
+.cel .sbox.p{--sc:var(--accent)}
+/* The unlock card on the map speaks the store's language (Marek, 2026-11-17): the store hero's violet-to-magenta, its
+   pale circle and sparkles, its lip, and the 20px corners of the side cards it sits with. Only the link; the "rest is
+   being written" status card (.pc-rest) and the failed one (.off) are divs and stay quiet. */
+body a.pc-unlock, body .side a.pc-unlock{border-radius:20px; background:linear-gradient(135deg, #7A5CF0 0%, #6C5CE7 45%, #C04FD8 100%); box-shadow:0 5px 0 #4B3CC4}
+a.pc-unlock:before{right:-40px; top:-60px; width:150px; height:150px; background:#fff; opacity:.16}
+a.pc-unlock .ul-go{color:#6C5CE7}
+/* Marek, 2026-11-17: a gold padlock with no coin under it (the coin read as a second button beside the arrow); it
+   opens when the card is pointed at, and small bubbles rise slowly behind the text so the card is never quite still. */
+body a.pc-unlock .ul-ic, body .side a.pc-unlock .ul-ic{width:46px; height:46px; border-radius:0; background:none; box-shadow:none; filter:drop-shadow(0 3px 0 #00000026)}
+body a.pc-unlock .ul-ic svg, body .side a.pc-unlock .ul-ic svg{width:100%; height:100%; overflow:visible}
+.ul-sh{transform-box:view-box; transform-origin:27px 18px; transition:transform .32s cubic-bezier(.3,1.7,.5,1)}
+@media (hover:hover){ a.pc-unlock:hover .ul-sh{transform:translateY(-3.5px) rotate(24deg)} }
+a.pc-unlock:focus-visible .ul-sh{transform:translateY(-3.5px) rotate(24deg)}
+.ul-bubs{position:absolute; inset:0; z-index:-1; pointer-events:none}
+.ul-bubs i{position:absolute; bottom:-14px; border-radius:50%; background:#fff; opacity:0; animation:ulRise 9s linear infinite; will-change:transform}
+.ul-bubs i:nth-child(1){left:22%; width:8px; height:8px; animation-duration:9s; animation-delay:-2s}
+.ul-bubs i:nth-child(2){left:41%; width:5px; height:5px; animation-duration:12s; animation-delay:-7s}
+.ul-bubs i:nth-child(3){left:58%; width:10px; height:10px; animation-duration:10.5s; animation-delay:-4.5s}
+.ul-bubs i:nth-child(4){left:73%; width:6px; height:6px; animation-duration:8s; animation-delay:-1s}
+.ul-bubs i:nth-child(5){left:88%; width:7px; height:7px; animation-duration:13s; animation-delay:-9s}
+/* the store's hero wears the same bubbles (Marek, 2026-11-17); it is taller, so they travel further and are a bit bigger */
+.st-hero .ul-bubs{z-index:0}
+.st-hero .ul-bubs i{animation-name:ulRiseTall; scale:1.3}
+@keyframes ulRiseTall{ 0%{transform:translate(0,0); opacity:0} 12%{opacity:.5} 65%{opacity:.4} 100%{transform:translate(10px,-230px); opacity:0} }
+@keyframes ulRise{ 0%{transform:translate(0,0); opacity:0} 15%{opacity:.5} 60%{opacity:.4} 100%{transform:translate(8px,-130px); opacity:0} }
+@media (prefers-reduced-motion:reduce){
+  .ul-sh{transition:none}
+  .ul-bubs i{animation:none; opacity:.4; bottom:auto}
+  .ul-bubs i:nth-child(1){top:68%} .ul-bubs i:nth-child(2){top:22%} .ul-bubs i:nth-child(3){top:12%} .ul-bubs i:nth-child(4){top:70%} .ul-bubs i:nth-child(5){top:60%}
+}
+@media (hover:hover){ body a.pc-unlock:hover{transform:translateY(-2px); box-shadow:0 7px 0 #4B3CC4; filter:brightness(1.05)} }
+body a.pc-unlock:active{transform:translateY(4px); box-shadow:0 1px 0 #4B3CC4; filter:none}
+@media (prefers-reduced-motion:reduce){ body a.pc-unlock:hover, body a.pc-unlock:active{transform:none} }
+@media (min-width:1200px){
+  body .side a.pc-unlock{padding:20px; border-radius:20px}
+  body .side a.pc-unlock{gap:14px}
+  body .side a.pc-unlock .ul-ic{width:50px; height:50px}
+  .side a.pc-unlock b{font-size:19px; line-height:1.15; white-space:nowrap}
+  .side a.pc-unlock .ul-go{width:40px; height:40px}
+}
