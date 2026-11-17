@@ -38,7 +38,9 @@ function writeUs(token, where) {
 const hideNav = () => { $("#nav").hidden = true; document.body.classList.remove("has-tabs"); };
 let cfgP = null;
 const storeConfig = () => cfgP ||= fetch("store.config.json").then(r => r.json()).catch(e => { cfgP = null; throw e; });
-const legalLinks = () => `<p class="ob-legal"><a href="#/terms">${t("termsTitle")}</a> · <a href="#/privacy">${t("privTitle")}</a></p>`;
+const legalLinks = () => `<p class="ob-legal"><a href="#/terms">${t("termsTitle")}</a> · <a href="#/privacy">${t("privTitle")}</a><span id="footMail" hidden> · <a></a></span></p>`;
+// The contact address comes from store.config.json (operator.email), so it lives in one place.
+const fillFootMail = () => storeConfig().then(c => { const el = $("#footMail"), m = c.operator?.email; if (!el || !m) return; const a = el.querySelector("a"); a.href = `mailto:${m}`; a.textContent = m; el.hidden = false; }).catch(() => { });
 const plain = () => document.body.classList.add("plain"); // screens without the tab bar: centred on desktop
 const globe = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c-3 3.2-3 13.8 0 17M12 3.5c3 3.2 3 13.8 0 17"/></svg>`;
 const langBtn = () => `<button class="ob-lang" id="langBtn" aria-label="${t("setLang")}">${globe}<span>${lang().toUpperCase()}</span></button>`;
@@ -218,6 +220,7 @@ function viewWelcome() {
     <footer class="ld-foot">${legalLinks()}</footer>
     <div class="ld-over" aria-hidden="true"><div>${ham("open")}<b>${t("landDropHere")}</b></div></div></div>`;
   bindLang();
+  fillFootMail();
   if (locked) return;
   const drop = $("#drop"), pick = $("#pick"), ld = $("#ld");
   let busy = false;
