@@ -257,11 +257,11 @@ function signedIn(r, email) {
   resetCourse();
   nav(r.course ? "#/s/" + r.student.slug : "#/wait");
 }
-function loginFrame(title, form) {
+function loginFrame(title, form, back = "#/") {
   hideNav(); plain();
-  view().innerHTML = `<div class="ob"><div class="ob-hd"><button class="ob-bk" id="stepBack" aria-label="${t("back")}">${CLOSE}</button></div>
+  view().innerHTML = `<div class="ob"><div class="ob-hd"><button class="ob-bk" id="stepBack" aria-label="${t("back")}">${back === "#/" ? CLOSE : BACK}</button></div>
     <div class="ob-login">${ham("open", "ob-mini")}<h1 class="ob-h">${title}</h1>${form}</div></div>`;
-  $("#stepBack").onclick = () => nav("#/");
+  $("#stepBack").onclick = () => nav(back);
 }
 /* ---------- Continue with Google (2026-11-15) ---------- */
 // Google's own button, from Google's script, so it looks the way their brand rules ask. It hands back a signed ID token
@@ -298,10 +298,10 @@ async function googleButton(box, onToken, signup = false) {
 function viewLogin() {
   loginFrame(t("signinTitle"), `${G_BOX()}<form id="f" class="ob-form"><input class="ob-in" id="email" type="email" autocomplete="email" placeholder="${t("accEmail")}" aria-label="${t("accEmail")}" maxlength="200">
     <input class="ob-in" id="pass" type="password" autocomplete="current-password" placeholder="${t("accPass")}" aria-label="${t("accPass")}" maxlength="200">
-    <p class="ob-err" id="err" hidden role="alert"></p><button class="btn-p" id="go">${t("loginGo")}</button><p class="ob-legal" id="forgot" hidden></p></form>`);
+    <p class="ob-err" id="err" hidden role="alert"></p><button class="btn-p" id="go">${t("loginGo")}</button></form>
+    <p class="ob-note c"><a href="#/forgot" id="forgot">${t("forgotLink")}</a></p>`);
   $("#email").focus();
-  // No reset e-mail yet: the student writes in and gets a new password by hand (pc password <email>). Shown once the contact address is set.
-  storeConfig().then(c => { const el = $("#forgot"), m = c.operator?.email; if (el && m) { el.textContent = t("signinForgot", { email: m }); el.hidden = false; } }).catch(() => { });
+  $("#forgot").onclick = () => { forgotEmail = $("#email").value.trim(); }; // the reset page starts with what was typed here
   $("#f").onsubmit = async e => {
     e.preventDefault();
     const email = $("#email").value.trim(), password = $("#pass").value;
@@ -313,6 +313,67 @@ function viewLogin() {
     $("#err").hidden = true;
     try { const r = await api("login", { google: token }); store.set("session", { token: r.session, slug: r.student.slug }); await useInvite(); signedIn(r, r.email || tokenClaims(token).email); } catch (er) { fail($("#err"), er); }
   });
+}
+
+/* ---------- forgot password (2026-11-17) ---------- */
+// The student asks for a link by email (pc-api reset_request, sent with Resend) and sets a new password on #/reset?t=<token>.
+// The reply never says whether the address has an account. Until Marek sets the mail key, pc-api answers mail_off and the
+// page shows the old line: write to us and get a new password by hand (npm run pc password <email>).
+let forgotEmail = "", resetToken = "";
+function viewForgot() {
+  const typed = forgotEmail || store.get("email", "") || "";
+  loginFrame(t("forgotTitle"), `<p class="ob-sub">${t("forgotSub")}</p><form id="f" class="ob-form" novalidate>
+    <input class="ob-in" id="email" type="email" autocomplete="email" placeholder="${t("accEmail")}" aria-label="${t("accEmail")}" maxlength="200" value="${esc(typed)}">
+    <p class="ob-err" id="err" hidden role="alert"></p><button class="btn-p" id="go">${t("forgotGo")}</button></form>`, "#/login");
+  if (matchMedia("(hover:hover)").matches) $("#email").focus();
+  $("#f").onsubmit = async e => {
+    e.preventDefault();
+    const email = $("#email").value.trim();
+    if (!EMAIL_RE.test(email)) return fail($("#err"), { code: "bad_email" });
+    $("#go").disabled = true; $("#err").hidden = true;
+    try {
+      await api("reset_request", { email, lang: lang() });
+      forgotEmail = email;
+      loginFrame(t("forgotSentTitle"), `<p class="ob-sub" id="sent"></p><a class="btn-p" id="toLogin" href="#/login">${t("accLogin")}</a>`, "#/login");
+      $("#sent").textContent = t("forgotSent", { email });
+    } catch (er) {
+      $("#go").disabled = false;
+      if (er.code !== "mail_off") return fail($("#err"), er);
+      const m = (await storeConfig().catch(() => ({}))).operator?.email;
+      if (!m) return fail($("#err"), er);
+      $("#err").textContent = t("signinForgot", { email: m }); $("#err").hidden = false;
+    }
+  };
+}
+// The link from the email. The token leaves the address bar at once (history, screenshots) and stays in memory only.
+function viewReset() {
+  const m = location.hash.match(/[?&]t=([A-Za-z0-9_-]{20,100})/);
+  if (m) { resetToken = m[1]; history.replaceState(null, "", location.pathname + location.search + "#/reset"); }
+  if (!resetToken) {
+    return loginFrame(t("resetTitle"), `<p class="ob-sub">${errText("bad_reset")}</p><a class="btn-p" href="#/forgot">${t("resetAgain")}</a>`, "#/login");
+  }
+  loginFrame(t("resetTitle"), `<form id="f" class="ob-form" novalidate>
+    <input class="ob-in" id="pass" type="password" autocomplete="new-password" placeholder="${t("accPassPh")}" aria-label="${t("accPass")}" maxlength="200">
+    <p class="ob-err" id="err" hidden role="alert"></p><button class="btn-p" id="go">${t("resetGo")}</button></form>`, "#/login");
+  if (matchMedia("(hover:hover)").matches) $("#pass").focus();
+  $("#f").onsubmit = async e => {
+    e.preventDefault();
+    const password = $("#pass").value;
+    if (password.length < 8) return fail($("#err"), { code: "bad_password" });
+    $("#go").disabled = true; $("#err").hidden = true;
+    try {
+      const r = await api("reset_password", { token: resetToken, password });
+      resetToken = "";
+      store.set("session", { token: r.session, slug: r.student.slug });
+      toast(t("resetDone"));
+      await useInvite();
+      signedIn(r, r.email);
+    } catch (er) {
+      $("#go").disabled = false;
+      if (er.code === "bad_reset") { resetToken = ""; return render(); } // the page then says the link is dead and offers a new one
+      fail($("#err"), er);
+    }
+  };
 }
 
 /* ---------- step 1: slides ---------- */
@@ -1179,6 +1240,8 @@ function route() {
   if (parts[0] === "start") return nav("#/"); // the old invite page
   if (parts[0] === "t") return testerLink(parts[1]);
   if (parts[0] === "login") return viewLogin();
+  if (parts[0] === "forgot") return viewForgot();
+  if (parts[0] === "reset") return viewReset();
   if (parts[0] === "wait") return viewWait();
   if (parts[0] === "unlock") return viewUnlock();
   if (parts[0] === "privacy") return viewPrivacy();

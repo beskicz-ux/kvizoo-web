@@ -185,6 +185,7 @@ body.plain .app{padding-bottom:0}
 .ob-login{display:flex; flex-direction:column; align-items:center; text-align:center; padding-top:20px}
 .ob-login .ob-form{width:100%; margin-top:18px}
 .ob-login .ob-g{margin-top:20px}
+.ob-login > .btn-p{margin-top:24px}
 .ob-mini{width:96px; height:96px}
 
 /* unlock, legal, wait */
