@@ -1,5 +1,5 @@
 {
-  "testMode": true,
+  "testMode": false,
   "google": { "clientId": "190146205617-7s1vsvt3qj2fusuh8t8j8vl07vggpo73.apps.googleusercontent.com" },
   "operator": {
     "name": "Marek Malecha",
