@@ -2,6 +2,22 @@
 // The per-page minutes are assumptions, shown as an estimate in the UI.
 export const MIN_PER_PAGE_FIRST = 1.5, MIN_PER_PAGE_REPEAT = 0.5, PAGES_PER_MB_GUESS = 8;
 
+// The exam-date step's plan. Marek, 2026-11-17: the pace should depend on how long the slides are, and it is better to
+// tell students they can do it than to scare them that they are late. A week is enough for one lecture's deck.
+// Per page: 1.5 min to learn it (reading plus a first try at its ~3 questions; a first look at a flashcard takes
+// about 20-60 s) and 0.5 min for each repeat (reviews take about 5-20 s a card). The repeats grow with the days
+// available, from 1 up to 3 at about a week, smoothly, so a later exam day never gives a heavier plan. From 4 days out
+// the last day stays free for a calm run-through. Pace: up to 30 min a day is relaxed, up to 60 a good pace, more is a
+// sprint. One 30-slide deck in a week works out at about 14 min a day (relaxed), and about 130 slides in a week is
+// still a good pace.
+export const PACE_RELAXED = 30, PACE_GOOD = 60;
+export function studyPlan(pages, n) {
+  const p = Math.max(1, pages || 20), days = Math.max(1, n > 3 ? n - 1 : n);
+  const repeats = Math.min(3, Math.max(1, days / 2.5));
+  const perDay = p * (MIN_PER_PAGE_FIRST + repeats * MIN_PER_PAGE_REPEAT) / days;
+  return { days, repeats, perDay, pace: perDay <= PACE_RELAXED ? "chill" : perDay <= PACE_GOOD ? "tempo" : "sprint" };
+}
+
 export function daysBetween(fromIso, toIso) {
   const p = s => { const [y, m, d] = s.split("-").map(Number); return Date.UTC(y, m - 1, d); };
   return Math.round((p(toIso) - p(fromIso)) / 86400000);

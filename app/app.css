@@ -113,7 +113,8 @@ body.plain .app{padding-bottom:0}
 /* date */
 .badge{display:inline-flex; align-items:center; gap:8px; padding:8px 16px; border-radius:999px; font:800 16px var(--head)}
 .badge svg{width:20px; height:20px}
-.badge.sprint{background:color-mix(in srgb, var(--wrong) 14%, var(--surface)); color:var(--wrong)}
+/* sprint is warm amber, not the red of a wrong answer: a short deadline is a push, not an error (Marek, 2026-11-17) */
+.badge.sprint{background:color-mix(in srgb, var(--gold, #F5A524) 18%, var(--surface)); color:color-mix(in srgb, var(--gold, #F5A524) 55%, var(--text, #161A2D))}
 .badge.tempo{background:var(--accent-soft); color:var(--accent-ink)}
 .badge.chill{background:color-mix(in srgb, var(--done) 16%, var(--surface)); color:var(--done)}
 

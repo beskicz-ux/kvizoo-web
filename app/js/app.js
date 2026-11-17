@@ -3,7 +3,7 @@ import { $, $$, view, esc, store, api, today, addDays, ic, I, toast, confetti, s
 import { t, lang, setLang, courseLang, errText, pages as pagesTxt, fileCount, lessonCount, minutesLeft, inDays, inWeeks, fmtDay, fmtShortMonth } from "./i18n.js";
 import { ham } from "./art.js";
 import { isImage, imagesToPdfs } from "./images.js";
-import { countPages, validFile, daysBetween, ACCEPT, slidesOf } from "./forecast.js";
+import { countPages, validFile, daysBetween, ACCEPT, slidesOf, studyPlan } from "./forecast.js";
 import { phaseOf, QUEUED, stepsHtml, barTarget, phaseStart, clock, stageText } from "./build.js";
 import { courseRoute, tutorArt, TUTORS, tutorWith, resetCourse, storeInfo, snapGoal, money } from "./course.js";
 import { BACK, CLOSE, CHEV_DOWN, PACE_ICONS, calIcon, langSheet, applyTheme, sheet, yearWheel } from "./ui.js";
@@ -414,10 +414,10 @@ function viewFiles() {
 // Marek, 2026-11-15: "I still hate the timeline". A plain month you tap, like the calendar on a phone. The days from today
 // to the exam are tinted, so the student sees how much time is left. The same picker is in Settings → exam date.
 export const DATE_MIN = 1, DATE_MAX = 180; // from tomorrow to about half a year out
-const paceOf = n => n < 14 ? "sprint" : n < 35 ? "tempo" : "chill";
-// Minutes a day: one pass plus three repeats of every page (3 min a page), spread over the days before the last two.
-// The plan's daily minutes, snapped to the goals the settings offer (10/15/20/30/60).
-export const minutesFor = (pages, n) => snapGoal(Math.max(10, Math.min(90, Math.round((pages || 20) * 3 / Math.max(1, n - 2) / 5) * 5)));
+// The pace and the minutes a day come from the deck's size and the days left: studyPlan() in forecast.js.
+// The minutes are snapped to the goals the settings offer (10/15/20/30/60).
+const paceOf = (pages, n) => studyPlan(pages, n).pace;
+export const minutesFor = (pages, n) => snapGoal(Math.max(10, Math.min(90, Math.round(studyPlan(pages, n).perDay / 5) * 5)));
 const p2 = n => String(n).padStart(2, "0");
 const ymd = (y, m, d) => `${y}-${p2(m + 1)}-${p2(d)}`;
 const monthName = (y, m) => { try { return new Date(y, m, 1, 12).toLocaleDateString(lang(), { month: "long", year: "numeric" }); } catch { return `${m + 1}/${y}`; } };
@@ -430,7 +430,7 @@ export function calHtml() {
 // The line under the calendar: the date in words, how far off it is, minutes a day and the pace.
 export function planHtml(n, iso, pages) {
   if (!iso) return `<div class="cal-plan empty">${calIcon()}<span>${esc(t("datePick"))}</span></div>`;
-  const kind = paceOf(n), when = n < 14 ? inDays(n) : inWeeks(Math.round(n / 7));
+  const kind = paceOf(pages, n), when = n < 14 ? inDays(n) : inWeeks(Math.round(n / 7));
   return `<div class="cal-plan"><div class="t"><b>${esc(fmtDay(iso))}</b><span>${esc(t("dateRel", { when, min: minutesFor(pages, n) }))}</span></div><span class="badge ${kind}">${PACE_ICONS[kind]}${t({ sprint: "paceSprint", tempo: "paceTempo", chill: "paceChill" }[kind])}</span></div>`;
 }
 // Binds the calendar from calHtml(). onPick(n, iso) after every pick (and once at the start when a date is already set).
