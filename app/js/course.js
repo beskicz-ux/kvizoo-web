@@ -6,6 +6,7 @@ import { mergeState, defaults } from "./merge.js";
 import { daysBetween } from "./forecast.js";
 import { viewVoice } from "./voice.js";
 import { persona } from "./persona.js";
+import { slideRef } from "./slides.js";
 import { mix, chapterColour, TAB_ICONS, PRAC_ICONS, ringIcon, calIcon, doneIcon, timeIcon, GEAR, CHEV_DOWN, CHEV, CLOSE, NOTES_ICON, setIcon, COURSE_ICONS, LEVEL_ICONS, TICK, levelIcon, langSheet, langName, sheet, applyTheme } from "./ui.js";
 import { phaseOf, iconFor, barTarget, phaseStart, stageText } from "./build.js";
 import { calHtml, bindCal, planHtml, carouselHtml, bindCarousel, startNewSubject } from "./app.js";
@@ -116,6 +117,95 @@ function srcText(s) {
   return out.join(", ");
 }
 const srcLine = it => { const x = srcText(it.source); return x ? `<p class="pc-source">${t("source")}: ${esc(x)}</p>` : ""; };
+
+/* ---------- "show me the slide" (2026-11-18): the student's own slide as a picture, under a wrong answer, in the notes and on a
+   flashcard's back. The builder stores a picture of each cited page (web/js/slides.js, scripts/gen/slides.mjs); pc-api signs
+   links for an hour. Where a page has no picture (older courses, a PPTX we couldn't match) the plain source line stays. ---------- */
+const SL = new Map(); let slSlug = ""; // "<key>/<page>" -> { url | null, until } once asked, { p } while asking
+function slideLinks(refs) {
+  if (slSlug !== SLUG) { SL.clear(); slSlug = SLUG; }
+  const now = Date.now(), want = [...new Set(refs.filter(Boolean))], need = want.filter(r => !(SL.get(r)?.until > now)).slice(0, 100);
+  if (need.length && TOKEN) {
+    const p = api("slide_urls", { session: TOKEN, refs: need }).then(({ urls = {} } = {}) => {
+      for (const r of need) SL.set(r, { url: urls[r] || null, until: Date.now() + (urls[r] ? 50 : 10) * 60e3 }); // a missing one is asked again later: a backfill may add it
+    }, () => { for (const r of need) if (SL.get(r)?.p === p) SL.delete(r); });
+    for (const r of need) SL.set(r, { p, until: Infinity });
+  }
+  return Promise.all(want.map(r => SL.get(r)?.p));
+}
+// The source line, ready to become the slide's picture once armSlides finds one.
+function srcBlock(it) {
+  const ref = slideRef(it.source), line = srcLine(it);
+  return ref && line ? `<div class="pc-src" data-ref="${ref}" data-file="${esc(it.source.file)}" data-page="${it.source.page}" data-q="${esc(it.source.quote || "")}">${line}</div>` : line;
+}
+const EXPAND = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+// Under a wrong answer (thumb) each source line under root becomes its slide's picture, once it has loaded (no empty box, no jump
+// before). Elsewhere (flashcards, notes) the line only gains a "show the slide" link, so a review round doesn't download every slide.
+function armSlides(root, thumb = true) {
+  const els = $$(".pc-src[data-ref]:not([data-armed])", root);
+  if (!els.length) return;
+  els.forEach(el => el.dataset.armed = "1");
+  slideLinks(els.map(el => el.dataset.ref)).then(() => els.forEach(el => {
+    const url = SL.get(el.dataset.ref)?.url;
+    if (!url || !el.isConnected) return;
+    if (!thumb) {
+      $(".pc-source", el).insertAdjacentHTML("beforeend", ` <button type="button" class="pc-slide-link">${t("slideShow")}</button>`);
+      $(".pc-slide-link", el).onclick = e => openSlide(el, e.currentTarget);
+      return;
+    }
+    const { file, page } = el.dataset, img = new Image();
+    img.alt = ""; img.decoding = "async";
+    img.onload = () => {
+      if (!el.isConnected) return;
+      el.innerHTML = `<button type="button" class="pc-slide" aria-label="${esc(t("slideAlt", { n: page, file }))}"><span class="pc-slide-pic"><i>${esc(page)}</i></span><span class="pc-slide-t"><b>${t("slideSee")}</b><small>${esc(file)} · ${t("srcPage")} ${esc(page)}</small></span><span class="pc-slide-go">${EXPAND}</span></button>`;
+      $(".pc-slide-pic", el).prepend(img);
+      $(".pc-slide", el).onclick = e => openSlide(el, e.currentTarget);
+      cheerSit();
+    };
+    img.src = url;
+  })).catch(() => { });
+}
+// The slide big, over everything. Tap the picture to zoom in and drag it around; X, Esc or the phone's Back closes it.
+let SLV = null;
+async function openSlide(src, opener) {
+  closeSlide();
+  const { ref, file, page, q } = src.dataset;
+  const el = document.createElement("div");
+  el.className = "slv"; el.setAttribute("role", "dialog"); el.setAttribute("aria-modal", "true"); el.setAttribute("aria-label", t("slideAlt", { n: page, file }));
+  el.innerHTML = `<div class="slv-top"><div class="slv-cap"><b>${esc(t("slideN", { n: page }))}</b><small>${esc(file)}</small></div><button type="button" class="slv-x" aria-label="${t("close")}">${CLOSE}</button></div>
+    <div class="slv-img"><img alt="${esc(t("slideAlt", { n: page, file }))}"></div>
+    <div class="slv-foot">${q ? `<p class="slv-q"><span>${t("slideQuote")}</span>„${esc(q)}“</p>` : ""}<p class="slv-hint">${t("slideZoom")}</p></div>`;
+  const box = $(".slv-img", el), img = $("img", el);
+  const key = e => { e.stopPropagation(); if (e.key === "Escape") { e.preventDefault(); closeSlide(); } }; // the answer bar underneath must not hear Enter
+  const onPop = () => closeSlide(true);
+  SLV = { el, key, onPop, opener };
+  document.addEventListener("keydown", key, true);
+  history.pushState({ pcSlide: 1 }, ""); // the phone's Back closes the slide instead of leaving the lesson
+  addEventListener("popstate", onPop);
+  document.body.appendChild(el);
+  $(".slv-x", el).onclick = () => closeSlide();
+  box.onclick = e => { if (e.target === box && !el.classList.contains("zoom")) closeSlide(); };
+  img.onclick = e => { // zoom in where it was tapped, so that spot stays under the finger
+    const r = img.getBoundingClientRect(), fx = (e.clientX - r.left) / r.width, fy = (e.clientY - r.top) / r.height;
+    el.classList.toggle("zoom");
+    if (el.classList.contains("zoom")) { box.scrollLeft = fx * img.offsetWidth - box.clientWidth / 2; box.scrollTop = fy * img.offsetHeight - box.clientHeight / 2; }
+  };
+  $(".slv-x", el).focus();
+  await slideLinks([ref]); // a link signed over 50 min ago is renewed first
+  const url = SL.get(ref)?.url;
+  if (url && SLV?.el === el) img.src = url;
+}
+function closeSlide(fromBack) {
+  if (!SLV) return;
+  const { el, key, onPop, opener } = SLV;
+  SLV = null;
+  document.removeEventListener("keydown", key, true);
+  removeEventListener("popstate", onPop);
+  el.remove();
+  if (!fromBack && history.state?.pcSlide) history.back();
+  if (opener?.isConnected) opener.focus({ preventScroll: true });
+}
+addEventListener("hashchange", () => closeSlide(true));
 
 /* ---------- the store's view of this course: progress so far, what is locked, the exam. Null if the course can't load. ---------- */
 export async function storeInfo(slug) {
@@ -693,7 +783,7 @@ function viewNotes(arg) {
     const locked = u.lessons.filter(l => l.locked);
     const nRead = secs.filter(x => S.read[x.id]).length;
     all += secs.length; read += nRead;
-    const rows = secs.map((x, i) => `<details class="note${S.read[x.id] ? " read" : ""}" data-sec="${esc(x.id)}"><summary><span class="nn">${S.read[x.id] ? TICK : i + 1}</span><b>${esc(x.title)}</b>${CHEV}</summary><div class="md">${md(x.body)}</div>${srcLine(x)}</details>`).join("");
+    const rows = secs.map((x, i) => `<details class="note${S.read[x.id] ? " read" : ""}" data-sec="${esc(x.id)}"><summary><span class="nn">${S.read[x.id] ? TICK : i + 1}</span><b>${esc(x.title)}</b>${CHEV}</summary><div class="md">${md(x.body)}</div>${srcBlock(x)}</details>`).join("");
     const lockRows = locked.map(l => `<a class="note nlk" href="#/unlock"><span class="nn">${LOCK_IC}</span><b>${esc(l.title)}</b><i class="nlk-go">${t("notesUnlock")}</i></a>`).join("");
     const empty = !secs.length && !locked.length ? `<p class="note-empty">${t("notesEmpty")}</p>` : "";
     const line = secs.length ? ` · <span class="nr">${t("notesRead", { x: nRead, y: secs.length })}</span>` : "";
@@ -702,6 +792,7 @@ function viewNotes(arg) {
   const banner = `<div class="banner c-blue nbanner"><div class="t"><h2>${t("notesTitle")}</h2><p>${t("notesBanner")}</p>${all ? `<span class="nb-count">${t("notesRead", { x: read, y: all })}</span>` : ""}</div><div class="art">${tutorArt(curTutor())}</div><i class="arc"></i><i class="cloud"></i></div>`;
   view().innerHTML = framed("notes", `${topbar()}<div class="pg notes-pg">${banner}${C.units.length ? chapters : `<p class="note-empty">${t("notesNone")}</p>`}</div>`);
   bindTopbar();
+  $$("details.note").forEach(d => d.addEventListener("toggle", () => { if (d.open) armSlides(d, false); })); // its slide, once opened
   // opening a section counts as reading it
   $$("details.note").forEach(d => d.addEventListener("toggle", () => {
     if (!d.open || S.read[d.dataset.sec]) return;
@@ -779,6 +870,7 @@ function sessionTop(st) {
 }
 function runSession(cfg) {
   const st = { ...cfg, notes: cfg.notes || new Map(), queue: [...cfg.items], total: cfg.items.length, right: 0, answered: 0, ready0: readiness(),retried: new Map(), firstSeen: new Set(), firstN: 0, firstRight: 0, run: 0, miss: 0, started: Date.now(), tick: Date.now() };
+  slideLinks(cfg.items.map(it => slideRef(it.source))).catch(() => { }); // links ready before the first miss; the pictures load only when shown
   step(st);
 }
 function step(st) {
@@ -813,9 +905,10 @@ function answered(st, it, ok, { record: rec = true, answerHtml = "", verdict } =
   // The teaching is here, after the try: the why after a miss, and after a first right answer too, so a lucky guess still learns it.
   const why = (!ok || st.fresh) && it.explanation ? `<div class="md">${md(it.explanation)}</div>` : "", note = takeNote(st, it);
   fb.innerHTML = `<div class="in"><h3><span class="ok-ico">${ok ? ic.check : ic.x}</span>${esc(verdict || (ok ? pick([t("say1"), t("say2"), t("say3"), t("say4")]) : t("correctIs")))}</h3>
-    ${ok ? "" : answerHtml}${why || note ? `<div class="fb-x">${why}${note}</div>` : ""}${ok ? "" : srcLine(it)}
+    ${ok ? "" : answerHtml}${why || note ? `<div class="fb-x">${why}${note}</div>` : ""}${ok ? "" : srcBlock(it)}
     <div class="row"><button class="btn ${ok ? "ok" : "bad"} big" style="flex:1" id="fbNext">${t("cont")}</button></div></div>`;
   document.body.appendChild(fb);
+  armSlides(fb);
   streak(st, ok);
   const go = () => {
     fb.remove(); window.onkeydown = null;
@@ -864,7 +957,7 @@ function playCard(st, it) {
   const s = S.cards[it.id] || {};
   view().innerHTML = `${sessionTop(st)}<div class="flash"><div class="face" id="face"><div class="lbl"><span>${esc(LESSON[it._l]?.title || "")}</span><span>${s.reps ? t("cardRepeat") : t("cardNew")}</span></div>
     ${tipHtml(st, it)}<div class="q">${mdi(it.front)}</div>
-    <div class="a" id="ans" hidden><div class="md">${md(it.back)}</div>${it.explanation && it.explanation !== it.back ? `<div class="md pc-expl">${md(it.explanation)}</div>` : ""}${srcLine(it)}</div>
+    <div class="a" id="ans" hidden><div class="md">${md(it.back)}</div>${it.explanation && it.explanation !== it.back ? `<div class="md pc-expl">${md(it.explanation)}</div>` : ""}${srcBlock(it)}</div>
     <div style="flex:1"></div></div></div>
     ${dock(`<div id="ctrl"><button class="btn blue block big" id="reveal">${t("showAns")}</button></div>`)}`;
   const doGrade = g => {
@@ -880,6 +973,7 @@ function playCard(st, it) {
   const reveal = () => {
     sfx.flip(); $("#ans").hidden = false; $("#face").classList.add("reveal");
     if (!$("#ans .pc-fnote")) $("#ans").insertAdjacentHTML("beforeend", takeNote(st, it));
+    armSlides($("#ans"), false);
     // Two honest choices instead of Anki's four: students can't reliably tell "hard" from "good" from "easy",
     // and the choice itself costs attention. Knew it = normal spacing; didn't = comes back this round.
     $("#ctrl").innerHTML = `<div class="grades two">
