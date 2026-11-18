@@ -1046,7 +1046,7 @@ async function viewTerms() {
 async function viewPrivacy() {
   const who = operatorHtml((await storeConfig().catch(() => ({}))).operator || {});
   legalFrame(`<h1 class="ob-h">${t("privTitle")}</h1><p class="ob-note">${t("privVersion")}</p>
-    ${[1, 2, 3, 4, 5, 6].map(n => `<h2>${t("privH" + n)}</h2><p>${t("privP" + n)}</p>`).join("")}
+    ${[1, 2, 3, 4, 5, 6, 7].map(n => `<h2>${t("privH" + n)}</h2><p>${t("privP" + n)}</p>`).join("")}
     <h2>${t("privOperator")}</h2><p>${who}</p>`);
 }
 
@@ -1211,6 +1211,19 @@ export function render() {
   document.body.classList.remove("plain", "map-page", "framed", "store", "landing");
   window.onkeydown = null; window.onscroll = null;
   try { Promise.resolve(route()).catch(viewError); } catch (e) { viewError(e); }
+  // Counted once the screen settles, so a redirect (#/ to #/new/files) counts as the page it lands on.
+  clearTimeout(hitTimer); hitTimer = setTimeout(() => window.pcHit?.(hitPath()), 600);
+}
+// The page name for the visit counter (web/hit.js): which screen only, never a course slug, tester code or reset token.
+const HIT_PAGES = ["login", "forgot", "reset", "wait", "unlock", "privacy", "terms", "paid", "new-subject", "t"];
+const HIT_COURSE = ["notes", "practice", "progress", "settings", "contact", "voice", "lesson", "test", "gold", "review"];
+let hitTimer;
+function hitPath() {
+  const p = location.hash.replace(/^#/, "").split("?")[0].split("/").filter(Boolean);
+  if (!p.length) return "/app/";
+  if (p[0] === "new") return "/app/new" + (STEPS.includes(p[1]) ? "/" + p[1] : "");
+  if (p[0] === "s") return "/app/s" + (HIT_COURSE.includes(p[2]) ? "/" + p[2] : "");
+  return HIT_PAGES.includes(p[0]) ? "/app/" + p[0] : "/app/other";
 }
 // A view that couldn't load (no network, store.config or the API failing) shows why and a retry button, never a blank page.
 function viewError(e) {

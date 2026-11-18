@@ -26,6 +26,56 @@
   .ad-err{color:var(--red-ink); font-weight:800}
   .ad-muted{color:var(--wolf)}
   .ad-note{margin:var(--s3) 0; padding:var(--s3); border:2px solid var(--green); border-radius:var(--r-sm); font-weight:700; color:var(--ink)}
+  /* Stats tab (2026-11-18). One series per chart in --bar; text always in the ink tokens. */
+  .ad{--bar:var(--blue-lip); --bar-on:var(--blue)}
+  .ad-top{display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:var(--s2) var(--s4)}
+  .ad-tabs,.ad-seg{display:flex; flex-wrap:wrap; gap:var(--s1)}
+  .ad-tabs button,.ad-seg button{font:inherit; font-size:14px; font-weight:800; min-height:36px; padding:4px var(--s3); border:2px solid var(--line); border-radius:999px; background:var(--bg); color:var(--ink); cursor:pointer}
+  .ad-tabs button[aria-pressed=true],.ad-seg button[aria-pressed=true]{background:var(--blue-soft); border-color:var(--blue-lip); color:var(--blue-ink)}
+  .ad-seg button:disabled{opacity:.6; cursor:wait}
+  .ad-bar{display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:var(--s3); margin:var(--s3) 0 var(--s4)}
+  .ad-check{display:flex; align-items:center; gap:var(--s2); font-size:14px; font-weight:700; color:var(--wolf); cursor:pointer}
+  .ad-check input{width:18px; height:18px; accent-color:var(--blue-lip)}
+  .ad-kpis{display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:var(--s3)}
+  .ad-kpi,.ad-card{border:2px solid var(--line); border-radius:var(--r); padding:var(--s3) var(--s4); min-width:0}
+  .ad-kpi .l{font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:.06em; color:var(--wolf)}
+  .ad-kpi .v{font-size:28px; font-weight:900; line-height:1.25; color:var(--ink-strong); font-variant-numeric:tabular-nums; overflow-wrap:anywhere}
+  .ad-kpi .s{font-size:13px; line-height:1.4; color:var(--ink); margin-top:2px}
+  .ad-up{color:var(--green-ink)} .ad-down{color:var(--red-ink)}
+  .ad-now{display:flex; flex-wrap:wrap; gap:var(--s2) var(--s5); margin:var(--s4) 0; padding:var(--s3) var(--s4); background:var(--fill); border-radius:var(--r); font-size:14px; color:var(--ink)}
+  .ad-now b{color:var(--ink-strong); font-variant-numeric:tabular-nums}
+  .ad-card{margin-top:var(--s3)}
+  .ad-card h3{font-size:15px; font-weight:900; color:var(--ink-strong); margin:0 0 var(--s3)}
+  .ad-grid2,.ad-grid3{display:grid; gap:0 var(--s3); grid-template-columns:1fr}
+  @media (min-width:760px){ .ad-grid2{grid-template-columns:repeat(2,minmax(0,1fr))} .ad-grid3{grid-template-columns:repeat(3,minmax(0,1fr))} }
+  .ad-foot{font-size:13px; color:var(--wolf); margin:var(--s2) 0 0}
+  .ad code{font-size:13px; background:var(--fill); padding:1px 6px; border-radius:6px; color:var(--ink-strong); overflow-wrap:anywhere}
+  /* bar chart: y labels | plot, x labels under the plot */
+  .ad-ch{display:grid; grid-template-columns:auto 1fr; column-gap:var(--s2)}
+  .ad-y{position:relative; min-width:20px; font-size:12px; color:var(--wolf); font-variant-numeric:tabular-nums}
+  .ad-y span{position:absolute; right:0; transform:translateY(50%); line-height:1}
+  .ad-plot{position:relative; height:var(--h); border-bottom:1px solid var(--hare); touch-action:pan-y; cursor:crosshair}
+  .ad-gl{position:absolute; left:0; right:0; border-top:1px solid var(--line)}
+  .ad-cols{position:absolute; inset:0; display:flex; gap:2px}
+  .ad-col{flex:1; min-width:0; display:flex; align-items:flex-end; justify-content:center}
+  .ad-col i{display:block; width:100%; max-width:24px; min-height:2px; background:var(--bar); border-radius:4px 4px 0 0}
+  .ad-col i.z{min-height:0}
+  .ad-col.on i{background:var(--bar-on)}
+  .ad-col.on{background:color-mix(in srgb, var(--line) 45%, transparent); border-radius:4px 4px 0 0}
+  .ad-x{grid-column:2; position:relative; height:20px; font-size:12px; color:var(--wolf)}
+  .ad-x span{position:absolute; top:4px; transform:translateX(-50%); white-space:nowrap}
+  .ad-tip{position:absolute; top:-8px; z-index:5; pointer-events:none; background:var(--paper); color:var(--ink); border:2px solid var(--line); border-radius:var(--r-sm); padding:var(--s2) var(--s3); font-size:13px; line-height:1.45; width:max-content; max-width:100%; box-shadow:0 6px 18px rgba(0,0,0,.14); transform:translateY(-100%)}
+  .ad-tip b{color:var(--ink-strong)}
+  .ad-tv summary{margin-top:var(--s2); font-size:13px; font-weight:800; color:var(--blue-ink); cursor:pointer}
+  .ad-tv .ad-scroll{margin-top:var(--s2); max-height:280px; overflow-y:auto}
+  /* horizontal bars: label | bar | number */
+  .ad-h{display:grid; grid-template-columns:minmax(90px,max-content) 1fr auto; gap:var(--s2) var(--s3); align-items:center; font-size:14px; color:var(--ink)}
+  .ad-h .hb i{display:block; height:16px; min-width:2px; background:var(--bar); border-radius:0 4px 4px 0}
+  .ad-h .hb i.z{min-width:0}
+  .ad-h .hn{text-align:right; font-weight:800; color:var(--ink-strong); font-variant-numeric:tabular-nums; white-space:nowrap}
+  .ad td.n,.ad th.n{text-align:right; font-variant-numeric:tabular-nums}
+  .ad td.ad-sh{width:30%; min-width:60px}
+  .ad td.ad-sh i{display:block; height:8px; min-width:2px; margin-top:8px; background:var(--bar); border-radius:0 4px 4px 0}
 </style>
 </head>
 <body>
