@@ -210,7 +210,8 @@ function paintStats(el) {
   <div class="ad-grid3">
     <div><h2>Devices</h2>${countTable(["Device", "Visitors"], dict(s.devices).map(([k, v]) => [devWords[k] || esc(k), v]))}</div>
     <div><h2>Languages</h2>${countTable(["Browser language", "Visitors"], dict(s.langs).map(([k, v]) => [esc(k === "?" ? "unknown" : k), v]))}</div>
-    <div><h2>Countries</h2>${countTable(["Country", "Visitors"], dict(s.countries).map(([k, v]) => [esc(k === "?" ? "unknown" : k), v]))}</div>
+    ${Object.keys(s.countries || {}).some(k => k !== "?") // Supabase's edge sends no country header today, so this stays hidden until it does
+    ? `<div><h2>Countries</h2>${countTable(["Country", "Visitors"], dict(s.countries).map(([k, v]) => [esc(k === "?" ? "unknown" : k), v]))}</div>` : ""}
   </div>
   <h2>Payments in Stripe</h2>
   ${pay.error ? `<p class="ad-err">${esc(pay.error)}</p>` : `<div class="ad-scroll"><table><tr><th>Paid</th><th class="n">Amount</th><th>Plan</th><th>What</th><th>Email</th></tr>
