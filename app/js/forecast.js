@@ -84,14 +84,19 @@ async function objectStreams(buf, text) {
   }
   return out;
 }
-// What the upload picker offers: PDF, PowerPoint (old .ppt too), Word (.docx, .doc), RTF, text (.txt, .md) and slide pictures
-// (joined into one PDF in the browser). The builder turns Word, RTF and text into a PDF with LibreOffice.
+// What the upload picker offers: PDF, PowerPoint (old .ppt too), Word (.docx, .doc), RTF, text (.txt, .md) and pictures, HEIC too
+// (joined into one photo PDF in the browser). The builder turns Word, RTF and text into a PDF with LibreOffice.
 export const DOC_TYPES = ["docx", "doc", "rtf", "txt", "md"];
 // One Word or text page counts as 3 slides toward the 250 cap, the free start and PRO's allowance (Marek, 2026-11-13):
 // a Word page holds ~3,000 characters against a few hundred on a slide. Same rule in pc-api and the builder.
 export const SLIDES_PER_DOC_PAGE = 3;
-export const slidesOf = (name, pages) => pages * (DOC_TYPES.includes(String(name).split(".").pop().toLowerCase()) ? SLIDES_PER_DOC_PAGE : 1);
-export const ACCEPT = ".pdf,.pptx,.ppt,.docx,.doc,.rtf,.txt,.md,.png,.jpg,.jpeg,.webp,image/png,image/jpeg,image/webp";
+// A photo of notes (pictures and camera shots, joined into a photo PDF by images.js) counts 3 too (Marek, 2026-11-18): the builder
+// reads each one on Opus before it plans the course. photos: the file is such a PDF.
+export const SLIDES_PER_PHOTO = 3;
+export const slidesOf = (name, pages, photos = false) => pages * (photos ? SLIDES_PER_PHOTO : DOC_TYPES.includes(String(name).split(".").pop().toLowerCase()) ? SLIDES_PER_DOC_PAGE : 1);
+// A stored file's slides, as pc-api counts them: a photo holding two pages counts twice (doubles), a retaken photo adds nothing.
+export const fileSlides = f => f.retake ? 0 : slidesOf(f.name || f.path || "", (f.pages || 0) + (f.doubles?.length || 0), !!f.photos);
+export const ACCEPT = ".pdf,.pptx,.ppt,.docx,.doc,.rtf,.txt,.md,.png,.jpg,.jpeg,.webp,.heic,.heif,image/png,image/jpeg,image/webp,image/heic,image/heif";
 export const validFile = (name, head) => {
   const ext = name.split(".").pop().toLowerCase();
   const h = String.fromCharCode(...head.slice(0, 4));

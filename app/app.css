@@ -105,6 +105,15 @@ body.plain .app{padding-bottom:0}
 .ob-drop.more{min-height:64px; flex-direction:row}
 .ob-drop.more svg{width:22px; height:22px}
 .ob-drop.over{background:var(--accent-soft)}
+/* phones: photograph handwritten notes page by page; the shots join into one photo PDF on "Done" */
+.ob-cam{margin-top:10px}
+.ob-cam-btn{display:flex; align-items:center; justify-content:center; gap:10px; width:100%; min-height:56px; padding:0 16px; border:2px solid color-mix(in srgb, var(--accent) 45%, var(--line));
+  border-radius:20px; background:transparent; color:var(--accent-ink); font:700 16px var(--font); cursor:pointer}
+.ob-cam-btn svg{width:22px; height:22px; flex:none}
+.ob-cam-btn:active{transform:scale(.98)}
+.ob-shots{display:flex; flex-wrap:wrap; align-items:center; gap:10px; margin-top:10px}
+.ob-shots span{flex:1 0 100%; font-weight:700; color:var(--text); text-align:center}
+.ob-shots .btn-s, .ob-shots .btn-p{flex:1 1 0; width:auto; min-height:48px; margin:0}
 .ob-sum{display:flex; gap:10px; align-items:center; margin-top:14px; color:var(--muted); font-size:15px}
 .ob-sum svg{width:22px; height:22px; color:var(--accent); flex:none}
 .ob-sum b{color:var(--text)}

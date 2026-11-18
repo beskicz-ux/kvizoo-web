@@ -152,6 +152,16 @@ body{background:var(--bg)}
 .pc-tips span{font-size:13px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:var(--blue-ink)}
 .pc-tips p{margin:4px 0 0; font-size:15px; font-weight:700; color:var(--ink-strong); min-height:2.6em}
 .pc-tips p.in{animation:pcin .4s ease-out}
+/* photo pages the builder couldn't read, each with a retake button (before the course is bought) */
+.pc-retake{width:100%; border:2px solid var(--line); border-radius:var(--r); padding:var(--s3) var(--s4); margin-bottom:var(--s4); text-align:start}
+.pc-retake p{margin:0 0 var(--s2); font-size:15px; font-weight:700; color:var(--ink-strong)}
+.pc-retake ul{list-style:none; margin:0; padding:0; display:grid; gap:var(--s2)}
+.pc-retake li{display:flex; align-items:center; justify-content:space-between; gap:var(--s2); min-height:44px}
+.pc-retake li span{font-weight:800; min-width:0; overflow-wrap:anywhere}
+.pc-retake li small{display:block; font-weight:700; font-size:13px; color:var(--wolf)}
+.pc-retake li .btn-s{width:auto; min-height:44px; padding:0 var(--s4); gap:var(--s2); flex:none}
+.pc-retake li svg{width:18px; height:18px; flex:none}
+.pc-retake li em{display:flex; align-items:center; gap:var(--s1); font-style:normal; font-weight:800; color:var(--green-ink); flex:none}
 /* every step animates: a connector fills down to the running step, a finished step pops and draws its tick,
    the running step plays its own little picture (a gear turning, a page being scanned, a pencil writing) */
 .pc-steps li{position:relative}

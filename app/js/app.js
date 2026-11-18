@@ -2,8 +2,8 @@
 import { $, $$, view, esc, store, api, today, addDays, ic, I, toast, confetti, sfx } from "./util.js";
 import { t, lang, setLang, courseLang, errText, pages as pagesTxt, fileCount, lessonCount, minutesLeft, inDays, inWeeks, fmtDay, fmtShortMonth } from "./i18n.js";
 import { ham } from "./art.js";
-import { isImage, imagesToPdfs } from "./images.js";
-import { countPages, validFile, daysBetween, ACCEPT, slidesOf, studyPlan } from "./forecast.js";
+import { isImage, isPhoto, imagesToPdfs } from "./images.js";
+import { countPages, validFile, daysBetween, ACCEPT, slidesOf, fileSlides, studyPlan } from "./forecast.js";
 import { phaseOf, QUEUED, stepsHtml, barTarget, phaseStart, clock, stageText } from "./build.js";
 import { courseRoute, tutorArt, TUTORS, tutorWith, resetCourse, storeInfo, snapGoal, money } from "./course.js";
 import { BACK, CLOSE, CHEV_DOWN, PACE_ICONS, calIcon, langSheet, applyTheme, sheet, yearWheel } from "./ui.js";
@@ -378,13 +378,13 @@ function viewReset() {
 
 /* ---------- step 1: slides ---------- */
 // One course holds at most 250 slide pages (Marek, 2026-11-12): a 458-slide semester cost ~300 Kč to build, close to PRO's price.
-// Same number in pc-api (upload_url) and the worker (keeps the first 250). Word and text pages count 3 each (slidesOf).
+// Same number in pc-api (upload_url) and the worker (keeps the first 250). Word and text pages and photos count 3 each (slidesOf).
 export const MAX_PAGES = 250;
 const uploading = new Map();
 const tooMany = () => Object.assign(new Error("too_many_pages"), { code: "too_many_pages" });
 const fileKind = name => /\.pptx?$/i.test(name) ? "pptx" : /\.(docx?|rtf)$/i.test(name) ? "doc" : /\.(txt|md)$/i.test(name) ? "txt" : "pdf";
 function fileRows(d) {
-  const rows = d.files.map(f => `<div class="ob-file"><span class="ob-fk ${fileKind(f.name)}">${fileKind(f.name).toUpperCase()}</span><div class="t"><b>${esc(f.name)}</b><span>${pagesTxt(f.pages)}${slidesOf(f.name, 1) > 1 ? ` ×${slidesOf(f.name, 1)}` : ""}${f.estimated ? ` (${t("filesEst")})` : ""}</span></div><button class="ob-x" data-rm="${esc(f.path)}" aria-label="${t("filesRemove")}">${ic.x}</button></div>`).join("");
+  const rows = d.files.map(f => `<div class="ob-file"><span class="ob-fk ${fileKind(f.name)}">${fileKind(f.name).toUpperCase()}</span><div class="t"><b>${esc(f.name)}</b><span>${pagesTxt(f.pages)}${slidesOf(f.name, 1, f.photos) > 1 ? ` ×${slidesOf(f.name, 1, f.photos)}` : ""}${f.estimated ? ` (${t("filesEst")})` : ""}</span></div><button class="ob-x" data-rm="${esc(f.path)}" aria-label="${t("filesRemove")}">${ic.x}</button></div>`).join("");
   const up = [...uploading.values()].map(u => `<div class="ob-file busy"><span class="ob-fk ${fileKind(u.name)}">${fileKind(u.name).toUpperCase()}</span><div class="t"><b>${esc(u.name)}</b><div class="ob-bar"><i style="width:${u.pct}%"></i></div></div></div>`).join("");
   return rows + up;
 }
@@ -394,19 +394,28 @@ function viewFiles() {
   view().innerHTML = frame("files", { title: t("filesTitle"), btn: t("next"),
     body: `<div id="list"></div>
       <label class="ob-drop" id="drop">${ic.upload}<b id="dropTxt"></b><input type="file" id="pick" accept="${ACCEPT}" multiple hidden></label>
+      <div class="ob-cam" id="cam" hidden><button type="button" class="ob-cam-btn" id="camBtn">${ic.camera}<b>${t("filesCamera")}</b></button>
+        <div class="ob-shots" id="shots" hidden><span id="shotsN"></span><button type="button" class="btn-s" id="shotMore">${t("filesShotMore")}</button><button type="button" class="btn-p" id="shotDone">${t("filesShotDone")}</button></div>
+        <input type="file" id="shot" accept="image/*" capture="environment" hidden></div>
       <p class="ob-err" id="err" hidden role="alert"></p><div class="ob-sum" id="total" hidden></div><p class="ob-note">${t("filesNote")}</p>` });
   bindStepBack("files");
+  // Camera shots (phones only: a desktop browser has no camera picker). iOS replaces the input's files on every shot, so the
+  // shots are kept here and become one photo PDF when the student taps Done.
+  const shots = [];
+  $("#cam").hidden = !matchMedia("(pointer: coarse)").matches;
   const refresh = () => {
     const cur = draft();
     $("#list").innerHTML = fileRows(cur);
     $("#dropTxt").textContent = cur.files.length || uploading.size ? t("filesAdd") : t("filesDrop");
     $("#drop").classList.toggle("more", !!(cur.files.length || uploading.size));
-    const n = cur.files.reduce((a, f) => a + slidesOf(f.name, f.pages), 0), over = n > MAX_PAGES;
+    $("#shots").hidden = !shots.length; $("#camBtn").hidden = !!shots.length;
+    $("#shotsN").textContent = t("filesShots", { n: shots.length });
+    const n = cur.files.reduce((a, f) => a + fileSlides(f), 0), over = n > MAX_PAGES;
     $("#total").hidden = !cur.files.length;
     $("#total").classList.toggle("over", over);
     // Just what was uploaded (Marek, 2026-11-17): the free start is one lesson, so "x of 250" said nothing here. The cap speaks up only once it is passed.
     $("#total").innerHTML = `${over ? ic.book : ic.check}<span>${t(over ? "filesOver" : "filesSummary", { pages: `<b>${pagesTxt(n)}</b>`, max: MAX_PAGES })}</span>`;
-    $("#nextBtn").disabled = !cur.files.length || uploading.size > 0 || over;
+    $("#nextBtn").disabled = !cur.files.length || uploading.size > 0 || over || shots.length > 0;
     $$("[data-rm]").forEach(b => b.onclick = async () => {
       const x = draft(); x.files = x.files.filter(f => f.path !== b.dataset.rm); saveDraft(x); refresh();
       api("remove_file", { orderToken: x.orderToken, path: b.dataset.rm }).catch(() => { });
@@ -418,12 +427,12 @@ function viewFiles() {
       const head = new Uint8Array(await file.slice(0, 4).arrayBuffer());
       if (!validFile(file.name, head)) { const e = new Error("fake"); e.code = "fake"; throw e; }
       if (file.size > 50 * 1024 * 1024) { const e = new Error("too_big"); e.code = "too_big"; throw e; }
-      const { pages, estimated } = await countPages(file);
+      const { pages, estimated } = await countPages(file), photos = !!file.photos;
       // counts files still uploading too, so several picked at once can't pass the cap together
-      const have = draft().files.reduce((a, f) => a + slidesOf(f.name, f.pages), 0) + [...uploading.values()].reduce((a, u) => a + (u.slides || 0), 0);
-      if (have + slidesOf(file.name, pages) > MAX_PAGES) throw tooMany();
-      uploading.set(key, { name: file.name, pct: 0, slides: slidesOf(file.name, pages) }); refresh();
-      const { url, path, mime } = await api("upload_url", { orderToken: draft().orderToken, name: file.name, size: file.size, pages });
+      const have = draft().files.reduce((a, f) => a + fileSlides(f), 0) + [...uploading.values()].reduce((a, u) => a + (u.slides || 0), 0);
+      if (have + slidesOf(file.name, pages, photos) > MAX_PAGES) throw tooMany();
+      uploading.set(key, { name: file.name, pct: 0, slides: slidesOf(file.name, pages, photos) }); refresh();
+      const { url, path, mime } = await api("upload_url", { orderToken: draft().orderToken, name: file.name, size: file.size, pages, ...(photos ? { photos } : {}) });
       await new Promise((res, rej) => {
         const x = new XMLHttpRequest(); x.open("PUT", url); x.setRequestHeader("Content-Type", mime);
         x.upload.onprogress = e => { if (e.lengthComputable) { uploading.get(key).pct = e.loaded / e.total * 100; if ($("#list")) $("#list").innerHTML = fileRows(draft()); } };
@@ -431,29 +440,37 @@ function viewFiles() {
         x.onerror = () => rej(Object.assign(new Error("offline"), { code: "offline" }));
         x.send(file);
       }).catch(e => { api("remove_file", { orderToken: draft().orderToken, path }).catch(() => { }); throw e; });
-      const cur = draft(); cur.files.push({ path, name: file.name, size: file.size, pages, estimated }); saveDraft(cur);
+      const cur = draft(); cur.files.push({ path, name: file.name, size: file.size, pages, estimated, ...(photos ? { photos } : {}) }); saveDraft(cur);
     } catch (e) { fail($("#err"), e); }
     uploading.delete(key); if ($("#list")) refresh();
   };
-  // Pictures picked or dropped together become one PDF (a page each, in file-name order), then upload like any PDF.
-  const addImages = async imgs => {
+  // Pictures picked, dropped or shot together become one PDF (a page each, in file-name order), then upload like any PDF.
+  // Photos (JPEG, HEIC) are read as photos of notes and count 3 slides a page; screenshots and saved slides (PNG, WebP) are slides.
+  const addImages = async (imgs, nameKey, photos) => {
     const key = crypto.randomUUID();
     uploading.set(key, { name: t("imagesConverting", { n: imgs.length }), pct: 0 }); refresh();
     try {
-      const pdfs = await imagesToPdfs(imgs, (part, n) => t("imagesPdf", { n }) + (part ? ` (${part})` : ""), (done, total) => {
+      const pdfs = await imagesToPdfs(imgs, (part, n) => t(nameKey, { n }) + (part ? ` (${part})` : ""), (done, total) => {
         uploading.get(key).pct = done / total * 100; if ($("#list")) $("#list").innerHTML = fileRows(draft());
-      });
+      }, photos);
       uploading.delete(key);
-      for (const f of pdfs) await add(f);
+      for (const f of pdfs) { if (photos) f.photos = true; await add(f); }
     } catch (e) { uploading.delete(key); fail($("#err"), e); if ($("#list")) refresh(); }
   };
   const addAll = files => {
     $("#err").hidden = true;
-    const all = [...files], imgs = all.filter(isImage);
+    const all = [...files], imgs = all.filter(isImage), photos = imgs.filter(isPhoto), pics = imgs.filter(f => !isPhoto(f));
     all.filter(f => !isImage(f)).forEach(add);
-    if (imgs.length) addImages(imgs);
+    if (photos.length) addImages(photos, "photosPdf", true);
+    if (pics.length) addImages(pics, "imagesPdf", false);
   };
   $("#pick").onchange = e => { addAll(e.target.files); e.target.value = ""; };
+  $("#camBtn").onclick = $("#shotMore").onclick = () => $("#shot").click();
+  $("#shot").onchange = e => { // named in shot order, so the PDF keeps it (iOS calls every shot image.jpg)
+    for (const f of e.target.files) shots.push(new File([f], `foto-${String(shots.length + 1).padStart(3, "0")}.${/hei[cf]/i.test(f.type) ? "heic" : "jpg"}`, { type: f.type || "image/jpeg" }));
+    e.target.value = ""; refresh();
+  };
+  $("#shotDone").onclick = () => { $("#err").hidden = true; const s = shots.splice(0); refresh(); if (s.length) addImages(s, "photosPdf", true); };
   const drop = $("#drop");
   drop.ondragover = e => { e.preventDefault(); drop.classList.add("over"); };
   drop.ondragleave = () => drop.classList.remove("over");
@@ -461,7 +478,7 @@ function viewFiles() {
   $("#nextBtn").onclick = () => {
     const cur = draft();
     if (!cur.files.length || uploading.size) return;
-    cur.pages = cur.files.reduce((a, f) => a + slidesOf(f.name, f.pages), 0);
+    cur.pages = cur.files.reduce((a, f) => a + fileSlides(f), 0);
     if (cur.pages > MAX_PAGES) return fail($("#err"), tooMany());
     cur.step = "date"; saveDraft(cur);
     api("update_order", { orderToken: cur.orderToken, pages: cur.pages }).catch(() => { });
@@ -963,11 +980,14 @@ async function viewUnlock() {
         <div class="st-hero"><i class="st-spark s1"></i><i class="st-spark s2"></i><i class="ul-bubs" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></i>
           <div class="st-hx"><h1 class="ob-h">${t("stTitle")}</h1>${urg}</div><div class="st-art">${tutorArt(info?.tutor || "penny", "", "happy")}</div></div>
         ${tap}
+        <div id="pcRetake"></div>
       </div>
       <section class="st-pay" aria-label="${esc(t("storeBuy"))}">${pay}<a class="st-free" href="#/s/${esc(s.slug)}">${t("stFree")}</a></section>
       <div class="st-more"><div id="feats">${pro && !upsell ? "" : feats()}</div>${what}</div>
     </div></div>`;
   $("#stepBack").onclick = () => nav("#/s/" + s.slug);
+  // Pages that couldn't be read, here too: a student who went from the wait page into the free lesson passes this page before paying
+  if (st.retakes?.length) showRetakes(st.retakes, s.token);
   const all = $("#unitsAll"); if (all) all.onclick = () => { $("#units").classList.remove("cut"); all.remove(); };
   const proBtn = $("[data-pro]");
   if (proBtn) proBtn.onclick = async () => {
@@ -1103,6 +1123,50 @@ function patchCard(html) {
   });
 }
 const tipsHtml = () => `<div class="pc-tips"><span>${t("waitTipH")}</span><p id="pcTip">${t("waitTip1")}</p></div>`;
+// Photo pages the builder couldn't read well (2026-11-18), by page number, each with a button to photograph it again. pc-api
+// sends them (status.retakes) only while the course isn't bought; the paid build reads the new photo instead of the old one.
+let retakeBusy = null, retakeInput = null;
+function retakeHtml(list) {
+  if (!list?.length) return "";
+  const multi = new Set(list.map(u => u.file)).size > 1, left = list.filter(u => !u.done);
+  const nums = left.map(u => u.page).join(", ");
+  return `<div class="pc-retake"><p>${left.length ? t(left.length === 1 ? "retakeOne" : "retakeMany", { pages: nums }) : t("retakeAllDone")}</p>
+    <ul>${list.map((u, i) => `<li><span>${t("retakePage", { n: u.page })}${multi ? ` <small>${esc(u.file)}</small>` : ""}</span>${u.done ? `<em>${ic.check}${t("retakeDone")}</em>`
+      : retakeBusy === i ? `<em>${t("retakeUploading")}</em>` : `<button type="button" class="btn-s" data-retake="${i}" ${retakeBusy != null ? "disabled" : ""}>${ic.camera}${t("retakeBtn")}</button>`}</li>`).join("")}</ul></div>`;
+}
+// The list in #pcRetake, drawn again after every poll and every retake.
+function showRetakes(list, token) {
+  const box = $("#pcRetake");
+  if (!box) return;
+  box.innerHTML = retakeHtml(list);
+  bindRetakes(list, token, () => showRetakes(list, token));
+}
+// One retake: the new photo becomes a one-page photo PDF, stored next to the order's files. The row turns done right away
+// (pc-api says the same from the next poll on).
+function bindRetakes(list, token, redraw) {
+  $$("[data-retake]").forEach(b => b.onclick = () => {
+    const u = list[+b.dataset.retake];
+    if (!retakeInput) { // one input for the whole page, outside the view, so a poll redrawing the card can't drop the picked photo
+      retakeInput = Object.assign(document.createElement("input"), { type: "file", accept: "image/*,.heic,.heif", hidden: true });
+      retakeInput.setAttribute("capture", "environment");
+      document.body.append(retakeInput);
+    }
+    retakeInput.onchange = async () => {
+      const shot = retakeInput.files[0]; retakeInput.value = "";
+      if (!shot) return;
+      retakeBusy = +b.dataset.retake; redraw();
+      try {
+        const [pdf] = await imagesToPdfs([shot], () => "retake");
+        const { url, mime } = await api("retake_url", { session: token, file: u.file, page: u.page, size: pdf.size });
+        const r = await fetch(url, { method: "PUT", headers: { "Content-Type": mime }, body: pdf });
+        if (!r.ok) throw Object.assign(new Error("server"), { code: "server" });
+        u.done = true;
+      } catch (e) { toast(errText(e.code)); }
+      retakeBusy = null; redraw();
+    };
+    retakeInput.click();
+  });
+}
 async function viewWait() {
   hideNav(); plain();
   const s = session(); if (!s) return nav("#/login");
@@ -1149,6 +1213,7 @@ async function viewWait() {
         <div class="pc-hero ${ready ? "" : "working"}">${tutor ? tutorArt(tutor, "bob") : ""}</div>
         <h1 class="ob-h">${t(title)}</h1><p class="ob-sub">${t(sub)}</p>
         ${failed ? "" : `<div id="pcLive"><div id="pcSteps">${steps()}</div><div id="pcCard">${buildHtml(phase, build, free, offline, shown, seenN)}</div></div>`}
+        <div id="pcRetake"></div>
         ${ready || failed ? "" : tipsHtml()}
         ${failed ? `<div class="ob-foot pc-failed"><button class="btn-p" id="wfWrite">${t("fbH")}</button><button class="btn-s" id="wfNew">${t("waitFailedNew")}</button><button class="btn-t" id="wfOut">${t("waitFailedOut")}</button></div>` : ready ? "" : `<p class="ob-legal"><a href="#/wait" id="wfWrite">${t("fbH")}</a></p>`}
         ${ready ? `<div class="ob-foot"><a class="btn-p" href="#/s/${esc(s.slug)}${free ? "/lesson/first" : ""}" id="startCourse">${t(free ? "waitFreeStart" : "waitStart")}</a></div>` : ""}</div>`;
@@ -1159,6 +1224,7 @@ async function viewWait() {
       if (n) n.onclick = async () => { n.disabled = true; try { nav(await startNewSubject()); } catch (e) { n.disabled = false; toast(errText(e.code)); } };
       if (o) o.onclick = () => { store.del("session"); store.del("readySeen"); nav("#/"); };
     }
+    if (retakeBusy == null) showRetakes(r.retakes, s.token); // not mid-upload: that row shows "uploading" until it ends
     fresh.forEach((f, i) => f && $(`.pc-build-lessons [data-l="${i}"]`)?.classList.add("pc-pop")); // not "pop": that's the map popover in base.css
     if (fresh.some(Boolean)) sfx.flip();
     tick();
