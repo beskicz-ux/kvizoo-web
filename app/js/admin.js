@@ -21,15 +21,15 @@ const notrack = () => { try { return !!localStorage.getItem("pc.notrack"); } cat
 const setNotrack = on => { try { on ? localStorage.setItem("pc.notrack", "1") : localStorage.removeItem("pc.notrack"); } catch { /* blocked */ } };
 
 function login(err = "") {
-  root.innerHTML = `<h1>Kvizoo admin</h1><form class="ad-login" id="f">
+  root.innerHTML = `<h1>Kvizoo <span>admin</span></h1><form class="ad-login" id="f">
     <input type="text" name="username" autocomplete="username" value="kvizoo-admin" hidden>
-    <input id="k" name="password" type="password" autocomplete="current-password" placeholder="Admin key" aria-label="Admin key">
-    <button class="btn block">Open</button><p class="ad-err" role="alert">${esc(err)}</p></form>`;
+    <input class="ob-in" id="k" name="password" type="password" inputmode="numeric" autocomplete="current-password" placeholder="Admin key" aria-label="Admin key">
+    <button class="btn-p">Open</button><p class="ad-err" role="alert">${esc(err)}</p></form>`;
   document.getElementById("f").onsubmit = async e => {
     e.preventDefault();
     key = document.getElementById("k").value.trim();
     try { await loadStats(); setNotrack(true); paint(); } // this browser is Marek's: its visits stop counting (the box on the page undoes it)
-    catch (er) { key = null; login(er.code === "too_many" ? "Too many tries. Wait 10 minutes." : "That key doesn't work."); }
+    catch (er) { key = null; login(er.code === "too_many" ? "Too many wrong keys. Wait 10 minutes, or up to a day if many were tried from everywhere (your phone got an alert)." : er.code === "bad_admin" ? "That key doesn't work." : `Something broke: ${er.code || er.message}`); }
   };
 }
 async function loadStats() { stats = await call("stats", { days }); }
@@ -38,7 +38,7 @@ async function load() { data = await call("overview"); }
 // ---------- frame: tabs, period, the "don't count me" box ----------
 function paint() {
   const tabBtn = (id, label) => `<button data-tab="${id}" aria-pressed="${tab === id}">${label}</button>`;
-  root.innerHTML = `<div class="ad-top"><h1>Kvizoo admin</h1><div class="ad-tabs">${tabBtn("stats", "Stats")}${tabBtn("people", "Orders &amp; people")}</div></div>
+  root.innerHTML = `<div class="ad-top"><h1>Kvizoo <span>admin</span></h1><div class="ad-tabs">${tabBtn("stats", "Stats")}${tabBtn("people", "Orders &amp; people")}</div></div>
   ${note ? `<div class="ad-note">${note}</div>` : ""}<div id="body"></div>`;
   note = "";
   root.querySelectorAll("[data-tab]").forEach(b => b.onclick = () => go(b.dataset.tab));
@@ -97,8 +97,8 @@ function bars(title, rows, { h = 160, note: foot = "" } = {}) {
       <div class="ad-x" aria-hidden="true">${xs}</div>
     </div>
     ${foot ? `<p class="ad-foot">${foot}</p>` : ""}
-    <details class="ad-tv"><summary>Show as table</summary><div class="ad-scroll"><table><tr><th>Day</th><th class="n">${esc(title)}</th></tr>
-      ${rows.map(r => `<tr><td>${esc(r.label)}</td><td class="n">${num(r.v)}</td></tr>`).join("")}</table></div></details></div>`;
+    <details class="ad-tv"><summary>Show as table</summary><div class="ad-scroll"><table><tr><th>Day</th><th class="ad-n">${esc(title)}</th></tr>
+      ${rows.map(r => `<tr><td>${esc(r.label)}</td><td class="ad-n">${num(r.v)}</td></tr>`).join("")}</table></div></details></div>`;
 }
 const charts = {};
 function wireCharts(el) {
@@ -132,8 +132,8 @@ const hbars = (rows, { pctOf = null } = {}) => {
 // A table of counts with a thin share bar in the first number column.
 function countTable(head, rows, { share = 1 } = {}) {
   const max = Math.max(1, ...rows.map(r => +r[share] || 0));
-  return `<div class="ad-scroll"><table><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}${share ? "<th></th>" : ""}</tr>
-    ${rows.length ? rows.map(r => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${i ? num(c) : c}</td>`).join("")}${share ? `<td class="ad-sh">${+r[share] ? `<i style="width:${r[share] / max * 100}%"></i>` : ""}</td>` : ""}</tr>`).join("")
+  return `<div class="ad-scroll"><table><tr>${head.map((h, i) => `<th${i ? ' class="ad-n"' : ""}>${h}</th>`).join("")}${share ? "<th></th>" : ""}</tr>
+    ${rows.length ? rows.map(r => `<tr>${r.map((c, i) => `<td${i ? ' class="ad-n"' : ""}>${i ? num(c) : c}</td>`).join("")}${share ? `<td class="ad-sh">${+r[share] ? `<i style="width:${r[share] / max * 100}%"></i>` : ""}</td>` : ""}</tr>`).join("")
     : `<tr><td colspan="${head.length + 1}" class="ad-muted">Nothing yet in this period.</td></tr>`}</table></div>`;
 }
 const SOURCE_NOTE = { direct: "typed in, a bookmark, or an app that hides where it came from", unknown: "account made before visits were counted, or no visit found that day" };
@@ -156,6 +156,8 @@ function paintStats(el) {
   const since = now.trackingSince ? pragueDay(now.trackingSince) : null;
   const byDay = pay.byDay || {};
   const daily = (s.daily || []).map(d => ({ ...d, sales: byDay[d.day]?.n || 0, fresh: byDay[d.day]?.fresh || 0 }));
+  // Visits only count from the day tracking started; a % of visitors over a longer period would read as 4300 %.
+  const fullVisits = !!since && since <= (daily[0]?.day || since);
   const today = pragueDay(Date.now());
   const lbl = d => dayLabel(d.day) + (d.day === today ? " (today so far)" : "");
   const tipFor = d => `<b>${lbl(d)}</b><br>${num(d.visitors)} visitors · ${num(d.visits)} from outside · ${num(d.views)} page views<br>${num(d.signups)} new accounts · ${num(d.uploads)} uploads · ${num(d.sales)} sales`;
@@ -191,8 +193,8 @@ function paintStats(el) {
 
   <div class="ad-grid2">
     <div class="ad-card"><h3>From visit to sale</h3>
-      ${hbars([["Visitors", T.visitors || 0], ["Began setup", T.started || 0], ["Uploaded slides", T.uploaded || 0], ["Made an account", T.signups || 0], ["Bought a plan", pay.error ? 0 : pay.cur.fresh]], { pctOf: T.visitors || 0 })}
-      <p class="ad-foot">Each step is counted over the same period, not the same people followed one by one. % is of visitors.</p></div>
+      ${hbars([["Visitors", T.visitors || 0], ["Began setup", T.started || 0], ["Uploaded slides", T.uploaded || 0], ["Made an account", T.signups || 0], ["Bought a plan", pay.error ? 0 : pay.cur.fresh]], { pctOf: fullVisits ? T.visitors || 0 : null })}
+      <p class="ad-foot">Each step is counted over the same period, not the same people followed one by one. ${fullVisits ? "% is of visitors." : since ? `% of visitors shows for periods from ${dayLabel(since)} on, when visits began to count.` : "% of visitors shows once visits are counted."}</p></div>
     <div class="ad-card"><h3>Slides per upload</h3>
       ${hbars([["Up to 20", B[0]], ["21 to 50", B[1]], ["51 to 100", B[2]], ["101 to 250", B[3]], ["Over 250", B[4]]])}
       <p class="ad-foot">${num(sl.uploads)} uploads · ${num(sl.files)} files · ${num(sl.total)} slides · average ${num(sl.avg)} · median ${num(sl.median)} · largest ${num(sl.max)}</p></div>
@@ -214,8 +216,8 @@ function paintStats(el) {
     ? `<div><h2>Countries</h2>${countTable(["Country", "Visitors"], dict(s.countries).map(([k, v]) => [esc(k === "?" ? "unknown" : k), v]))}</div>` : ""}
   </div>
   <h2>Payments in Stripe</h2>
-  ${pay.error ? `<p class="ad-err">${esc(pay.error)}</p>` : `<div class="ad-scroll"><table><tr><th>Paid</th><th class="n">Amount</th><th>Plan</th><th>What</th><th>Email</th></tr>
-    ${(pay.list || []).length ? pay.list.map(p => `<tr><td>${when(p.at)}</td><td class="n">${money({ [p.currency]: p.amount })}</td><td>${esc(p.plan || "–")}</td><td>${KIND[p.kind] || esc(p.kind)}</td><td>${esc(p.email || "–")}</td></tr>`).join("")
+  ${pay.error ? `<p class="ad-err">${esc(pay.error)}</p>` : `<div class="ad-scroll"><table><tr><th>Paid</th><th class="ad-n">Amount</th><th>Plan</th><th>What</th><th>Email</th></tr>
+    ${(pay.list || []).length ? pay.list.map(p => `<tr><td>${when(p.at)}</td><td class="ad-n">${money({ [p.currency]: p.amount })}</td><td>${esc(p.plan || "–")}</td><td>${KIND[p.kind] || esc(p.kind)}</td><td>${esc(p.email || "–")}</td></tr>`).join("")
     : `<tr><td colspan="5" class="ad-muted">No payments in this period.</td></tr>`}</table></div>`}
   <p class="ad-foot">Updated ${when(s.to)} · period from ${when(s.from)}</p>`;
 
