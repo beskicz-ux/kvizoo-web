@@ -3,9 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- kvizoo.com/en/: the link to send people abroad (2026-11-19). Instagram, WhatsApp and Messenger read the share card from the page
-     before the #, and every /app/ link shows the Czech one. This page has the English card, then opens the app with the same # part
-     (a tester link #/t/<code> keeps its code). No meta refresh: Meta's link crawler follows one and would show /app/'s Czech card. -->
+<!-- Written by scripts/gen/share-pages.mjs: change it there. The share card for https://kvizoo.com/en/, then the app. -->
 <title>Exam prep from your slides · Kvizoo</title>
 <meta name="description" content="Upload your lectures and get a course with levels, flashcards and quizzes right up to exam day. First lesson free.">
 <meta name="robots" content="noindex">
@@ -19,21 +17,22 @@
 <meta property="og:title" content="Exam prep from your slides · Kvizoo">
 <meta property="og:description" content="Upload your lectures and get a course with levels, flashcards and quizzes right up to exam day. First lesson free.">
 <meta property="og:image" content="https://kvizoo.com/app/og-en.png">
+<meta property="og:image:type" content="image/png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Kvizoo: exam prep from your slides, Penny the hamster with a book">
+<meta property="og:image:alt" content="Exam prep from your slides · Kvizoo">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Exam prep from your slides · Kvizoo">
 <meta name="twitter:description" content="Upload your lectures and get a course with levels, flashcards and quizzes right up to exam day.">
 <meta name="twitter:image" content="https://kvizoo.com/app/og-en.png">
 <script src="/app/hit.js"></script><!-- counts this visit with the site it came from, before the forward to the app drops it -->
 <script>
-// English unless the visitor already chose a language in the app (same key as web/js/util.js store: "pc." + name, JSON).
+// en unless the visitor already chose a language in the app (same key as web/js/util.js store: "pc." + name, JSON).
 try { if (!localStorage.getItem("pc.lang")) localStorage.setItem("pc.lang", JSON.stringify("en")); } catch (e) { /* storage blocked: the app guesses */ }
 location.replace("/app/" + location.search + location.hash);
 </script>
 </head>
 <body style="font-family:system-ui,sans-serif;background:#F5F5FA;color:#2D2A3E;text-align:center;padding:48px 16px">
-<a href="/app/">Open Kvizoo</a>
+<a href="/app/">Kvizoo</a>
 </body>
 </html>

@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Written by scripts/gen/share-pages.mjs: change it there. The share card for https://kvizoo.com/tr/, then the app. -->
+<title>Slaytlarından sınava hazırlık · Kvizoo</title>
+<meta name="description" content="Derslerini yükle; sınav gününe kadar yayılmış seviyeler, bilgi kartları ve sınavlar al.">
+<meta name="robots" content="noindex">
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" href="/app/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/app/icon-180.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Kvizoo">
+<meta property="og:locale" content="tr_TR">
+<meta property="og:url" content="https://kvizoo.com/tr/">
+<meta property="og:title" content="Slaytlarından sınava hazırlık · Kvizoo">
+<meta property="og:description" content="Derslerini yükle; sınav gününe kadar yayılmış seviyeler, bilgi kartları ve sınavlar al.">
+<meta property="og:image" content="https://kvizoo.com/app/og-tr.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Slaytlarından sınava hazırlık · Kvizoo">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Slaytlarından sınava hazırlık · Kvizoo">
+<meta name="twitter:description" content="Derslerini yükle; sınav gününe kadar yayılmış seviyeler, bilgi kartları ve sınavlar al.">
+<meta name="twitter:image" content="https://kvizoo.com/app/og-tr.png">
+<script src="/app/hit.js"></script><!-- counts this visit with the site it came from, before the forward to the app drops it -->
+<script>
+// tr unless the visitor already chose a language in the app (same key as web/js/util.js store: "pc." + name, JSON).
+try { if (!localStorage.getItem("pc.lang")) localStorage.setItem("pc.lang", JSON.stringify("tr")); } catch (e) { /* storage blocked: the app guesses */ }
+location.replace("/app/" + location.search + location.hash);
+</script>
+</head>
+<body style="font-family:system-ui,sans-serif;background:#F5F5FA;color:#2D2A3E;text-align:center;padding:48px 16px">
+<a href="/app/">Kvizoo</a>
+</body>
+</html>

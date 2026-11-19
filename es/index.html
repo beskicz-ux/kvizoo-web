@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Written by scripts/gen/share-pages.mjs: change it there. The share card for https://kvizoo.com/es/, then the app. -->
+<title>Prepara tu examen con tus diapositivas · Kvizoo</title>
+<meta name="description" content="Sube tus clases y consigue niveles, tarjetas y cuestionarios repartidos hasta el día del examen.">
+<meta name="robots" content="noindex">
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" href="/app/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/app/icon-180.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Kvizoo">
+<meta property="og:locale" content="es_ES">
+<meta property="og:url" content="https://kvizoo.com/es/">
+<meta property="og:title" content="Prepara tu examen con tus diapositivas · Kvizoo">
+<meta property="og:description" content="Sube tus clases y consigue niveles, tarjetas y cuestionarios repartidos hasta el día del examen.">
+<meta property="og:image" content="https://kvizoo.com/app/og-es.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Prepara tu examen con tus diapositivas · Kvizoo">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Prepara tu examen con tus diapositivas · Kvizoo">
+<meta name="twitter:description" content="Sube tus clases y consigue niveles, tarjetas y cuestionarios repartidos hasta el día del examen.">
+<meta name="twitter:image" content="https://kvizoo.com/app/og-es.png">
+<script src="/app/hit.js"></script><!-- counts this visit with the site it came from, before the forward to the app drops it -->
+<script>
+// es unless the visitor already chose a language in the app (same key as web/js/util.js store: "pc." + name, JSON).
+try { if (!localStorage.getItem("pc.lang")) localStorage.setItem("pc.lang", JSON.stringify("es")); } catch (e) { /* storage blocked: the app guesses */ }
+location.replace("/app/" + location.search + location.hash);
+</script>
+</head>
+<body style="font-family:system-ui,sans-serif;background:#F5F5FA;color:#2D2A3E;text-align:center;padding:48px 16px">
+<a href="/app/">Kvizoo</a>
+</body>
+</html>
