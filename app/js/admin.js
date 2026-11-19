@@ -37,10 +37,10 @@ const notrack = () => { try { return !!localStorage.getItem("pc.notrack"); } cat
 const setNotrack = on => { try { on ? localStorage.setItem("pc.notrack", "1") : localStorage.removeItem("pc.notrack"); } catch { /* blocked */ } };
 
 function login(err = "") {
-  root.innerHTML = `<h1>Kvizoo <span>admin</span></h1><form class="kz-login" id="f">
+  root.innerHTML = `<div class="kz-gate"><div><h1>Kvizoo <span>admin</span></h1><form class="kz-login" id="f">
     <input type="text" name="username" autocomplete="username" value="kvizoo-admin" hidden>
     <input class="ob-in" id="k" name="password" type="password" inputmode="numeric" autocomplete="current-password" placeholder="Admin key" aria-label="Admin key">
-    <button class="btn-p">Open</button><p class="kz-err" role="alert">${esc(err)}</p></form>`;
+    <button class="btn-p">Open</button><p class="kz-err" role="alert">${esc(err)}</p></form></div></div>`;
   document.getElementById("f").onsubmit = async e => {
     e.preventDefault();
     key = document.getElementById("k").value.trim();
