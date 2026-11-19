@@ -13,7 +13,8 @@
     last = path;
     var b = { action: "hit", path: path };
     // Only the first view of a page load says where the visitor came from (the link's tag and the referring site).
-    if (first) { first = false; b.first = true; b.ref = String(document.referrer || "").slice(0, 500); b.q = location.search.slice(0, 300); }
+    // A friend link's code (?t=<code>) never leaves the page here: it shows as t=- (the app counts the open as /app/t instead).
+    if (first) { first = false; b.first = true; b.ref = String(document.referrer || "").slice(0, 500); b.q = location.search.replace(/([?&]t=)[^&#]*/g, "$1-").slice(0, 300); }
     var body = JSON.stringify(b);
     try { if (navigator.sendBeacon && navigator.sendBeacon(API, body)) return; } catch (e) { /* fall through */ }
     try { fetch(API, { method: "POST", body: body, keepalive: true, mode: "no-cors" }).catch(function () {}); } catch (e) { /* never break the page */ }

@@ -8,7 +8,7 @@ const D = { cs: null, en: null };
 // A first visit with no choice saved: Czech if the browser lists Czech or Slovak anywhere, otherwise English (about a third of buyers are in the USA).
 const guess = () => { try { if (typeof window === "undefined") return "cs"; const ls = navigator.languages?.length ? navigator.languages : [navigator.language || "cs"]; return ls.some(l => /^(cs|sk)\b/i.test(l)) ? "cs" : "en"; } catch (e) { return "cs"; } };
 export const lang = () => { const l = store.get("lang", null) || guess(); return LANG_CODES.includes(l) ? l : "cs"; };
-// The app language, sent with the order as a fallback only: the builder writes the course in the uploaded material's language and uses this just for wordless or third-language slides (Marek, 2026-11-13: never asked).
+// The app language, sent with the order as a fallback only: the builder writes the course in the uploaded material's language, any language, and uses this just for slides without words (Marek, 2026-11-13: never asked; 2026-11-19: never translated).
 export const courseLang = () => (lang() === "en" ? "en" : "cs");
 export async function loadLang(l = lang()) {
   if (!D[l]) { try { D[l] = (await import(`./lang/${l}.js`)).default; } catch (e) { D[l] = {}; } }
@@ -414,6 +414,13 @@ D.cs = {
     giftOk: "Jako tester máš plný přístup zdarma. Díky, že to zkoušíš!",
     giftForever: "Zdarma pro testery",
     giftNote: "Zdarma pro testery. Nic neplatíš a nic se samo neobnoví.",
+    friendAsk: "Máš kamarádský kód?",
+    friendPh: "Kamarádský kód",
+    friendGo: "Použít",
+    friendSaved: "Kamarádský kód je uložený. Platí, až si založíš účet.",
+    friendBad: "Tenhle kód nefunguje. Zkontroluj ho, nebo nám napiš.",
+    friendFull: "Tenhle kód už někdo použil. Napiš nám a vyřešíme to.",
+    friendHave: "Tvůj účet už plán má, takže se kód nepoužil.",
     proOff: "Neaktivní",
     proLeft: "Slidy tento měsíc: zbývá {n} z {x}",
     proCancel: "Zrušit předplatné",
@@ -932,6 +939,13 @@ D.en = {
     giftOk: "You're a tester: full access is free. Thanks for trying it!",
     giftForever: "Free for testers",
     giftNote: "Free for testers. You pay nothing and nothing renews by itself.",
+    friendAsk: "Have a friend code?",
+    friendPh: "Friend code",
+    friendGo: "Use",
+    friendSaved: "Friend code saved. It applies when you make your account.",
+    friendBad: "This code doesn't work. Check it, or write to us.",
+    friendFull: "This code has already been used. Write to us and we'll sort it out.",
+    friendHave: "Your account already has a plan, so the code wasn't used.",
     proOff: "Not active",
     proLeft: "Slides this month: {n} of {x} left",
     proCancel: "Cancel subscription",

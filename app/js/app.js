@@ -9,6 +9,7 @@ import { courseRoute, tutorArt, TUTORS, tutorWith, resetCourse, storeInfo, snapG
 import { BACK, CLOSE, CHEV_DOWN, PACE_ICONS, calIcon, langSheet, applyTheme, sheet, yearWheel } from "./ui.js";
 import { pushSupported, pushState, askPush, subscribe, sendSub, remindTime } from "./push.js";
 import { persona } from "./persona.js";
+import { friendCodeFrom, withFriend, withoutFriend, cleanCode, GIFT_TEXT } from "./friend.js";
 
 const draft = () => { const d = store.get("draft", null); if (d && !STEPS.includes(d.step)) d.step = d.slug ? "account" : "files"; return d; };
 const saveDraft = d => store.set("draft", d);
@@ -901,9 +902,9 @@ function accDetails(d) {
     if (!v.privacy) return show("no_privacy");
     const btn = $("#nextBtn"); btn.disabled = true; btn.textContent = t("storeBuying");
     try {
-      const r = await api("signup", { orderToken: draft().orderToken, ...v, invite: store.get("invite") || undefined });
-      store.del("invite");
-      if (r.gift === "ok") toast(t("giftOk"));
+      const invite = store.get("invite") || undefined; // a friend link's code, from this visit or an earlier one
+      const r = await api("signup", { orderToken: draft().orderToken, ...v, invite });
+      if (invite) giftSaid(r.gift);
       store.set("session", { token: r.session, slug: r.slug });
       store.set("email", g ? gMail : v.email); store.set("name", v.name);
       // the reminder subscription from the notifications step can only be saved once there is an account
@@ -973,7 +974,10 @@ async function viewUnlock() {
       <p class="ob-err" id="err" hidden role="alert"></p>
       <button class="btn-p st-buy" id="buy"></button>
       ${testMode ? `<p class="st-test" role="note">${t("storeTest")}</p>` : ""}
-      <p class="ob-note c">${t("storeSecure")}</p>`;
+      <p class="ob-note c">${t("storeSecure")}</p>
+      <details class="st-friend" id="fcBox"${store.get("invite") ? " open" : ""}><summary>${esc(t("friendAsk"))}</summary>
+        <form id="fc" class="st-fc" novalidate><input class="ob-in" id="fcIn" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="30" placeholder="${esc(t("friendPh"))}" aria-label="${esc(t("friendPh"))}" value="${esc(store.get("invite") || "")}">
+        <button class="btn-s" id="fcGo">${esc(t("friendGo"))}</button></form><p class="ob-err" id="fcErr" hidden role="alert"></p></details>`;
   view().innerHTML = `<div class="ob st"><div class="ob-hd"><button class="ob-bk" id="stepBack" aria-label="${t("back")}">${CLOSE}</button></div>
     <div class="st-grid">
       <div class="st-top">
@@ -1003,6 +1007,21 @@ async function viewUnlock() {
       if (r.url) { location.href = r.url; return; } // the card needs the student (3-D Secure): Stripe's invoice page
       resetCourse(); confetti(); sfx.done(); toast(t("planMaxOn")); nav("#/s/" + s.slug);
     } catch (e) { fail($("#err"), e); upBtn.disabled = false; }
+  };
+  // "Have a friend code?": the way in when a friend link lost its code (2026-11-19). A code still waiting on this device is filled in.
+  // Typed codes count in Stats as /app/code/ok, /bad, /full or /have, apart from the links' /app/t/...
+  const fc = $("#fc");
+  if (fc) fc.onsubmit = async e => {
+    e.preventDefault(); $("#fcErr").hidden = true;
+    const code = cleanCode($("#fcIn").value), go = $("#fcGo");
+    if (code.length < 4) { $("#fcErr").textContent = t("friendBad"); $("#fcErr").hidden = false; return; }
+    go.disabled = true;
+    try {
+      const r = await api("redeem", { session: s.token, invite: code });
+      window.pcHit?.("/app/code/" + (GIFT_TEXT[r.gift] ? r.gift : "other"));
+      if (r.gift === "ok") { store.del("invite"); resetCourse(); confetti(); sfx.done(); toast(t("giftOk")); return nav("#/s/" + s.slug); }
+      sfx.wrong(); $("#fcErr").textContent = t(GIFT_TEXT[r.gift] || "friendBad"); $("#fcErr").hidden = false; go.disabled = false;
+    } catch (er) { fail($("#fcErr"), er); go.disabled = false; }
   };
   const buy = $("#buy");
   if (!buy) return;
@@ -1297,19 +1316,39 @@ function viewError(e) {
   view().innerHTML = `<div class="ob ob-center">${ham("sad")}<h1 class="ob-h">${esc(errText(e?.code || (e instanceof TypeError ? "offline" : "server")))}</h1><div class="ob-foot"><button class="btn-p" id="again">${t("retry")}</button></div></div>`;
   $("#again").onclick = render;
 }
-// A tester link (#/t/<code>): the code waits on this device until the account is made, where it gives the plan for free.
-// Someone already signed in gets the plan at once. A wrong or used-up code changes nothing: the free start works as for anyone.
-async function testerLink(code) {
-  code = String(code || "").slice(0, 20);
-  if (code) store.set("invite", code);
-  await useInvite();
-  nav("#/");
+// A friend link (?t=<code>, or the old #/t/<code>; web/js/friend.js): the code waits on this device until the account is made,
+// where it gives the plan for free. Someone already signed in gets the plan at once (useInvite). A wrong or used-up code changes
+// nothing: the free start works as for anyone, and the student is told (giftSaid).
+// The code also stays in the address as ?t= until pc-api has seen it, so Instagram's "Open in browser" carries it to the new
+// browser, whose storage is empty. The open counts as /app/t (or /app/t/nocode for a link without its code) in the Stats tab,
+// so a link that arrives without its code shows up (tester monta, 2026-11-19: her #/t/ link reached the app as plain /app/).
+function friendArrived() {
+  const f = friendCodeFrom(location.search, location.hash);
+  if (!f) return false;
+  window.pcHit?.(f.code ? "/app/t" : "/app/t/nocode");
+  if (f.code) store.set("invite", f.code);
+  if (f.form === "hash" || !f.code) history.replaceState(null, "", location.pathname + withFriend(location.search, f.code) + (f.form === "hash" ? "#/" : location.hash));
+  if (f.code && !session()) toast(t("friendSaved"));
+  return true;
 }
-// Puts a waiting tester code on the signed-in account (after the link, or after signing in). Kept if the call fails, to try again.
-async function useInvite() {
-  const code = store.get("invite"), s = store.get("session");
-  if (!code || !s?.token) return;
-  try { const r = await api("redeem", { session: s.token, invite: code }); store.del("invite"); if (r.gift === "ok") toast(t("giftOk")); } catch { /* the app works without it */ }
+// Puts a waiting friend code on the signed-in account (after the link, after signing in, or on the next visit if the call failed).
+// Kept on the device only if pc-api couldn't be reached. Runs once at a time, so the link and sign-in don't send it twice.
+let inviteP = null;
+function useInvite() {
+  return inviteP ||= (async () => {
+    const code = store.get("invite"), s = session();
+    if (!code || !s?.token) return;
+    try { giftSaid((await api("redeem", { session: s.token, invite: code })).gift); } catch { /* offline or pc-api down: try again later */ }
+  })().finally(() => { inviteP = null; });
+}
+// pc-api has answered a friend code (sign-up or redeem): the code leaves the device and the address, the answer counts in
+// Stats as /app/t/ok, /bad, /full or /have, and the student reads what happened. No gift (sign-up without a code): nothing.
+function giftSaid(gift) {
+  store.del("invite");
+  if (new URLSearchParams(location.search).has("t")) history.replaceState(null, "", location.pathname + withoutFriend(location.search) + location.hash);
+  if (!GIFT_TEXT[gift]) return;
+  window.pcHit?.("/app/t/" + gift);
+  toast(t(GIFT_TEXT[gift]));
 }
 function route() {
   const h = location.hash.replace(/^#/, "").split("?")[0] || "/"; // ?r= only forces a fresh render of the same lesson
@@ -1317,7 +1356,7 @@ function route() {
   window.scrollTo({ top: 0, behavior: "instant" });
   if (!parts.length) return viewWelcome();
   if (parts[0] === "start") return nav("#/"); // the old invite page
-  if (parts[0] === "t") return testerLink(parts[1]);
+  if (parts[0] === "t") { friendArrived(); return useInvite().then(() => nav("#/")); } // a #/t/ link opened while the app was open
   if (parts[0] === "login") return viewLogin();
   if (parts[0] === "forgot") return viewForgot();
   if (parts[0] === "reset") return viewReset();
@@ -1350,5 +1389,14 @@ if (first) addEventListener("hashchange", render);
 // Safari (and Chrome) restore a page from the back-forward cache as it was left: after Back from Stripe the buy
 // button would still say "One moment…" and be disabled. Draw the view afresh instead.
 if (first) addEventListener("pageshow", e => { if (e.persisted) render(); });
-if (first) { applyTheme(); setLang(lang()).then(render); }
+// A friend code (from the link, or still waiting from an earlier visit) goes on a signed-in account before the first screen,
+// so that screen already shows the plan. At most 4 s: a slow pc-api never keeps the app from opening.
+if (first) {
+  applyTheme();
+  setLang(lang()).then(async () => {
+    friendArrived();
+    if (store.get("invite") && session()) await Promise.race([useInvite(), new Promise(r => setTimeout(r, 4000))]);
+    render();
+  });
+}
 if ("serviceWorker" in navigator && location.protocol === "https:") navigator.serviceWorker.register("sw.js", { scope: "./" }).catch(() => { });

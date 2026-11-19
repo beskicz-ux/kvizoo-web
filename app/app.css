@@ -890,6 +890,16 @@ body.map-page .mmain > .pc-unlock{margin-top:14px}
 .st-perday{color:var(--muted); font-weight:700; font-size:14px}
 .st-free{align-self:center; color:var(--muted); font-weight:800; text-decoration:none; padding:2px 8px; font-size:15px}
 .st-free:hover{color:var(--text)}
+/* "Have a friend code?" under the buy button: a quiet link that opens one field and a button */
+.st-friend{align-self:stretch; text-align:center}
+.st-friend summary{display:inline-block; cursor:pointer; color:var(--muted); font-weight:800; font-size:14px; padding:4px 8px; list-style:none}
+.st-friend summary::-webkit-details-marker{display:none}
+.st-friend summary:hover, .st-friend[open] summary{color:var(--text)}
+.st-fc{display:flex; gap:8px; margin-top:8px}
+.st-fc .ob-in{flex:1 1 auto; min-width:0; margin:0; text-transform:uppercase; letter-spacing:.06em}
+.st-fc .ob-in::placeholder{text-transform:none; letter-spacing:0}
+.st-fc .btn-s{width:auto; flex:none; min-height:52px; padding:0 18px; margin:0}
+.st-friend .ob-err{margin:8px 0 0}
 
 /* what you get, what unlocks, the timeline */
 .st-feats{list-style:none; margin:0; padding:0}
