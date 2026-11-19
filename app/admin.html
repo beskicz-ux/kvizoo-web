@@ -14,81 +14,168 @@
 <link rel="stylesheet" href="app.css?v=5">
 <style>
   /* Classes start with kz-, never ad-: ad blockers hide .ad-card, .ad-scroll, .ad-bar and more (EasyList), which blanked this page. */
-  /* The app's own look (2026-11-18): app.css's "Midnight & Violet" tokens, Bricolage headings, Figtree text, white cards with a
-     2px edge on the soft page colour, violet accent. Change colours in app.css, not here. */
+  /* The app's own look: app.css's "Midnight & Violet" tokens (light and dark), Bricolage headings, Figtree text, cards on the soft
+     page colour, violet accent. Change colours in app.css, not here. Redesign 2026-11-19: four headline numbers that pick the chart,
+     one big chart, cards for every list, and the Users tab (one row per account and the step it reached). */
   body{background:var(--bg); color:var(--text)}
   body:not(.focus){padding-left:0}
-  .kz{max-width:1100px; margin:0 auto; padding:var(--s4) var(--gutter) var(--s7); --bar:var(--accent); --bar-on:var(--accent-ink)}
-  .kz h1{display:flex; align-items:baseline; gap:8px; margin:var(--s3) 0; font:800 26px var(--head); letter-spacing:-.01em; color:var(--accent)}
+  .kz{max-width:1180px; margin:0 auto; padding:var(--s4) var(--gutter) var(--s7); --bar:var(--accent); --bar-on:var(--accent-ink);
+    --gold-soft:color-mix(in srgb, var(--gold) 20%, var(--surface)); --r:18px}
+  .kz h1{display:flex; align-items:baseline; gap:8px; margin:var(--s2) 0; font:800 24px var(--head); letter-spacing:-.01em; color:var(--accent)}
   .kz h1 span{color:var(--muted); font-weight:700}
-  .kz h2{font:800 20px var(--head); letter-spacing:-.01em; color:var(--text); margin:28px 0 12px}
+  .kz h2{font:800 19px var(--head); letter-spacing:-.01em; color:var(--text); margin:32px 0 12px}
   .kz-login{display:flex; flex-direction:column; gap:var(--s3); max-width:360px; margin-top:var(--s5)}
   .kz-login .btn-p{margin-top:var(--s1)}
-  .kz-scroll{overflow-x:auto; background:var(--surface); border:2px solid var(--edge); border-radius:16px}
-  .kz table{border-collapse:collapse; width:100%; font-size:14px; color:var(--text)}
-  .kz th{font-weight:700; text-align:left; color:var(--muted); white-space:nowrap}
-  .kz th,.kz td{padding:10px 14px; border-bottom:1px solid var(--line); vertical-align:top}
-  .kz tr:last-child td{border-bottom:0}
-  .kz td button{font:800 13px var(--head); padding:3px 10px; margin:0 var(--s1) var(--s1) 0; border:2px solid var(--edge); border-radius:999px; background:var(--surface); color:var(--accent-ink); cursor:pointer}
-  @media (hover:hover){ .kz td button:hover{border-color:var(--accent)} }
-  .kz-code{font-weight:800; letter-spacing:.1em; color:var(--text); user-select:all}
   .kz-err{color:var(--wrong); font-weight:700}
   .kz-muted{color:var(--muted)}
-  .kz-note{margin:var(--s3) 0; padding:12px 16px; border-radius:16px; background:var(--accent-soft); font-weight:600; color:var(--text)}
-  .kz-top{display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:var(--s2) var(--s4)}
+  .kz-note{margin:var(--s3) 0; padding:12px 16px; border-radius:14px; background:var(--accent-soft); font-weight:600; color:var(--text)}
+  .kz-code{font-weight:800; letter-spacing:.1em; color:var(--text); user-select:all}
+  .kz code{font-size:13px; background:var(--fill); padding:1px 6px; border-radius:6px; color:var(--text); overflow-wrap:anywhere}
+  .kz-foot{font-size:13px; line-height:1.5; color:var(--muted); margin:10px 0 0}
+
+  /* top bar: title, tabs */
+  .kz-top{position:sticky; top:0; z-index:10; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:var(--s2) var(--s4);
+    margin:0 calc(-1 * var(--gutter)); padding:10px var(--gutter); background:color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter:blur(8px); border-bottom:1px solid var(--line)}
   .kz-tabs,.kz-seg{display:flex; flex-wrap:wrap; gap:6px}
-  .kz-tabs button,.kz-seg button{font:800 14px var(--head); min-height:40px; padding:0 16px; border:2px solid var(--edge); border-radius:999px; background:var(--surface); color:var(--text); cursor:pointer; transition:transform .12s, background-color .2s, border-color .2s}
-  .kz-tabs button:active,.kz-seg button:active{transform:scale(.97)}
+  .kz-tabs button,.kz-seg button,.kz-btn{font:800 14px var(--head); min-height:38px; padding:0 15px; border:2px solid var(--edge); border-radius:999px; background:var(--surface); color:var(--text); cursor:pointer; transition:transform .12s, background-color .2s, border-color .2s}
+  .kz-tabs button:active,.kz-seg button:active,.kz-btn:active{transform:scale(.97)}
   .kz-tabs button[aria-pressed=true],.kz-seg button[aria-pressed=true]{background:var(--accent-soft); border-color:var(--accent); color:var(--accent-ink)}
-  @media (hover:hover){ .kz-tabs button:hover:not([aria-pressed=true]),.kz-seg button:hover:not([aria-pressed=true]){border-color:color-mix(in srgb, var(--accent) 45%, var(--edge))} }
+  @media (hover:hover){ .kz-tabs button:hover:not([aria-pressed=true]),.kz-seg button:hover:not([aria-pressed=true]),.kz-btn:hover{border-color:color-mix(in srgb, var(--accent) 45%, var(--edge))} }
   .kz-seg button:disabled{opacity:.6; cursor:wait}
-  .kz-bar{display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:var(--s3); margin:var(--s3) 0 var(--s4)}
+  .kz-tabs .kz-cnt{font:700 12px var(--font); margin-left:6px; padding:1px 7px; border-radius:99px; background:var(--fill); color:var(--muted)}
+  .kz-bar{display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:var(--s3); margin:var(--s4) 0}
+  .kz-bar .kz-muted{font-size:13px}
   .kz-check{display:flex; align-items:center; gap:var(--s2); font-size:14px; font-weight:600; color:var(--muted); cursor:pointer}
   .kz-check input{width:18px; height:18px; accent-color:var(--accent)}
-  .kz-kpis{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px}
-  @media (min-width:640px){ .kz-kpis{grid-template-columns:repeat(3,minmax(0,1fr))} }
-  @media (min-width:1000px){ .kz-kpis{grid-template-columns:repeat(6,minmax(0,1fr))} }
-  .kz-kpi,.kz-card{background:var(--surface); border:2px solid var(--edge); min-width:0}
-  .kz-kpi{border-radius:18px; padding:14px 16px; box-shadow:0 3px 0 var(--edge)}
+
+  /* cards */
+  .kz-card{background:var(--surface); border:1px solid var(--line); border-radius:var(--r); padding:18px 20px; min-width:0; box-shadow:0 1px 0 var(--line), 0 6px 20px -14px color-mix(in srgb, var(--text) 35%, transparent)}
+  .kz-card h3{display:flex; align-items:center; justify-content:space-between; gap:var(--s3); font:800 16px var(--head); color:var(--text); margin:0 0 14px}
+  .kz-card h3 small{font:600 13px var(--font); color:var(--muted)}
+  .kz-card.flush{padding:0; overflow:hidden}
+  .kz-card.flush h3{padding:16px 20px 0; margin-bottom:12px}
+  .kz-card.flush .kz-foot{padding:0 20px 14px}
+  .kz-grid{display:grid; gap:14px; grid-template-columns:1fr; margin-top:14px}
+  @media (min-width:760px){ .kz-grid.c2{grid-template-columns:repeat(2,minmax(0,1fr))} .kz-grid.c3{grid-template-columns:repeat(3,minmax(0,1fr))} .kz-grid.w21{grid-template-columns:minmax(0,1.3fr) minmax(0,1fr)} }
+
+  /* headline numbers: each one picks what the big chart shows */
+  .kz-kpis{display:grid; gap:14px; grid-template-columns:repeat(2,minmax(0,1fr))}
+  @media (min-width:900px){ .kz-kpis{grid-template-columns:repeat(4,minmax(0,1fr))} }
+  .kz-kpi{position:relative; display:flex; flex-direction:column; text-align:left; font:inherit; color:var(--text); cursor:pointer; padding:16px 18px 12px; transition:border-color .2s, box-shadow .2s}
+  .kz-kpi[aria-pressed=true]{border-color:var(--accent); box-shadow:0 0 0 2px var(--accent) inset, 0 6px 20px -14px color-mix(in srgb, var(--accent) 60%, transparent)}
+  @media (hover:hover){ .kz-kpi:hover:not([aria-pressed=true]){border-color:color-mix(in srgb, var(--accent) 45%, var(--line))} }
   .kz-kpi .l{font-size:14px; font-weight:700; color:var(--muted)}
-  .kz-kpi .v{font:800 30px/1.2 var(--head); letter-spacing:-.01em; color:var(--text); font-variant-numeric:tabular-nums; overflow-wrap:anywhere; margin-top:2px}
-  .kz-kpi .s{font-size:13px; line-height:1.4; color:var(--muted); margin-top:4px}
-  .kz-up{color:var(--good); font-weight:700} .kz-down{color:var(--wrong); font-weight:700}
-  .kz-now{display:flex; flex-wrap:wrap; gap:var(--s2) var(--s5); margin:var(--s4) 0; padding:14px 18px; background:var(--accent-soft); border-radius:16px; font-size:14px; color:var(--text)}
-  .kz-now b{font:800 16px var(--head); color:var(--text); font-variant-numeric:tabular-nums}
-  .kz-card{margin-top:12px; border-radius:16px; padding:16px 18px}
-  .kz-card h3{font:800 16px var(--head); color:var(--text); margin:0 0 14px}
-  .kz-grid2,.kz-grid3{display:grid; gap:0 12px; grid-template-columns:1fr}
-  @media (min-width:760px){ .kz-grid2{grid-template-columns:repeat(2,minmax(0,1fr))} .kz-grid3{grid-template-columns:repeat(3,minmax(0,1fr))} }
-  .kz-foot{font-size:13px; color:var(--muted); margin:var(--s2) 0 0}
-  .kz code{font-size:13px; background:var(--fill); padding:1px 6px; border-radius:6px; color:var(--text); overflow-wrap:anywhere}
-  /* Charts: one series per chart in the accent; text always in the text tokens. Bar chart = y labels | plot, x labels under it. */
+  .kz-kpi .v{font:800 34px/1.1 var(--head); letter-spacing:-.02em; font-variant-numeric:tabular-nums; overflow-wrap:anywhere; margin:6px 0 4px}
+  .kz-kpi .s{font-size:13px; line-height:1.4; color:var(--muted)}
+  .kz-kpi svg{display:block; width:100%; height:34px; margin-top:auto; padding-top:10px; overflow:visible}
+  .kz-kpi svg path.a{fill:color-mix(in srgb, var(--accent) 16%, transparent)} .kz-kpi svg path.l{fill:none; stroke:var(--accent); stroke-width:2; vector-effect:non-scaling-stroke; stroke-linejoin:round}
+  .kz-d{display:inline-flex; align-items:center; gap:3px; font:700 12px var(--font); padding:2px 8px; border-radius:99px; white-space:nowrap; font-variant-numeric:tabular-nums}
+  .kz-d.up{background:var(--good-soft); color:color-mix(in srgb, var(--good) 75%, var(--text))}
+  .kz-d.down{background:var(--wrong-soft); color:color-mix(in srgb, var(--wrong) 75%, var(--text))}
+  .kz-d.same,.kz-d.na{background:var(--fill); color:var(--muted)}
+
+  /* right now: a quiet strip */
+  .kz-now{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1px; margin:14px 0; border-radius:var(--r); overflow:hidden; background:var(--line); border:1px solid var(--line)}
+  @media (min-width:760px){ .kz-now{grid-template-columns:repeat(5,minmax(0,1fr))} }
+  .kz-now div{background:var(--surface); padding:12px 16px; font-size:13px; color:var(--muted)}
+  .kz-now b{display:block; font:800 20px var(--head); color:var(--text); font-variant-numeric:tabular-nums}
+
+  /* the bar chart: y labels | plot, x labels under it; one series, the accent */
   .kz-ch{display:grid; grid-template-columns:auto 1fr; column-gap:var(--s2)}
-  .kz-y{position:relative; min-width:20px; font-size:12px; color:var(--muted); font-variant-numeric:tabular-nums}
+  .kz-y{position:relative; min-width:22px; font-size:12px; color:var(--muted); font-variant-numeric:tabular-nums}
   .kz-y span{position:absolute; right:0; transform:translateY(50%); line-height:1}
   .kz-plot{position:relative; height:var(--h); border-bottom:1px solid var(--edge); touch-action:pan-y; cursor:crosshair}
-  .kz-gl{position:absolute; left:0; right:0; border-top:1px solid var(--line)}
-  .kz-cols{position:absolute; inset:0; display:flex; gap:2px}
+  .kz-gl{position:absolute; left:0; right:0; border-top:1px dashed var(--line)}
+  .kz-cols{position:absolute; inset:0; display:flex; gap:3px}
   .kz-col{flex:1; min-width:0; display:flex; align-items:flex-end; justify-content:center}
-  .kz-col i{display:block; width:100%; max-width:24px; min-height:2px; background:var(--bar); border-radius:4px 4px 0 0}
+  .kz-col i{display:block; width:100%; max-width:28px; min-height:2px; background:var(--bar); border-radius:5px 5px 0 0}
   .kz-col i.z{min-height:0}
+  .kz-col.off{background:repeating-linear-gradient(135deg, transparent 0 5px, color-mix(in srgb, var(--muted) 14%, transparent) 5px 7px)}
   .kz-col.on i{background:var(--bar-on)}
-  .kz-col.on{background:color-mix(in srgb, var(--accent) 10%, transparent); border-radius:4px 4px 0 0}
-  .kz-x{grid-column:2; position:relative; height:20px; font-size:12px; color:var(--muted)}
-  .kz-x span{position:absolute; top:4px; transform:translateX(-50%); white-space:nowrap}
-  .kz-tip{position:absolute; top:-8px; z-index:5; pointer-events:none; background:var(--surface); color:var(--text); border:2px solid var(--edge); border-radius:12px; padding:8px 12px; font-size:13px; line-height:1.45; width:max-content; max-width:100%; box-shadow:0 8px 20px -6px color-mix(in srgb, var(--text) 30%, transparent); transform:translateY(-100%)}
+  .kz-col.on{background:color-mix(in srgb, var(--accent) 10%, transparent); border-radius:5px 5px 0 0}
+  .kz-x{grid-column:2; position:relative; height:22px; font-size:12px; color:var(--muted)}
+  .kz-x span{position:absolute; top:6px; transform:translateX(-50%); white-space:nowrap}
+  @media (max-width:520px){ .kz-x span.alt{display:none} }
+  .kz-tip{position:absolute; top:-8px; z-index:5; pointer-events:none; background:var(--surface); color:var(--text); border:1px solid var(--edge); border-radius:12px; padding:8px 12px; font-size:13px; line-height:1.45; width:max-content; max-width:100%; box-shadow:0 10px 24px -8px color-mix(in srgb, var(--text) 35%, transparent); transform:translateY(-100%)}
   .kz-tip b{font-family:var(--head); color:var(--text)}
   .kz-tv summary{margin-top:var(--s2); font-size:13px; font-weight:700; color:var(--accent-ink); cursor:pointer}
-  .kz-tv .kz-scroll{margin-top:var(--s2); max-height:280px; overflow-y:auto}
+  .kz-tv .kz-scroll{margin-top:var(--s2); max-height:280px; overflow-y:auto; border:1px solid var(--line); border-radius:12px}
+  .kz-total{font:800 15px var(--head); color:var(--text); font-variant-numeric:tabular-nums}
+
   /* horizontal bars: label | bar | number */
-  .kz-h{display:grid; grid-template-columns:minmax(90px,max-content) 1fr auto; gap:10px 14px; align-items:center; font-size:14px; color:var(--text)}
-  .kz-h .hb i{display:block; height:16px; min-width:2px; background:var(--bar); border-radius:0 6px 6px 0}
+  .kz-h{display:grid; grid-template-columns:minmax(80px,max-content) 1fr auto; gap:12px 14px; align-items:center; font-size:14px; color:var(--text)}
+  .kz-h .hb{height:12px; border-radius:99px; background:var(--fill); overflow:hidden}
+  .kz-h .hb i{display:block; height:100%; min-width:3px; background:var(--bar); border-radius:99px}
   .kz-h .hb i.z{min-width:0}
   .kz-h .hn{text-align:right; font:800 15px var(--head); color:var(--text); font-variant-numeric:tabular-nums; white-space:nowrap}
-  .kz-h .hn .kz-muted{display:inline-block; min-width:4ch; margin-left:6px; font:600 13px var(--font)}
+  .kz-h .hn .kz-muted{display:inline-block; min-width:4.5ch; margin-left:6px; font:600 13px var(--font)}
+
+  /* tables */
+  .kz-scroll{overflow-x:auto}
+  .kz table{border-collapse:collapse; width:100%; font-size:14px; color:var(--text)}
+  .kz th{font:700 12px var(--font); text-transform:uppercase; letter-spacing:.04em; text-align:left; color:var(--muted); white-space:nowrap; background:var(--fill)}
+  .kz th,.kz td{padding:10px 14px; border-bottom:1px solid var(--line); vertical-align:middle}
+  .kz tr:last-child td{border-bottom:0}
   .kz td.kz-n,.kz th.kz-n{text-align:right; font-variant-numeric:tabular-nums}
-  .kz td.kz-sh{width:30%; min-width:60px}
-  .kz td.kz-sh i{display:block; height:8px; min-width:2px; margin-top:8px; background:var(--bar); border-radius:0 4px 4px 0}
+  .kz td.kz-sh{width:18%; min-width:60px}
+  .kz td.kz-sh i{display:block; height:8px; min-width:3px; background:var(--bar); border-radius:99px}
+  .kz td .sub{display:block; font-size:12.5px; color:var(--muted); margin-top:2px}
+  .kz td button{font:800 13px var(--head); padding:3px 10px; margin:0 var(--s1) var(--s1) 0; border:2px solid var(--edge); border-radius:999px; background:var(--surface); color:var(--accent-ink); cursor:pointer}
+  @media (hover:hover){ .kz td button:hover{border-color:var(--accent)} }
+  .kz-more summary{padding:10px 20px; font-size:13px; font-weight:700; color:var(--accent-ink); cursor:pointer; border-top:1px solid var(--line)}
+
+  /* Users tab: the steps, one row per account */
+  .kz-steps{display:grid; gap:10px; grid-template-columns:repeat(2,minmax(0,1fr))}
+  @media (min-width:640px){ .kz-steps{grid-template-columns:repeat(3,minmax(0,1fr))} }
+  @media (min-width:1000px){ .kz-steps{grid-template-columns:repeat(5,minmax(0,1fr))} }
+  .kz-step{position:relative; display:flex; flex-direction:column; text-align:left; font:inherit; color:var(--text); cursor:pointer; padding:14px 16px; border-radius:16px; border:1px solid var(--line); background:var(--surface); transition:border-color .2s, box-shadow .2s}
+  .kz-step[aria-pressed=true]{border-color:var(--tone); box-shadow:0 0 0 2px var(--tone) inset}
+  @media (hover:hover){ .kz-step:hover:not([aria-pressed=true]){border-color:color-mix(in srgb, var(--tone) 50%, var(--line))} }
+  .kz-step .k{display:flex; align-items:center; gap:8px; font-size:13px; font-weight:700; color:var(--muted)}
+  .kz-step .k i{width:10px; height:10px; border-radius:99px; background:var(--tone); flex:none}
+  .kz-step .v{font:800 30px/1.15 var(--head); font-variant-numeric:tabular-nums; margin-top:4px}
+  .kz-step .r{font-size:12.5px; color:var(--muted); margin-top:2px}
+  .kz-step .m{height:6px; border-radius:99px; background:var(--fill); margin-top:10px; overflow:hidden}
+  .kz-step .m i{display:block; height:100%; background:var(--tone); border-radius:99px}
+  .kz-chips{display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin:14px 0 0}
+  .kz-chip{font:700 13px var(--font); min-height:32px; padding:0 12px; border:1px solid var(--line); border-radius:99px; background:var(--surface); color:var(--text); cursor:pointer}
+  .kz-chip[aria-pressed=true]{background:var(--accent-soft); border-color:var(--accent); color:var(--accent-ink)}
+  .kz-search{flex:1 1 220px; max-width:340px; min-height:38px; padding:0 14px; border:1px solid var(--edge); border-radius:99px; background:var(--surface); color:var(--text); font:500 14px var(--font)}
+  .kz-search:focus{outline:2px solid var(--accent); outline-offset:1px}
+  .t-mute{--tone:var(--hare)} .t-bad{--tone:var(--wrong)} .t-info{--tone:var(--info)} .t-acc{--tone:var(--accent)} .t-gold{--tone:var(--gold)} .t-good{--tone:var(--good)} .t-good2{--tone:color-mix(in srgb, var(--good) 70%, var(--text))}
+  .kz-pill{display:inline-flex; align-items:center; gap:7px; padding:3px 10px 3px 8px; border-radius:99px; font:700 13px var(--font); white-space:nowrap; color:var(--text); background:color-mix(in srgb, var(--tone) 16%, var(--surface))}
+  .kz-pill::before{content:""; width:8px; height:8px; border-radius:99px; background:var(--tone)}
+  .kz-dots{display:flex; gap:3px; margin-top:6px}
+  .kz-dots i{width:16px; height:4px; border-radius:99px; background:var(--fill)}
+  .kz-dots i.on{background:var(--tone)}
+  .kz-users th button{all:unset; cursor:pointer; display:inline-flex; gap:4px; align-items:center}
+  .kz-users th button[aria-sort]::after{content:"▾"; color:var(--accent)} .kz-users th button[aria-sort=ascending]::after{content:"▴"}
+  .kz-users tbody tr.u{cursor:pointer}
+  @media (hover:hover){ .kz-users tbody tr.u:hover td{background:color-mix(in srgb, var(--accent) 5%, transparent)} }
+  .kz-users tr.u td:first-child b{font-weight:800}
+  .kz-users tr.u[aria-expanded=true] td{border-bottom-color:transparent; background:color-mix(in srgb, var(--accent) 6%, transparent)}
+  .kz-users tr.x td{background:color-mix(in srgb, var(--accent) 6%, transparent); padding:4px 14px 16px}
+  .kz-users th,.kz-users td{padding:10px 11px}
+  .kz-users .nw{white-space:nowrap}
+  /* a phone: each account is a small block (name and email, phone, step, then the numbers), no sideways scrolling */
+  @media (max-width:639px){
+    .kz-users,.kz-users tbody{display:block} .kz-users thead{display:none}
+    .kz-users tr.u{display:flex; flex-wrap:wrap; align-items:center; gap:4px 14px; padding:14px 16px; border-bottom:1px solid var(--line)}
+    .kz-users tr.u td{display:block; padding:0; border:0; text-align:left}
+    .kz-users tr.u td:first-child,.kz-users tr.u td.st{flex:1 1 100%}
+    .kz-users tr.u td.st{margin:4px 0 2px}
+    .kz-users tr.u td[data-l]{font-size:13px; font-weight:700}
+    .kz-users tr.u td[data-l]::before{content:attr(data-l) " "; font-weight:500; color:var(--muted)}
+    .kz-users tr.x{display:block; border-bottom:1px solid var(--line)} .kz-users tr.x td{display:block; padding:4px 16px 16px}
+    .kz-users tbody tr:not(.u):not(.x) td{display:block}
+  }
+  .kz-courses{display:grid; gap:10px; grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}
+  .kz-course{background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:12px 14px; font-size:13px; color:var(--muted); line-height:1.6}
+  .kz-course b{display:block; font:800 14px var(--head); color:var(--text); margin-bottom:6px; overflow-wrap:anywhere}
+  .kz-facts{display:flex; flex-wrap:wrap; gap:6px 18px; margin:6px 0 10px; font-size:13px; color:var(--muted)}
+  .kz-facts b{color:var(--text); font-weight:700}
+  .kz-callout{display:flex; gap:12px; align-items:flex-start; margin-top:14px; padding:12px 16px; border-radius:14px; border:1px solid color-mix(in srgb, var(--gold) 45%, var(--line)); background:var(--gold-soft); font-size:14px; line-height:1.5; color:var(--text)}
+  .kz-callout b{font-weight:800}
 </style>
 </head>
 <body>
