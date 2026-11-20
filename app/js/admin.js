@@ -5,7 +5,7 @@
 // Users tab (2026-11-19): one row per account: name, phone, email, the step it reached (generating → generated → level 1 started →
 //   level 1 done → more levels), levels done, slides, API cost. pc-api admin users (supabase/functions/pc-api/users.js).
 // Orders & courses tab: orders, courses, students, voice minutes, code reset.
-import { esc, api } from "./util.js";
+import { esc, api, store } from "./util.js";
 
 const root = document.getElementById("kz");
 let key = null, data = null, stats = null, users = null, usersErr = "", note = "", busy = false;
@@ -166,6 +166,7 @@ const PAGE_NAMES = {
   "/app/s": "Course home", "/app/s/lesson": "Lesson", "/app/s/practice": "Practice", "/app/s/review": "Review", "/app/s/test": "Test", "/app/s/notes": "Notes",
   "/app/s/progress": "Progress", "/app/s/settings": "Course settings", "/app/unlock": "Plans and prices", "/app/paid": "After paying", "/app/wait": "Course being made",
   "/app/login": "Sign in", "/app/t": "Tester link", "/priprava-na-zkousky/": "Exam prep: all schools",
+  "/app/upload-tap": "Tapped \"Upload slides\"", "/app/upload-cancel": "Closed the picker with no file",
 };
 const pageLabel = p => `${esc(PAGE_NAMES[p] || (p.startsWith("/priprava-na-zkousky/") ? "Exam prep: " + p.split("/")[2].toUpperCase() : p))}<span class="sub">${esc(p)}</span>`;
 const KIND = { new: "new subscription", renewal: "renewal", change: "plan change", other: "other" };
@@ -242,7 +243,7 @@ function paintStats(el) {
   </div>
   <div class="kz-grid w21">
     ${card("Where visitors came from", countTable(["Source", "Visits", "Visitors", "Accounts", "Paying"], (s.sources || []).map(r => [srcLabel(r.source), r.visits, r.visitors, r.signups, r.paying])),
-      { flush: true, foot: `Tag your links so they show up by name: <code>kvizoo.com/?utm_source=tiktok&amp;utm_campaign=bio</code> (or short: <code>?ref=tt</code>). Accounts are matched to the visit from the same browser that day.` })}
+      { flush: true, foot: `Tag your links so they show up by name: <code>kvizoo.com/?utm_source=tiktok&amp;utm_campaign=bio</code> (or short: <code>?ref=tt</code>). Accounts are matched to the visit from the same browser that day. From 20 Nov, Facebook's own link checks and other scanners aren't counted; before that, a Facebook post showed up as several visits within seconds of posting.` })}
     ${card("Slides per upload", hbars([["Up to 20", B[0]], ["21 to 50", B[1]], ["51 to 100", B[2]], ["101 to 250", B[3]], ["Over 250", B[4]]]),
       { foot: `${num(sl.uploads)} uploads · ${num(sl.files)} files · ${num(sl.total)} slides · average ${num(sl.avg)} · median ${num(sl.median)} · largest ${num(sl.max)}` })}
   </div>
@@ -341,6 +342,7 @@ function usersTable(box) {
   box.innerHTML = `<table class="kz-users"><thead><tr>${th("name", "Name and email")}<th>Phone</th>${th("stage", "Step")}${th("levels", "Levels", "kz-n")}${th("slides", "Slides", "kz-n")}${th("cost", "API cost", "kz-n")}${th("created_at", "Joined")}${th("lastActive", "Last active")}</tr></thead>
     <tbody>${list.length ? list.map(row).join("") : `<tr><td colspan="8" class="kz-muted">Nobody here${q ? " for that search" : ""}.</td></tr>`}</tbody></table>`;
   box.querySelectorAll("[data-sort]").forEach(b => b.onclick = () => { const k = b.dataset.sort; sort = { k, dir: sort.k === k ? -sort.dir : (k === "name" ? 1 : -1) }; usersTable(box); });
+  wireTests(box);
   box.querySelectorAll("tr.u").forEach(tr => {
     const flip = () => { const id = tr.dataset.u; open.has(id) ? open.delete(id) : open.add(id); usersTable(box); };
     tr.onclick = flip;
@@ -353,9 +355,31 @@ function details(u) {
   const course = c => `<div class="kz-course"><b>${esc(c.title || c.slug || "Course not out yet")}</b>${stagePill(c.stage)}<br>
     ${c.status ? `Order: ${esc(ORDER_STATUS[c.status] || c.status)}${c.paid ? " · paid" : ""}<br>` : "Joined with a code<br>"}
     Levels: ${num(c.levels)}${c.lessons ? ` of ${num(c.lessons)}` : ""} · ${num(c.slides)} slides · cost ${usd(c.cost)}<br>
-    Last active: ${when(c.lastActive)}${c.slug ? `<br><span style="font-size:12px">${esc(c.slug)}</span>` : ""}</div>`;
+    Last active: ${when(c.lastActive)}${c.slug ? `<br><span style="font-size:12px">${esc(c.slug)}</span>` : ""}
+    ${c.slug && c.title ? `<br>${testBtn(c.slug)}` : ""}</div>`;
   return `<div class="kz-facts">${facts.map(([k, v]) => `<span>${k}: <b>${v}</b></span>`).join("")}</div>
     <div class="kz-courses">${u.courses.length ? u.courses.map(course).join("") : `<span class="kz-muted">No course queued yet.</span>`}</div>`;
+}
+
+// "Test as student" (Marek, 2026-11-19): opens the course in a new tab as its test student (pc-api test_student). Same course
+// and version the student sees, with its own progress, so their progress is never touched. The app in this browser then runs
+// as that test student until you sign in there again. Courses without an order count as paid, so the store isn't shown.
+const testBtn = slug => `<button class="kz-btn" data-test="${esc(slug)}" title="Opens this course as a test student in a new tab. The student's own progress isn't touched.">Test as student</button>`;
+function wireTests(el) {
+  el.querySelectorAll("[data-test]").forEach(b => b.onclick = async e => {
+    e.stopPropagation(); // inside a Users row: don't fold it
+    const slug = b.dataset.test, tab = window.open("about:blank", "_blank"); // opened in the click, so it isn't blocked as a pop-up
+    b.disabled = true;
+    try {
+      const { session } = await call("test_student", { slug });
+      store.set("session", { token: session, slug });
+      store.set("readySeen", slug);
+      if (tab) tab.location.href = `./#/s/${encodeURIComponent(slug)}`; else location.href = `./#/s/${encodeURIComponent(slug)}`;
+    } catch (err) {
+      tab?.close();
+      note = `<span class="kz-err">Test as student failed: ${esc(err.code || err.message)}</span>`; paint();
+    } finally { b.disabled = false; }
+  });
 }
 
 // ---------- Orders & courses tab ----------
@@ -373,15 +397,16 @@ function paintOrders(el) {
   <div class="kz-grid">${card(`Orders <small>latest ${num(data.orders.length)}</small>`, tbl(["Status", "Course", "Plan", "Files", "Bought", "Ready"],
     data.orders.map(o => `<tr><td>${esc(o.status)}${stageText(o)}</td><td>${esc(o.slug || "–")}</td><td>${esc(o.plan_id || "–")}</td><td>${esc(o.files.join(", "))}${o.pages ? ` <span class="kz-muted">~${o.pages} pp</span>` : ""}</td><td>${when(o.paid_at)}</td><td>${when(o.ready_at)}</td></tr>`).join("")), { flush: true })}</div>
   <div class="kz-grid">${card(`Courses <small>${num(data.courses.length)}</small>`, tbl(["Course", "Items", "Version", "Students", "Voice", ""],
-    data.courses.map(c => `<tr><td><b>${esc(c.title)}</b><span class="sub">${esc(c.slug)}</span></td><td>${total(c.counts)}</td><td>${c.version}</td><td>${(bySlug[c.slug] || []).length}</td><td>${c.voice ? (c.voice_agent_id ? "on" : "on, no agent yet") : "off"}</td><td><button data-voice="${esc(c.slug)}" data-on="${c.voice ? "" : "1"}">${c.voice ? "Turn voice off" : "Turn voice on"}</button></td></tr>`).join("")), { flush: true })}</div>
+    data.courses.map(c => `<tr><td><b>${esc(c.title)}</b><span class="sub">${esc(c.slug)}</span></td><td>${total(c.counts)}</td><td>${c.version}</td><td>${(bySlug[c.slug] || []).length}</td><td>${c.voice ? (c.voice_agent_id ? "on" : "on, no agent yet") : "off"}</td><td><button data-voice="${esc(c.slug)}" data-on="${c.voice ? "" : "1"}">${c.voice ? "Turn voice off" : "Turn voice on"}</button> ${testBtn(c.slug)}</td></tr>`).join("")), { flush: true })}</div>
   <div class="kz-grid">${card(`Students <small>${num(data.students.length)}</small>`, tbl(["Course", "Tutor", "Exam", "Joined", "Last activity", "Voice min", ""],
-    data.students.map(s => `<tr><td>${esc(s.slug)}</td><td>${esc(s.tutor_id || "–")}</td><td>${esc(s.exam_date || "–")}</td><td>${when(s.created_at)}</td><td>${when(s.lastActivity)}</td><td>${mins(s.voiceUsedSeconds)} of ${mins(s.voice_cap_seconds)}${s.voiceUnsettled ? ` <span class="kz-muted">(${s.voiceUnsettled} unsettled)</span>` : ""}</td><td><button data-reset="${esc(s.id)}">Reset code</button><button data-grant="${esc(s.id)}">+60 min</button></td></tr>`).join("")), { flush: true })}</div>
+    data.students.map(s => `<tr><td>${esc(s.slug)}${s.is_test ? ` <span class="kz-pill">test</span>` : ""}</td><td>${esc(s.tutor_id || "–")}</td><td>${esc(s.exam_date || "–")}</td><td>${when(s.created_at)}</td><td>${when(s.lastActivity)}</td><td>${mins(s.voiceUsedSeconds)} of ${mins(s.voice_cap_seconds)}${s.voiceUnsettled ? ` <span class="kz-muted">(${s.voiceUnsettled} unsettled)</span>` : ""}</td><td><button data-reset="${esc(s.id)}">Reset code</button><button data-grant="${esc(s.id)}">+60 min</button></td></tr>`).join("")), { flush: true })}</div>
   <p class="kz-foot">Accounts with names, emails and phones are in the Users tab.</p>`;
   el.querySelectorAll("[data-reset]").forEach(b => b.onclick = async () => {
     if (!confirm("New code for this student? The old code and open sessions stop working.")) return;
     await act(async () => { const { code } = await call("code_reset", { studentId: b.dataset.reset }); note = `New code, shown once: <span class="kz-code">${esc(code)}</span>`; });
   });
   el.querySelectorAll("[data-grant]").forEach(b => b.onclick = () => act(async () => { const { capSeconds } = await call("voice_grant", { studentId: b.dataset.grant, seconds: 3600 }); note = `Voice cap is now ${mins(capSeconds)} min.`; }));
+  wireTests(el);
   el.querySelectorAll("[data-voice]").forEach(b => b.onclick = () => act(async () => { await call("course_voice", { slug: b.dataset.voice, voice: !!b.dataset.on }); note = `Voice ${b.dataset.on ? "on" : "off"} for ${esc(b.dataset.voice)}.`; }));
 }
 async function act(fn) {

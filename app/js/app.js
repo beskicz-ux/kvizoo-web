@@ -240,7 +240,10 @@ function viewWelcome() {
       fail($("#err"), e);
     }
   };
-  drop.onclick = () => pick.click(); // a real button: Enter and Space open the picker too
+  // The tap and a closed picker count in Stats (2026-11-20): a phone with no slides on it backs out of the picker and would
+  // otherwise leave no trace, so "never tapped" and "tapped but had nothing to upload" looked the same.
+  drop.onclick = () => { window.pcHit?.("/app/upload-tap"); pick.click(); }; // a real button: Enter and Space open the picker too
+  pick.oncancel = () => window.pcHit?.("/app/upload-cancel");
   pick.onchange = e => { start(e.target.files); e.target.value = ""; };
   // Files dropped anywhere on the page count, so a near miss doesn't make the browser open the PDF instead.
   let depth = 0;

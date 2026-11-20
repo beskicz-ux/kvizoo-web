@@ -12,6 +12,8 @@
     if (!on || path === last) return;
     last = path;
     var b = { action: "hit", path: path };
+    // A browser run by a script says so (Playwright, Puppeteer, Selenium); pc-api doesn't count those views.
+    try { if (navigator.webdriver === true) b.wd = true; } catch (e) { /* old browser: count it */ }
     // Only the first view of a page load says where the visitor came from (the link's tag and the referring site).
     // A friend link's code (?t=<code>) never leaves the page here: it shows as t=- (the app counts the open as /app/t instead).
     if (first) { first = false; b.first = true; b.ref = String(document.referrer || "").slice(0, 500); b.q = location.search.replace(/([?&]t=)[^&#]*/g, "$1-").slice(0, 300); }
