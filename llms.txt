@@ -1,0 +1,67 @@
+# Kvizoo
+
+> Kvizoo je webová aplikace pro přípravu na zkoušky na vysoké škole. Nahraješ do ní slidy z přednášek (PDF, PowerPoint, Word nebo fotky zápisků) a zadáš datum zkoušky. Kvizoo z nich udělá kurz po úrovních jako v Duolingu: krátké lekce, kartičky, kvízy a zkouškové otázky, rozvržené do dnů, které do zkoušky zbývají. Co zapomínáš a v čem chybuješ, to se ti vrací k opakování.
+
+Kvizoo (https://kvizoo.com) is a web app for university exam prep: students upload lecture slides (PDF, PowerPoint, Word or photos of notes) and get a Duolingo-style course with short lessons, flashcards, quizzes and a mistakes review, scheduled up to their exam date. It is made for Czech university students; the app itself works in 20 languages and writes each course in the language of the uploaded materials. Kvizoo is not affiliated with any university.
+
+## Stránky
+
+- [Příprava na zkoušky ze tvých slidů](https://kvizoo.com/priprava-na-zkousky/): jak Kvizoo funguje, tipy na učení, časté otázky a seznam vysokých škol
+- [Jak se učit ze slidů z přednášek](https://kvizoo.com/priprava-na-zkousky/jak-se-ucit-ze-slidu/): postup na zkoušku v 6 krocích, kolik slidů denně, co dělat, když je zkouška za pár dní
+- [Aplikace Kvizoo](https://kvizoo.com/app/): nahrání slidů a kurz (běží v prohlížeči, potřebuje JavaScript)
+
+## Vysoké školy
+
+- [Příprava na zkoušky na ZČU v Plzni](https://kvizoo.com/priprava-na-zkousky/zcu/): Západočeská univerzita v Plzni
+- [Příprava na zkoušky na JČU v Českých Budějovicích](https://kvizoo.com/priprava-na-zkousky/jcu/): Jihočeská univerzita v Českých Budějovicích
+- [Příprava na zkoušky na VŠE v Praze](https://kvizoo.com/priprava-na-zkousky/vse/): Vysoká škola ekonomická v Praze
+- [Příprava na zkoušky na Univerzitě Karlově](https://kvizoo.com/priprava-na-zkousky/uk/): Univerzita Karlova
+- [Příprava na zkoušky na MUNI v Brně](https://kvizoo.com/priprava-na-zkousky/muni/): Masarykova univerzita
+- [Příprava na zkoušky na ČVUT v Praze](https://kvizoo.com/priprava-na-zkousky/cvut/): České vysoké učení technické v Praze
+- [Příprava na zkoušky na VUT v Brně](https://kvizoo.com/priprava-na-zkousky/vut/): Vysoké učení technické v Brně
+- [Příprava na zkoušky na UPOL v Olomouci](https://kvizoo.com/priprava-na-zkousky/upol/): Univerzita Palackého v Olomouci
+- [Příprava na zkoušky na MENDELU v Brně](https://kvizoo.com/priprava-na-zkousky/mendelu/): Mendelova univerzita v Brně
+- [Příprava na zkoušky na ČZU v Praze](https://kvizoo.com/priprava-na-zkousky/czu/): Česká zemědělská univerzita v Praze
+- [Příprava na zkoušky na VŠB-TUO v Ostravě](https://kvizoo.com/priprava-na-zkousky/vsb-tuo/): Vysoká škola báňská – Technická univerzita Ostrava
+- [Příprava na zkoušky na OSU v Ostravě](https://kvizoo.com/priprava-na-zkousky/osu/): Ostravská univerzita
+- [Příprava na zkoušky na UPCE v Pardubicích](https://kvizoo.com/priprava-na-zkousky/upce/): Univerzita Pardubice
+- [Příprava na zkoušky na UHK v Hradci Králové](https://kvizoo.com/priprava-na-zkousky/uhk/): Univerzita Hradec Králové
+- [Příprava na zkoušky na TUL v Liberci](https://kvizoo.com/priprava-na-zkousky/tul/): Technická univerzita v Liberci
+- [Příprava na zkoušky na UTB ve Zlíně](https://kvizoo.com/priprava-na-zkousky/utb/): Univerzita Tomáše Bati ve Zlíně
+- [Příprava na zkoušky na UJEP v Ústí nad Labem](https://kvizoo.com/priprava-na-zkousky/ujep/): Univerzita Jana Evangelisty Purkyně v Ústí nad Labem
+- [Příprava na zkoušky na Slezské univerzitě v Opavě](https://kvizoo.com/priprava-na-zkousky/slu/): Slezská univerzita v Opavě
+- [Příprava na zkoušky na VŠCHT v Praze](https://kvizoo.com/priprava-na-zkousky/vscht/): Vysoká škola chemicko-technologická v Praze
+
+## Časté otázky
+
+### Co je Kvizoo?
+
+Kvizoo je webová aplikace pro přípravu na zkoušky na vysoké škole. Nahraješ do ní slidy z přednášek (PDF, PowerPoint, Word nebo fotky zápisků) a zadáš datum zkoušky. Kvizoo z nich udělá kurz po úrovních jako v Duolingu: krátké lekce, kartičky, kvízy a zkouškové otázky, rozvržené do dnů, které do zkoušky zbývají. Co zapomínáš a v čem chybuješ, to se ti vrací k opakování.
+
+### Jak dlouho trvá, než je kurz hotový?
+
+První lekce je hotová zhruba za 1–2 minuty. Zbytek kurzu se obvykle dostaví během pár minut, zatímco se už učíš.
+
+### Jaké soubory můžu nahrát?
+
+PDF, PowerPoint (.pptx, .ppt), Word (.docx, .doc), RTF, text (.txt, .md) a fotky slidů nebo zápisků (PNG, JPG, WEBP, HEIC), až 20 souborů do jednoho kurzu. Fotku můžeš vyfotit rovnou v aplikaci. Nahrávej jen materiály, které smíš používat.
+
+### Funguje to na mobilu?
+
+Ano. Kvizoo běží v prohlížeči na mobilu i na počítači a pokrok se ukládá na všech tvých zařízeních.
+
+### Umí Kvizoo udělat kartičky a kvízy z PDF nebo z prezentace?
+
+Ano. Nahraješ PDF nebo PowerPoint a Kvizoo z nich vytvoří kartičky, kvízy i zkouškové otázky. Když odpovíš špatně, ukáže ti slide, ze kterého otázka vychází.
+
+### Je to něco jako Duolingo na zkoušky?
+
+Podobně. Kvizoo má mapu s úrovněmi, krátké lekce a denní plán jako Duolingo, jen se neučíš jazyk, ale látku z vlastních přednášek, a plán končí dnem tvé zkoušky.
+
+### Čím se Kvizoo liší od ChatGPT?
+
+ChatGPT ti odpoví na otázku nebo vymyslí kvíz, když si o něj řekneš. Kvizoo z celého předmětu udělá kurz s plánem do dne zkoušky, sám hlídá, co zapomínáš, a vrací ti to k opakování. Otázky vycházejí z tvých slidů, ne z obecných znalostí.
+
+### Funguje Kvizoo i pro školu, která tu není?
+
+Ano. Kvizoo pracuje s tvými materiály, ne s konkrétní školou, takže funguje pro jakoukoli vysokou školu i obor.

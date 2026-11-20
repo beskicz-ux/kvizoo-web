@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jak se učit ze slidů z přednášek: postup na zkoušku · Kvizoo</title>
+<meta name="description" content="Slidy nejsou učebnice. Jak se z nich naučit na zkoušku: doplň kontext, udělej si otázky, zkoušej se a opakuj v rozestupech. Postup v 6 krocích.">
+<link rel="canonical" href="https://kvizoo.com/priprava-na-zkousky/jak-se-ucit-ze-slidu/">
+<meta name="theme-color" content="#F5F5FA" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0F1222" media="(prefers-color-scheme: dark)">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Kvizoo">
+<meta property="og:locale" content="cs_CZ">
+<meta property="og:url" content="https://kvizoo.com/priprava-na-zkousky/jak-se-ucit-ze-slidu/">
+<meta property="og:title" content="Jak se učit ze slidů z přednášek: postup na zkoušku · Kvizoo">
+<meta property="og:description" content="Slidy nejsou učebnice. Jak se z nich naučit na zkoušku: doplň kontext, udělej si otázky, zkoušej se a opakuj v rozestupech. Postup v 6 krocích.">
+<meta property="og:image" content="https://kvizoo.com/app/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Kvizoo: příprava na zkoušku ze tvých slidů">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Jak se učit ze slidů z přednášek: postup na zkoušku · Kvizoo">
+<meta name="twitter:description" content="Slidy nejsou učebnice. Jak se z nich naučit na zkoušku: doplň kontext, udělej si otázky, zkoušej se a opakuj v rozestupech. Postup v 6 krocích.">
+<meta name="twitter:image" content="https://kvizoo.com/app/og.png">
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" href="/app/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/app/icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,800&family=Figtree:wght@400;600;700;800&display=swap">
+<style>
+:root{--bg:#F5F5FA;--surface:#FFFFFF;--line:#E2E3EE;--text:#161A2D;--muted:#61667D;--accent:#6C5CE7;--accent-ink:#4B3CC4;--accent-soft:#E8E5FF;color-scheme:light dark}
+@media (prefers-color-scheme:dark){:root{--bg:#0F1222;--surface:#171B30;--line:#232945;--text:#EEF0FA;--muted:#959BB8;--accent:#8F83FF;--accent-ink:#C3BCFF;--accent-soft:#272450}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:400 17px/1.6 Figtree,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-text-size-adjust:100%}
+a{color:var(--accent-ink)}
+.wrap{max-width:760px;margin:0 auto;padding:0 16px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;height:64px}
+.logo{display:flex;align-items:center;gap:10px;font:800 22px/1 "Bricolage Grotesque",system-ui,sans-serif;color:var(--accent);text-decoration:none}
+.btn{display:inline-block;background:var(--accent);color:#fff;font-weight:700;text-decoration:none;padding:13px 22px;border-radius:999px;line-height:1.2}
+.btn.sm{padding:9px 16px;font-size:15px}
+.crumbs{font-size:14px;color:var(--muted);margin:4px 0 0}
+.crumbs a{color:var(--muted)}
+.kicker{color:var(--muted);font-weight:600;margin:24px 0 6px}
+h1{font:800 clamp(32px,8vw,48px)/1.08 "Bricolage Grotesque",system-ui,sans-serif;letter-spacing:-.02em;margin:0 0 14px;text-wrap:balance}
+h2{font:800 clamp(22px,5vw,28px)/1.2 "Bricolage Grotesque",system-ui,sans-serif;margin:0 0 10px}
+h3{font-size:17px;margin:14px 0 2px}
+.lead{font-size:19px;margin:0 0 20px}
+.cta{margin:0 0 8px}
+.note{color:var(--muted);font-size:14px;margin:8px 0 0}
+section{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:20px;margin:16px 0}
+section>:last-child{margin-bottom:0}
+ul,ol{padding-left:22px}
+li{margin:6px 0}
+.tag{display:inline-block;font-size:13px;line-height:1.5;background:var(--accent-soft);color:var(--accent-ink);border-radius:999px;padding:0 8px;margin-left:6px}
+dl{margin:0}
+dt{font-weight:700;margin-top:12px}
+dd{margin:2px 0 0;color:var(--muted)}
+ol.steps{list-style:none;padding:0;counter-reset:s}
+ol.steps li{counter-increment:s;position:relative;padding-left:44px;margin:14px 0}
+ol.steps li::before{content:counter(s);position:absolute;left:0;top:0;width:30px;height:30px;border-radius:50%;background:var(--accent-soft);color:var(--accent-ink);font-weight:800;display:grid;place-items:center}
+ol.steps b{display:block}
+details{border-top:1px solid var(--line);padding:12px 0}
+details:last-child{padding-bottom:0}
+summary{font-weight:700;cursor:pointer}
+details p{margin:8px 0 0}
+.unis{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;list-style:none;padding:0;margin:8px 0 0}
+.unis li{margin:0}
+.unis a{display:block;height:100%;padding:10px 12px;border:1px solid var(--line);border-radius:12px;text-decoration:none;color:var(--text);font-weight:700}
+.unis a:hover{border-color:var(--accent)}
+.unis small{display:block;color:var(--muted);font-weight:400}
+.city{margin:16px 0 0;font-size:15px;color:var(--muted);font-weight:700}
+.fine{color:var(--muted);font-size:14px}
+footer{color:var(--muted);font-size:14px;padding:8px 0 48px}
+footer a{color:var(--muted)}
+</style>
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebPage","@id":"https://kvizoo.com/priprava-na-zkousky/jak-se-ucit-ze-slidu/#page","url":"https://kvizoo.com/priprava-na-zkousky/jak-se-ucit-ze-slidu/","name":"Jak se učit ze slidů z přednášek: postup na zkoušku · Kvizoo","description":"Slidy nejsou učebnice. Jak se z nich naučit na zkoušku: doplň kontext, udělej si otázky, zkoušej se a opakuj v rozestupech. Postup v 6 krocích.","inLanguage":"cs","isPartOf":{"@id":"https://kvizoo.com/#web"},"breadcrumb":{"@id":"https://kvizoo.com/priprava-na-zkousky/jak-se-ucit-ze-slidu/#crumbs"},"dateModified":"2026-11-20","mainEntity":{"@id":"https://kvizoo.com/priprava-na-zkousky/jak-se-ucit-ze-slidu/#article"}},{"@type":"Article","@id":"https://kvizoo.com/priprava-na-zkousky/jak-se-ucit-ze-slidu/#article","headline":"Jak se učit ze slidů z přednášek","description":"Slidy nejsou učebnice. Jak se z nich naučit na zkoušku: doplň kontext, udělej si otázky, zkoušej se a opakuj v rozestupech. Postup v 6 krocích.","inLanguage":"cs","datePublished":"2026-11-20","dateModified":"2026-11-20","author":{"@id":"https://kvizoo.com/#org","@type":"Organization","name":"Kvizoo","url":"https://kvizoo.com/"},"publisher":{"@id":"https://kvizoo.com/#org","@type":"Organization","name":"Kvizoo","url":"https://kvizoo.com/"},"image":"https://kvizoo.com/app/og.png","mainEntityOfPage":{"@id":"https://kvizoo.com/priprava-na-zkousky/jak-se-ucit-ze-slidu/#page"},"about":[{"@type":"Thing","name":"Příprava na zkoušku"},{"@id":"https://kvizoo.com/#app"}]},{"@type":"WebApplication","@id":"https://kvizoo.com/#app","name":"Kvizoo","url":"https://kvizoo.com/app/","applicationCategory":"EducationalApplication","operatingSystem":"Web","browserRequirements":"Moderní prohlížeč na mobilu nebo počítači","description":"Kvizoo je webová aplikace pro přípravu na zkoušky na vysoké škole. Nahraješ do ní slidy z přednášek (PDF, PowerPoint, Word nebo fotky zápisků) a zadáš datum zkoušky. Kvizoo z nich udělá kurz po úrovních jako v Duolingu: krátké lekce, kartičky, kvízy a zkouškové otázky, rozvržené do dnů, které do zkoušky zbývají. Co zapomínáš a v čem chybuješ, to se ti vrací k opakování.","publisher":{"@id":"https://kvizoo.com/#org","@type":"Organization","name":"Kvizoo","url":"https://kvizoo.com/"}},{"@type":"BreadcrumbList","@id":"https://kvizoo.com/priprava-na-zkousky/jak-se-ucit-ze-slidu/#crumbs","itemListElement":[{"@type":"ListItem","position":1,"name":"Kvizoo","item":"https://kvizoo.com/app/"},{"@type":"ListItem","position":2,"name":"Příprava na zkoušky","item":"https://kvizoo.com/priprava-na-zkousky/"},{"@type":"ListItem","position":3,"name":"Jak se učit ze slidů","item":"https://kvizoo.com/priprava-na-zkousky/jak-se-ucit-ze-slidu/"}]},{"@type":"FAQPage","@id":"https://kvizoo.com/priprava-na-zkousky/jak-se-ucit-ze-slidu/#faq","mainEntity":[{"@type":"Question","name":"Stačí se na zkoušku učit jen ze slidů?","acceptedAnswer":{"@type":"Answer","text":"Většinou ne úplně. Slidy jsou osnova přednášky: uč se z nich, ale co je na nich jen heslem, si doplň ze skript, doporučené literatury nebo zápisků. Zjisti taky, jestli zkoušející chce látku zopakovat, nebo vlastní úvahu."}},{"@type":"Question","name":"Jak si udělat kartičky ze slidů nebo z PDF?","acceptedAnswer":{"@type":"Answer","text":"Ručně: z každého pojmu nebo nadpisu slidu udělej otázku a odpověď, na papír nebo do aplikace na kartičky. Automaticky: nahraj PDF nebo PowerPoint do Kvizoo a kartičky, kvízy i plán opakování do dne zkoušky z nich vzniknou samy."}},{"@type":"Question","name":"Kolik slidů denně se mám naučit?","acceptedAnswer":{"@type":"Answer","text":"Vyděl počet slidů počtem dní do zkoušky a poslední 2–3 dny si nech jen na opakování. Při 150 slidech a 12 dnech do zkoušky je to zhruba 17 slidů denně."}},{"@type":"Question","name":"Je lepší si slidy přepisovat, nebo se z nich zkoušet?","acceptedAnswer":{"@type":"Answer","text":"Zkoušet se. Přepisování a zvýrazňování působí pracovitě, ale do paměti ukládá méně než vybavování odpovědi bez nápovědy."}},{"@type":"Question","name":"Co je Kvizoo?","acceptedAnswer":{"@type":"Answer","text":"Kvizoo je webová aplikace pro přípravu na zkoušky na vysoké škole. Nahraješ do ní slidy z přednášek (PDF, PowerPoint, Word nebo fotky zápisků) a zadáš datum zkoušky. Kvizoo z nich udělá kurz po úrovních jako v Duolingu: krátké lekce, kartičky, kvízy a zkouškové otázky, rozvržené do dnů, které do zkoušky zbývají. Co zapomínáš a v čem chybuješ, to se ti vrací k opakování."}}]}]}</script>
+</head>
+<body>
+<header class="wrap top"><a class="logo" href="/app/"><img src="/app/favicon.svg" width="32" height="32" alt="">Kvizoo</a><a class="btn sm" href="/app/">Vytvořit kurz</a></header>
+<main class="wrap">
+<nav class="crumbs" aria-label="Drobečková navigace"><a href="/app/">Kvizoo</a> › <a href="/priprava-na-zkousky/">Příprava na zkoušky</a> › <span aria-current="page">Jak se učit ze slidů</span></nav>
+<p class="kicker">Návod na zkouškové</p>
+<h1>Jak se učit ze slidů z přednášek</h1>
+<p class="lead">Slidy z přednášky jsou osnova, ne učebnice. Když je jen čteš dokola, máš pocit, že látku znáš, ale u zkoušky si ji nevybavíš. Tady je postup, jak se ze slidů naučit tak, aby to drželo až do dne zkoušky.</p>
+<section>
+<h2>Proč samotné čtení slidů nestačí</h2>
+<p>Slidy jsou psané pro přednášejícího: hesla, grafy, zkratky. Vysvětlení, které k nim zaznělo nahlas, na nich chybí.</p>
+<p>Když slidy čteš pořád dokola, začnou ti připadat povědomé a máš pocit, že látku umíš. Jenže poznat něco na slidu a vybavit si to bez nápovědy jsou dvě různé věci. U zkoušky potřebuješ to druhé.</p>
+<p>Výzkum učení se v tom shoduje. Velký přehled studijních technik (Dunlosky a kol., 2013) řadí mezi nejúčinnější zkoušení se a opakování rozložené do více dní. Opakované čtení a zvýrazňování textu hodnotí jako málo účinné.</p>
+</section>
+<section>
+<h2>Jak se učit ze slidů: postup v 6 krocích</h2>
+<ol class="steps">
+<li><b>Rozděl slidy na menší celky</b>Projdi prezentace a rozděl je na témata po 10–20 slidech. Jedno téma je jedna dávka na jeden blok učení.</li>
+<li><b>Doplň, co na slidech chybí</b>U každého hesla si jednou větou napiš, co znamená a proč je důležité. Kde to nevíš, podívej se do skript, doporučené literatury nebo do zápisků spolužáků. Bez kontextu se učíš jen hesla nazpaměť.</li>
+<li><b>Udělej si ze slidů otázky</b>Z nadpisu slidu udělej otázku („Jaké jsou fáze mitózy?“), z definice kartičku (pojem na jedné straně, význam na druhé) a z grafu otázku „co z něj plyne“. Ptej se tak, jak by se mohl ptát zkoušející.</li>
+<li><b>Zkoušej se, nečti jen dokola</b>Zakryj slide a odpověz zpaměti, nahlas nebo na papír. Až potom se podívej, jestli to sedí. Právě to vybavování si bez nápovědy ukládá látku do paměti, i když při něm chybuješ.</li>
+<li><b>Opakuj v rozestupech</b>Stejné téma si zopakuj druhý den, pak za pár dní a pak těsně před zkouškou. Krátká opakování rozložená do více dní drží v hlavě déle než jedna dlouhá noc.</li>
+<li><b>Vracej se k tomu, co nevíš</b>Otázky, které umíš, stačí projít jednou za čas. Víc času dej těm, na kterých chybuješ. Před zkouškou si zkus pár otázek ve stylu zkoušky a napiš celou odpověď, ne jen výběr z možností.</li>
+</ol>
+</section>
+<section>
+<h2>Kolik času denně potřebuješ</h2>
+<p>Počet slidů vyděl počtem dní, které máš na novou látku. Poslední 2–3 dny před zkouškou si nech jen na opakování.</p>
+<p>Příklad: 150 slidů a 12 dní do zkoušky. Na novou látku máš 9 dní, tedy zhruba 17 slidů denně, a k tomu každý den krátké opakování toho, co už máš za sebou. Když začneš o 5 dní později, zbydou na novou látku 4 dny a je to skoro 40 slidů denně.</p>
+<p>Čím dřív začneš, tím méně minut denně potřebuješ a tím víc opakování se do plánu vejde.</p>
+</section>
+<section>
+<h2>Když je zkouška za pár dní</h2>
+<ul>
+<li>Nejdřív zjisti, co u zkoušky bude: okruhy, starší zadání, co přednášející zdůrazňoval. Začni tím.</li>
+<li>I při nedostatku času se zkoušej, nečti jen. Přečíst za večer 200 slidů tak, aby u zkoušky zůstaly v hlavě, nejde.</li>
+<li>Ráno si zopakuj látku z předchozího večera.</li>
+<li>Vyspi se. Spánek pomáhá uložit naučenou látku, noc před zkouškou je lepší prospat než prosedět.</li>
+</ul>
+</section>
+<section>
+<h2>Jak to udělat s Kvizoo</h2>
+<p>Nejvíc práce dají kroky 3 až 6: vymyslet otázky, hlídat, co kdy zopakovat, a vracet se k chybám. To za tebe udělá Kvizoo.</p>
+<p>Nahraješ slidy z jednoho předmětu (PDF, PowerPoint, Word nebo fotky zápisků) a zadáš datum zkoušky. Kvizoo z nich udělá kurz po úrovních: krátké lekce, kartičky, kvízy a zkouškové otázky s modelovou odpovědí. Spočítá, kolik minut denně to zabere, a rozvrhne látku do dnů, které zbývají. Co zapomínáš, to se ti vrací. Když odpovíš špatně, ukáže ti slide, ze kterého otázka vychází.</p>
+<p class="cta"><a class="btn" href="/app/">Vytvořit kurz ze slidů</a></p>
+<p class="note">PDF, PowerPoint, Word i fotky slidů nebo zápisků</p>
+</section>
+<section id="otazky">
+<h2>Časté otázky</h2>
+<details><summary>Stačí se na zkoušku učit jen ze slidů?</summary><p>Většinou ne úplně. Slidy jsou osnova přednášky: uč se z nich, ale co je na nich jen heslem, si doplň ze skript, doporučené literatury nebo zápisků. Zjisti taky, jestli zkoušející chce látku zopakovat, nebo vlastní úvahu.</p></details>
+<details><summary>Jak si udělat kartičky ze slidů nebo z PDF?</summary><p>Ručně: z každého pojmu nebo nadpisu slidu udělej otázku a odpověď, na papír nebo do aplikace na kartičky. Automaticky: nahraj PDF nebo PowerPoint do Kvizoo a kartičky, kvízy i plán opakování do dne zkoušky z nich vzniknou samy.</p></details>
+<details><summary>Kolik slidů denně se mám naučit?</summary><p>Vyděl počet slidů počtem dní do zkoušky a poslední 2–3 dny si nech jen na opakování. Při 150 slidech a 12 dnech do zkoušky je to zhruba 17 slidů denně.</p></details>
+<details><summary>Je lepší si slidy přepisovat, nebo se z nich zkoušet?</summary><p>Zkoušet se. Přepisování a zvýrazňování působí pracovitě, ale do paměti ukládá méně než vybavování odpovědi bez nápovědy.</p></details>
+<details><summary>Co je Kvizoo?</summary><p>Kvizoo je webová aplikace pro přípravu na zkoušky na vysoké škole. Nahraješ do ní slidy z přednášek (PDF, PowerPoint, Word nebo fotky zápisků) a zadáš datum zkoušky. Kvizoo z nich udělá kurz po úrovních jako v Duolingu: krátké lekce, kartičky, kvízy a zkouškové otázky, rozvržené do dnů, které do zkoušky zbývají. Co zapomínáš a v čem chybuješ, to se ti vrací k opakování.</p></details>
+</section>
+<p class="note"><a href="/priprava-na-zkousky/">Příprava na zkoušky na vysokých školách: všechny školy a tipy</a></p>
+</main>
+<footer class="wrap">Kvizoo · <a href="mailto:hello@kvizoo.com">hello@kvizoo.com</a> · <a href="/app/#/terms">Podmínky</a> · <a href="/app/#/privacy">Ochrana soukromí</a></footer>
+<script src="/app/hit.js" defer></script>
+</body>
+</html>
