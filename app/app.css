@@ -1502,3 +1502,34 @@ body a.pc-unlock:active{transform:translateY(4px); box-shadow:0 1px 0 #4B3CC4; f
   .side a.pc-unlock b{font-size:19px; line-height:1.15; white-space:nowrap}
   .side a.pc-unlock .ul-go{width:40px; height:40px}
 }
+
+/* ---------- quiz start (quiz.js, 2026-11-26): Penny asks, one tap answers, then the plan and the upload ---------- */
+.qz .qz-bar{flex:1; height:12px; margin:0; border-radius:12px}
+.qz .qz-bar i{border-radius:12px; transition:width .45s cubic-bezier(.2,.8,.2,1)}
+.qz .ob-say{margin-top:26px}
+.qz .ob-say-art{width:92px; height:92px}
+.qz .ob-sub{margin-top:14px}
+.qz .src-grid{grid-template-columns:minmax(0, 1fr); gap:12px}
+.qz .src{min-height:68px; animation:rise .3s both}
+.qz .src:nth-child(2){animation-delay:.05s} .qz .src:nth-child(3){animation-delay:.1s} .qz .src:nth-child(4){animation-delay:.15s}
+.qz .src-i{width:34px; height:34px}
+.qz-have{margin:0 0 calc(18px + env(safe-area-inset-bottom))}
+.qz-kick{display:block; margin-bottom:4px; font:800 13px var(--font); letter-spacing:.06em; text-transform:uppercase; color:var(--accent-ink)}
+.qz-rows{list-style:none; margin:0; padding:0; display:grid; gap:10px}
+.qz-rows li{display:flex; align-items:center; gap:14px; min-height:58px; padding:10px 16px; box-sizing:border-box; border:2px solid var(--edge); border-radius:16px; background:var(--surface);
+  font:700 16px/1.35 var(--font); color:var(--text); animation:rise .35s both}
+.qz-rows li:nth-child(2){animation-delay:.08s} .qz-rows li:nth-child(3){animation-delay:.16s} .qz-rows li:nth-child(4){animation-delay:.24s} .qz-rows li:nth-child(5){animation-delay:.32s}
+.qz-plan .ob-foot .ld-b{width:100%}
+.qz-plan .ob-foot .ld-types{text-align:center; margin:10px 0 0}
+/* the contact before the plan, and the plan's "email me the link" (2026-11-26) */
+.qz-contact .ob-in{min-height:58px; border-width:2px; border-radius:16px; font-size:18px; text-align:center}
+.qz-contact .ob-in[aria-invalid="true"]{border-color:var(--wrong)}
+.qz-contact .ob-foot .ld-b{width:100%}
+.qz-legal{max-width:40ch; margin:12px auto 0; line-height:1.45; text-wrap:pretty}
+.qz-plan .ob-foot .qz-mail{margin-top:14px; min-height:50px; padding:8px 16px; font-size:15px; line-height:1.25; letter-spacing:0; text-transform:none; text-align:left}
+.qz-mail[disabled]{opacity:.6; pointer-events:none}
+.qz-mform{display:flex; gap:8px; margin-top:14px}
+.qz-mform[hidden]{display:none}
+.qz-mform .ob-in{flex:1 1 auto; min-width:0}
+.qz-plan .ob-foot .qz-mform .ld-b{width:auto; flex:none; min-height:52px; padding:0 16px; font-size:14px}
+.qz-mok{margin:14px 0 0; text-align:center; font-weight:700; line-height:1.45; text-wrap:pretty}

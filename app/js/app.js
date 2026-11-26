@@ -10,6 +10,7 @@ import { BACK, CLOSE, CHEV_DOWN, PACE_ICONS, calIcon, langSheet, applyTheme, she
 import { pushSupported, pushState, askPush, subscribe, sendSub, remindTime } from "./push.js";
 import { persona } from "./persona.js";
 import { friendCodeFrom, withFriend, withoutFriend, cleanCode, GIFT_TEXT } from "./friend.js";
+import { quizRoute, quizArrived } from "./quiz.js";
 
 const draft = () => { const d = store.get("draft", null); if (d && !STEPS.includes(d.step)) d.step = d.slug ? "account" : "files"; return d; };
 const saveDraft = d => store.set("draft", d);
@@ -194,6 +195,16 @@ const crew = (() => { // scoped, so the short names below can't clash with the r
 })();
 const STEP_ICONS = [UPLOAD, `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="3"/><path d="M4 10h16M9 3v4M15 3v4"/></svg>`,
   `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0zM7 6H4v1a3 3 0 0 0 3 3M17 6h3v1a3 3 0 0 1-3 3"/></svg>`];
+// Files picked on the landing page or at the end of the quiz start (quiz.js): the order is opened if there is none yet,
+// and the files step uploads them as soon as it opens.
+async function takeFiles(files) {
+  if (!draft()) {
+    const { orderToken } = await api("start", { lang: courseLang() });
+    saveDraft({ orderToken, step: "files", files: [], days: 7 });
+  }
+  handoff = files;
+  nav("#/new/files");
+}
 function viewWelcome() {
   hideNav(); plain(); document.body.classList.add("landing");
   const s = session(), d = draft();
@@ -228,14 +239,7 @@ function viewWelcome() {
   const start = async list => {
     const files = [...list]; if (!files.length || busy) return;
     busy = true; drop.classList.add("busy"); drop.setAttribute("aria-busy", "true"); drop.querySelector("svg").outerHTML = SPIN; $("#dropTxt").textContent = t("landBusy"); $("#err").hidden = true;
-    try {
-      if (!draft()) {
-        const { orderToken } = await api("start", { lang: courseLang() });
-        saveDraft({ orderToken, step: "files", files: [], days: 7 });
-      }
-      handoff = files;
-      nav("#/new/files");
-    } catch (e) {
+    try { await takeFiles(files); } catch (e) {
       busy = false; drop.classList.remove("busy"); drop.removeAttribute("aria-busy"); drop.querySelector("svg").outerHTML = UPLOAD; $("#dropTxt").textContent = t("landDrop");
       fail($("#err"), e);
     }
@@ -1088,7 +1092,7 @@ async function viewTerms() {
 async function viewPrivacy() {
   const who = operatorHtml((await storeConfig().catch(() => ({}))).operator || {});
   legalFrame(`<h1 class="ob-h">${t("privTitle")}</h1><p class="ob-note">${t("privVersion")}</p>
-    ${[1, 2, 3, 4, 5, 6, 7].map(n => `<h2>${t("privH" + n)}</h2><p>${t("privP" + n)}</p>`).join("")}
+    ${[1, 2, 3, 4, 5, 6, 7, 8].map(n => `<h2>${t("privH" + n)}</h2><p>${t("privP" + n)}</p>`).join("")}
     <h2>${t("privOperator")}</h2><p>${who}</p>`);
 }
 
@@ -1310,6 +1314,7 @@ function hitPath() {
   const p = location.hash.replace(/^#/, "").split("?")[0].split("/").filter(Boolean);
   if (!p.length) return "/app/";
   if (p[0] === "new") return "/app/new" + (STEPS.includes(p[1]) ? "/" + p[1] : "");
+  if (p[0] === "q") return "/app/q" + (/^([1-5]|plan|contact)$/.test(p[1] || "") ? "/" + p[1] : "");
   if (p[0] === "s") return "/app/s" + (HIT_COURSE.includes(p[2]) ? "/" + p[2] : "");
   return HIT_PAGES.includes(p[0]) ? "/app/" + p[0] : "/app/other";
 }
@@ -1369,6 +1374,14 @@ function route() {
   if (parts[0] === "terms") return viewTerms();
   if (parts[0] === "paid") return viewPaid();
   if (parts[0] === "new-subject") return newSubject();
+  // The quiz start (quiz.js). A signed-in student, or one whose free lessons are already building, has no use for it.
+  if (parts[0] === "q") {
+    hideNav(); plain();
+    const d = draft();
+    if (session()) return nav(homeOf());
+    if (d?.slug) return nav("#/new/" + (d.step || "account"));
+    return quizRoute(parts.slice(1), { nav, takeFiles, fail });
+  }
   if (parts[0] === "new") {
     hideNav(); plain();
     const d = draft();
@@ -1399,6 +1412,8 @@ if (first) {
   setLang(lang()).then(async () => {
     friendArrived();
     if (store.get("invite") && session()) await Promise.race([useInvite(), new Promise(r => setTimeout(r, 4000))]);
+    // A ?c=<name> link from a bio opens on the quiz's first question instead of the landing page (only for a new visitor).
+    if (quizArrived(location.search) && !session() && !draft() && !location.hash.replace(/^#\/?$/, "")) history.replaceState(null, "", location.pathname + location.search + "#/q/1");
     render();
   });
 }

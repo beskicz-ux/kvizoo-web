@@ -77,9 +77,14 @@ const kf = (dur, fr) => `dur="${dur}s" repeatCount="indefinite" keyTimes="${fr.m
 const aT = (type, dur, fr) => `<animateTransform attributeName="transform" type="${type}" ${kf(dur, fr)}/>`;
 const aA = (attr, dur, fr) => `<animate attributeName="${attr}" ${kf(dur, fr)}/>`;
 let HAM_ID = 0;
-function ham(mood = "open", cls = "") {
+// rig = true adds the puppet parts (sleeping eyes, zzz, sparks) that puppet.js switches with s-* classes
+function ham(mood = "open", cls = "", rig = false) {
   const f = "fur" + (++HAM_ID);
-  return `<svg class="ham m-${mood} ${cls}" viewBox="0 0 200 200" aria-hidden="true">
+  const star = (x, y, s, c) => `<g transform="translate(${x} ${y}) scale(${s})"><path d="M0-10l2.6 7.4L10 0 2.6 2.6 0 10l-2.6-7.4L-10 0l7.4-2.6z" fill="${c}"/></g>`;
+  const extra = rig ? `<g class="e-sleep" fill="none" stroke="#2b0c15" stroke-width="5" stroke-linecap="round"><path d="M67 87q9 9 18 0"/><path d="M115 87q9 9 18 0"/></g>
+<g class="zzz" fill="#b9aefc" font-family="Nunito,sans-serif" font-weight="900"><text x="150" y="52" font-size="22">z</text><text x="166" y="34" font-size="17">z</text><text x="178" y="20" font-size="13">z</text></g>
+<g class="sparks">${star(22, 40, 1.1, "#55EFC4")}${star(180, 46, .9, "#b9aefc")}${star(34, 150, .7, "#b9aefc")}${star(172, 146, .8, "#55EFC4")}${star(100, -6, .8, "#fff")}</g>` : "";
+  return `<svg class="ham m-${mood} ${rig ? "rig " : ""}${cls}" viewBox="0 0 200 200" aria-hidden="true">
 <defs><radialGradient id="${f}" cx="45%" cy="35%" r="70%"><stop offset="0" stop-color="#e9a45c"/><stop offset="1" stop-color="#da8c46"/></radialGradient></defs>
 <ellipse cx="100" cy="187" rx="58" ry="8" fill="#000" opacity=".25"/>
 <g class="body">
@@ -91,7 +96,7 @@ function ham(mood = "open", cls = "") {
 <ellipse cx="56" cy="110" rx="10" ry="6" fill="#ff8fa8" opacity=".55"/><ellipse cx="144" cy="110" rx="10" ry="6" fill="#ff8fa8" opacity=".55"/>
 <g class="e-open"><circle cx="76" cy="88" r="9" fill="#2b0c15"/><circle cx="124" cy="88" r="9" fill="#2b0c15"/><circle cx="79" cy="85" r="3" fill="#fff"/><circle cx="127" cy="85" r="3" fill="#fff"/></g>
 <g class="e-happy" fill="none" stroke="#2b0c15" stroke-width="5" stroke-linecap="round"><path d="M67 91q9-11 18 0"/><path d="M115 91q9-11 18 0"/></g>
-<g class="e-sad"><circle cx="76" cy="92" r="8" fill="#2b0c15"/><circle cx="124" cy="92" r="8" fill="#2b0c15"/><path d="M66 78l18 6M134 78l-18 6" stroke="#2b0c15" stroke-width="4" stroke-linecap="round"/></g>
+<g class="e-sad"><circle cx="76" cy="92" r="8" fill="#2b0c15"/><circle cx="124" cy="92" r="8" fill="#2b0c15"/><path d="${rig ? "M65 82l17-7M135 82l-17-7" : "M66 78l18 6M134 78l-18 6"}" stroke="#2b0c15" stroke-width="4" stroke-linecap="round"/></g>
 <path d="M94 102h12l-6 7z" fill="#d9475f"/>
 <g class="mouth-s"><path d="M96.2 111h7.6v5.6q0 2.6-2.4 2.6h-2.8q-2.4 0-2.4-2.6z" fill="#fff" stroke="#e2c9b4" stroke-width="1"/><path d="M100 112.5v6.4" stroke="#e2c9b4" stroke-width="1"/><path d="M100 109q-6 8-13 3M100 109q6 8 13 3" fill="none" stroke="#4a1a26" stroke-width="3" stroke-linecap="round"/></g>
 <ellipse class="mouth-o" cx="100" cy="117" rx="6" ry="7" fill="#4a1a26"/>
@@ -100,9 +105,9 @@ function ham(mood = "open", cls = "") {
 <path d="M70 133q15-4 30 3v31q-15-7-30-3z" fill="#fff"/><path d="M130 133q-15-4-30 3v31q15-7 30-3z" fill="#f1edff"/>
 <g stroke="#c9c0f2" stroke-width="2" stroke-linecap="round" fill="none"><path d="M76 142q9-1 18 2M76 149q9-1 18 2M76 156q9-1 13 1"/><path d="M106 144q9-3 18-2M106 151q9-3 18-2M106 158q6-2 13-2"/></g>
 <path d="M100 136v31" stroke="#4a32b0" stroke-width="1.6"/></g>
-<ellipse cx="68" cy="152" rx="9" ry="8" fill="#f6c99a"/><ellipse cx="132" cy="152" rx="9" ry="8" fill="#f6c99a"/>
+<ellipse class="paw paw-l" cx="68" cy="152" rx="9" ry="8" fill="#f6c99a"/><ellipse class="paw paw-r" cx="132" cy="152" rx="9" ry="8" fill="#f6c99a"/>
 <ellipse cx="74" cy="183" rx="14" ry="7" fill="#f6c99a"/><ellipse cx="126" cy="183" rx="14" ry="7" fill="#f6c99a"/>
-<g transform="rotate(-8 100 34)"><path d="M58 30l42-18 42 18-42 17z" fill="#7a5ae6"/><path d="M75 37v12q25 11 50 0V37l-25 10z" fill="#5a3cc4"/><path d="M142 30v22" stroke="#f4cf96" stroke-width="3"/><circle cx="142" cy="54" r="4.5" fill="#f4cf96"/></g>
-</g></svg>`;
+<g class="cap"><g transform="rotate(-8 100 34)"><path d="M58 30l42-18 42 18-42 17z" fill="#7a5ae6"/><path d="M75 37v12q25 11 50 0V37l-25 10z" fill="#5a3cc4"/><path d="M142 30v22" stroke="#f4cf96" stroke-width="3"/><circle cx="142" cy="54" r="4.5" fill="#f4cf96"/></g></g>
+${extra}</g></svg>`;
 }
 export { ham, teacher, TEACHERS };
