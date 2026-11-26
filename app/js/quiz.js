@@ -104,9 +104,12 @@ function quizPlan(a) {
   return { pages, days, minutes: Math.max(5, Math.round(p.perDay / 5) * 5), repeats: Math.round(p.repeats), sprint: p.perDay > PACE_GOOD, have: time?.min || 0, guessedDays: when?.v === "idk", guessedPages: size?.v === "idk" };
 }
 
-let lastBar = 0; // the bar's width on the screen before, so it grows from there instead of jumping
+// The bar's width at each screen (Marek, 2026-11-27): it starts with something in it, the first two answers bring it to
+// half, and every step after that adds less, so the start feels quick and the contact step is nearly the end.
+const BAR = { 1: 10, 2: 30, 3: 50, 4: 68, 5: 80, [N + .5]: 90, [N + 1]: 100 };
+let lastBar = BAR[1]; // the bar's width on the screen before, so it grows from there instead of jumping
 function head(step, back) {
-  const now = Math.round((step - 1) / N * 100);
+  const now = BAR[step] ?? Math.round((step - 1) / N * 100);
   const h = `<div class="ob-hd"><button class="ob-bk" id="qzBack" aria-label="${t("back")}">${back ? BACK : CLOSE}</button><div class="ob-bar qz-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${now}"><i style="width:${lastBar}%"></i></div><span class="ob-bkpad"></span></div>`;
   requestAnimationFrame(() => { const i = $(".qz-bar i"); if (i) i.style.width = now + "%"; lastBar = now; });
   return h;
@@ -253,7 +256,7 @@ function quizRoute(parts, ctx) {
   const step = Number(parts[0]);
   if (!Number.isInteger(step) || step < 1 || step > N) return ctx.nav("#/q/1");
   if (open && step > open) return ctx.nav("#/q/" + open);
-  if (step === 1) lastBar = 0;
+  if (step === 1) lastBar = BAR[1];
   return viewQuestion(step, ctx);
 }
 
