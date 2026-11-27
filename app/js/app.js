@@ -10,7 +10,7 @@ import { BACK, CLOSE, CHEV_DOWN, PACE_ICONS, calIcon, langSheet, applyTheme, she
 import { pushSupported, pushState, askPush, subscribe, sendSub, remindTime } from "./push.js";
 import { persona } from "./persona.js";
 import { friendCodeFrom, withFriend, withoutFriend, cleanCode, GIFT_TEXT } from "./friend.js";
-import { quizRoute, quizArrived } from "./quiz.js";
+import { quizRoute, quizArrived, setupBar } from "./quiz.js";
 
 const draft = () => { const d = store.get("draft", null); if (d && !STEPS.includes(d.step)) d.step = d.slug ? "account" : "files"; return d; };
 const saveDraft = d => store.set("draft", d);
@@ -59,7 +59,7 @@ function bindLang() {
 // say: a tutor id. The title then comes as that tutor's speech bubble, like Duolingo's owl. skip: a quiet second button.
 // pre: html above the button (the Google button on the account step). after: a quiet line under it.
 function frame(step, { title, body, btn, btnId = "nextBtn", sub = "", say = "", skip = "", pre = "", after = "" }) {
-  const i = STEPS.indexOf(step), segs = i < COUNTED ? `<div class="ob-segs">${Array.from({ length: COUNTED }, (_, k) => `<i class="${k <= i ? "on" : ""}"></i>`).join("")}</div>` : `<div class="ob-segs"></div>`;
+  const i = STEPS.indexOf(step), segs = setupBar(step) || `<div class="ob-segs"></div>`; // one bar from the first question to the tutor (quiz.js); the steps after it show none
   const head = say ? `<div class="ob-say"><div class="ob-say-art" aria-hidden="true">${tutorArt(say, "", "happy")}</div><h1 class="ob-bub" id="obTitle">${title}</h1></div>` : `<h1 class="ob-h" id="obTitle">${title}</h1>`;
   return `<div class="ob"><div class="ob-hd"><button class="ob-bk" id="stepBack" aria-label="${t("back")}">${prevStep(step) ? BACK : CLOSE}</button>${segs}<span class="ob-bkpad"></span></div>
     ${head}${sub ? `<p class="ob-sub">${sub}</p>` : ""}
@@ -193,7 +193,32 @@ const crew = (() => { // scoped, so the short names below can't clash with the r
       return `<i class="cf" style="${box(CUPAT[0] - 1.2, CUPAT[1] - .6, 2.4)};background:${COLORS[i % 6]};--cx:${(Math.cos(a) * r).toFixed(1)}cqw;--cy:${(Math.sin(a) * r * .8).toFixed(1)}cqw;--cr:${(i % 2 ? 1 : -1) * (160 + i * 25)}deg"></i>`;
     }).join("");
 })();
-const STEP_ICONS = [UPLOAD, `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="3"/><path d="M4 10h16M9 3v4M15 3v4"/></svg>`,
+// The app itself in the hero (Marek 2026-11-27, after a reel: "your first screen should show the app, not describe it").
+// A phone that plays the whole product in three screens (Marek, same day: "show how the user uploads presentation, docs,
+// pdf and photo of handwritten notes and the app makes the full study course and then shows the lesson"): the four
+// files land in the list and the button is tapped; the course appears as a path of levels up to the exam; the first
+// level opens on a question with A, B, C answered right. All timing is in app.css (pv-* keyframes, one 12 s round).
+// Under reduced motion it's one still: the answered question. crew() above is the picture it replaced.
+const preview = () => {
+  const s = k => esc(t(k));
+  const FILES = [["P", "#D35230"], ["PDF", "#E5484D"], ["W", "#2B5DB8"], ["", "#3A3E56"]]; // a presentation, a PDF, a document, a photo of handwritten notes
+  const NOTE = `<svg viewBox="0 0 20 20" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round"><path d="M4 6q2-2 4 0t4 0 4 0M4 10q2-2 4 0t4 0M4 14q2-2 4 0t4 0 3 0"/></svg>`;
+  const OK = `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 10.5l3.5 3.5 7.5-8"/></svg>`;
+  const GLYPH = [`<path d="M11 14.5q4.5-1.6 9 1 4.5-2.6 9-1v12q-4.5-1.6-9 1-4.5-2.6-9-1z"/><path d="M20 15.5v12"/>`,
+    `<rect x="11.5" y="14" width="13" height="15" rx="2.5"/><path d="M16 10.5h10a2.5 2.5 0 0 1 2.5 2.5v12"/>`, `<path d="M12.5 20.5l5 5 10-10"/>`,
+    `<path d="M20 11.5l2.5 5.2 5.7.7-4.2 3.9 1.1 5.6L20 24.2l-5.1 2.7 1.1-5.6-4.2-3.9 5.7-.7z" fill="#fff" stroke-width="1.6"/>`,
+    `<path d="M14 12h12v5a6 6 0 0 1-12 0zM14 14h-2.6v.8a3.6 3.6 0 0 0 3.6 3.6M26 14h2.6v.8a3.6 3.6 0 0 1-3.6 3.6M20 23v4M15.5 28h9" stroke-width="2.4"/>`];
+  const row = ([badge, color], i) => `<div class="pv-row" style="--i:${i}"><i style="background:${color}">${badge || NOTE}</i><span>${s("pvF" + (i + 1))}</span><em>${OK}</em></div>`;
+  const node = (g, i) => `<div class="pv-node${i === 4 ? " pv-cup" : ""}" style="--i:${i}"><svg viewBox="6 6 28 28" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">${g}</svg>${i ? "" : `<i class="pv-tap"></i>`}</div>`;
+  const opt = (l, k, ok) => `<div class="pv-opt${ok ? " pv-ok" : ""}"><span>${l}</span>${s(k)}${ok ? `<i class="pv-tap"></i>` : ""}</div>`;
+  return `<div class="pv-phone"><div class="pv-scr"><div class="pv-status"><span>9:41</span><i class="pv-sig"></i><i class="pv-bat"></i></div><div class="pv-stage">
+      <div class="pv-s pv-a"><b class="pv-h">${s("pvUp")}</b>${FILES.map(row).join("")}<div class="pv-btn">${s("landMake")}<i class="pv-tap"></i></div></div>
+      <div class="pv-s pv-b"><div class="pv-unit">${s("pvCourse")}<i></i></div><div class="pv-path">${GLYPH.map(node).join("")}</div></div>
+      <div class="pv-s pv-c"><div class="pv-top"><i class="pv-x"></i><div class="pv-bar"><i></i></div></div><b class="pv-q">${s("pvQuizQ")}</b><div class="pv-opts">${opt("A", "pvO1")}${opt("B", "pvO2", true)}${opt("C", "pvO3")}</div></div>
+    </div></div></div><div class="pv-penny">${tutorArt("penny", "", "open")}</div>`;
+};
+const GO = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>`;
+const STEP_ICONS = [UPLOAD,`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="3"/><path d="M4 10h16M9 3v4M15 3v4"/></svg>`,
   `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0zM7 6H4v1a3 3 0 0 0 3 3M17 6h3v1a3 3 0 0 1-3 3"/></svg>`];
 // Files picked on the landing page or at the end of the quiz start (quiz.js): the order is opened if there is none yet,
 // and the files step uploads them as soon as it opens.
@@ -213,14 +238,13 @@ function viewWelcome() {
   view().innerHTML = `<div class="ld" id="ld">
     <header class="ld-top"><span class="ld-logo"><b>${t("brand")}</b></span><span class="ld-gap"></span>${langBtn()}</header>
     <section class="ld-hero">
-      <div class="ld-art" id="ldArt" aria-hidden="true">${crew()}</div>
+      <div class="ld-art" id="ldArt" aria-hidden="true">${preview()}</div>
       <div class="ld-copy">
         <h1 class="ld-h">${t("landTitle1")} <em>${t("landTitle2")}</em></h1>
-        <p class="ld-sub">${t("landSub")}</p>
         <div class="ld-cta">
           ${locked ? `<a class="ld-b ld-go" href="#/new/${d.step || "account"}">${t("welcomeResume")}</a>`
-            : `<button class="ld-b ld-go" id="drop" type="button" aria-describedby="dropHint">${UPLOAD}<span id="dropTxt">${t("landDrop")}</span></button>`}
-          <a class="ld-b ld-have" href="#/login">${t("welcomeHave")}</a>
+            : `<button class="ld-b ld-go" id="drop" type="button" aria-describedby="dropHint"><span id="dropTxt">${t("landMake")}</span>${GO}</button>`}
+          <a class="ld-have ld-txt" href="#/login">${t("welcomeHave")}</a>
           ${d && !locked ? `<a class="btn-t sm ld-resume" href="#/new/${d.step || "files"}">${t("welcomeResume")}</a>` : ""}
         </div>
         ${locked ? "" : `<p class="ld-types" id="dropHint"><span class="ld-drag">${t("landDrag")} · </span>${t("landTypes")}</p>
@@ -228,7 +252,6 @@ function viewWelcome() {
         <p class="ob-err c" id="err" hidden role="alert"></p>
       </div>
     </section>
-    <ol class="ld-steps">${[1, 2, 3].map(i => `<li><span class="ld-si">${STEP_ICONS[i - 1]}</span><span><small>${i}</small>${t("landS" + i)}</span></li>`).join("")}</ol>
     <footer class="ld-foot">${legalLinks()}</footer>
     <div class="ld-over" aria-hidden="true"><div>${ham("open")}<b>${t("landDropHere")}</b></div></div></div>`;
   bindLang();
@@ -240,15 +263,15 @@ function viewWelcome() {
     const files = [...list]; if (!files.length || busy) return;
     busy = true; drop.classList.add("busy"); drop.setAttribute("aria-busy", "true"); drop.querySelector("svg").outerHTML = SPIN; $("#dropTxt").textContent = t("landBusy"); $("#err").hidden = true;
     try { await takeFiles(files); } catch (e) {
-      busy = false; drop.classList.remove("busy"); drop.removeAttribute("aria-busy"); drop.querySelector("svg").outerHTML = UPLOAD; $("#dropTxt").textContent = t("landDrop");
+      busy = false; drop.classList.remove("busy"); drop.removeAttribute("aria-busy"); drop.querySelector("svg").outerHTML = GO; $("#dropTxt").textContent = t("landMake");
       fail($("#err"), e);
     }
   };
   // The tap and a closed picker count in Stats (2026-11-20): a phone with no slides on it backs out of the picker and would
   // otherwise leave no trace, so "never tapped" and "tapped but had nothing to upload" looked the same.
-  drop.onclick = () => { window.pcHit?.("/app/upload-tap"); pick.click(); }; // a real button: Enter and Space open the picker too
-  pick.oncancel = () => window.pcHit?.("/app/upload-cancel");
-  pick.onchange = e => { start(e.target.files); e.target.value = ""; };
+  // The button starts the questions (Marek, 2026-11-27: "have the user go through the whole onboarding"): contact, then the
+  // files. A file dropped on the page still opens the order at once. The hit keeps its old name so Stats stay comparable.
+  drop.onclick = () => { window.pcHit?.("/app/upload-tap"); nav("#/q/1"); };
   // Files dropped anywhere on the page count, so a near miss doesn't make the browser open the PDF instead.
   let depth = 0;
   ld.ondragenter = e => { e.preventDefault(); depth++; ld.classList.add("over"); };
@@ -399,13 +422,13 @@ function fileRows(d) {
 function viewFiles() {
   // Super simple (Marek, 2026-11-17: "still a lot of text"): the title, the files, add more, the page count and one line on
   // rights. File types and limits are left to the picker and to the error messages, which say them when they matter.
-  view().innerHTML = frame("files", { title: t("filesTitle"), btn: t("next"),
+  view().innerHTML = frame("files", { title: t("filesTitle"), btn: t("next"), say: "penny",
     body: `<div id="list"></div>
-      <label class="ob-drop" id="drop">${ic.upload}<b id="dropTxt"></b><input type="file" id="pick" accept="${ACCEPT}" multiple hidden></label>
+      <label class="ob-drop" id="drop"><span class="ob-kinds" aria-hidden="true"><i style="background:#D35230">P</i><i style="background:#E5484D">PDF</i><i style="background:#2B5DB8">W</i><i style="background:#3A3E56">${ic.camera}</i></span>${ic.upload}<b id="dropTxt"></b><input type="file" id="pick" accept="${ACCEPT}" multiple hidden></label>
       <div class="ob-cam" id="cam" hidden><button type="button" class="ob-cam-btn" id="camBtn">${ic.camera}<b>${t("filesCamera")}</b></button>
         <div class="ob-shots" id="shots" hidden><span id="shotsN"></span><button type="button" class="btn-s" id="shotMore">${t("filesShotMore")}</button><button type="button" class="btn-p" id="shotDone">${t("filesShotDone")}</button></div>
         <input type="file" id="shot" accept="image/*" capture="environment" hidden></div>
-      <p class="ob-err" id="err" hidden role="alert"></p><div class="ob-sum" id="total" hidden></div><p class="ob-note">${t("filesNote")}</p>` });
+      <p class="ob-err" id="err" hidden role="alert"></p><div class="ob-sum" id="total" hidden></div>` });
   bindStepBack("files");
   // Camera shots (phones only: a desktop browser has no camera picker). iOS replaces the input's files on every shot, so the
   // shots are kept here and become one photo PDF when the student taps Done.
@@ -716,6 +739,11 @@ function viewTutor() {
     try { // the free lessons start building now, while the student makes an account
       await api("update_order", { orderToken: cur.orderToken, pages: cur.pages, tutor: cur.tutor, examDate: cur.examDate, minutes: cur.minutes || 20, days: 7, lang: courseLang() });
       const r = await api("queue_free", { orderToken: cur.orderToken });
+      if (r.session && r.guest) { // a new visitor (2026-11-27): the course builds and the first lesson is played before the account
+        store.set("session", { token: r.session, slug: r.slug, guest: true }); resetCourse();
+        const y = draft(); y.slug = r.slug; y.step = "account"; saveDraft(y); // the order token stays: signup needs it
+        return nav("#/wait");
+      }
       if (r.session) { // another subject of a signed-in account: no account step
         store.set("session", { token: r.session, slug: r.slug }); store.del("draft"); resetCourse();
         if (r.proCap) toast(errText("pro_cap"));
@@ -836,7 +864,8 @@ function accChoice(d) {
   }, true);
 }
 function accForm(d) {
-  const a = d.acc || {};
+  const a = { ...d.acc }, c = store.get("quiz", null)?.contact;
+  if (!a.email && c?.kind === "email") a.email = c.v; // the address from the contact step, so it isn't typed twice
   acct.gTok = null;
   view().innerHTML = frame("account", { title: t("accNewTitle"), btn: t("next"),
     body: `<form id="f" class="ob-form" novalidate>
@@ -871,7 +900,7 @@ function accDetails(d) {
     body: `<form id="f" class="ob-form" novalidate>${who}
       <label class="ob-lbl" id="aYearLbl" for="aYear">${t("accYear")} <span>${t("accYearHint")}</span></label>
       <button type="button" class="ob-in ob-pick" id="aYear" aria-haspopup="dialog"><span id="aYearV"></span>${CHEV_DOWN}</button>
-      <label class="ob-lbl" for="aPhone">${t("accPhone")} <span>${t("accOptional")}</span></label><input class="ob-in" id="aPhone" type="tel" autocomplete="tel" maxlength="20" placeholder="+420 777 123 456">
+      <label class="ob-lbl" for="aPhone">${t("accPhone")} <span>${t("accOptional")}</span></label><input class="ob-in" id="aPhone" type="tel" autocomplete="tel" maxlength="20" placeholder="+420 777 123 456" value="${esc(store.get("quiz", null)?.contact?.kind === "phone" ? store.get("quiz").contact.v : "")}">
       <label class="ob-check"><input type="checkbox" id="aPrivacy"><span>${t("accPrivacy").replace("%", `<a href="#/privacy" target="_blank" rel="noopener">${t("accPrivacyLink")}</a>`)}</span></label>
       <label class="ob-check"><input type="checkbox" id="aMkt"><span>${t("accMarketing")}</span></label>
       <p class="ob-err" id="err" hidden role="alert"></p>
@@ -934,6 +963,7 @@ function accDetails(d) {
 const UNITS_SHOWN = 3; // chapters listed before "show all", so the page fits one screen (Marek, 2026-11-12: "too long")
 async function viewUnlock() {
   hideNav(); plain();
+  if (session()?.guest && draft()?.orderToken) return nav("#/new/account"); // buying needs an account: a visitor who only played the free lesson makes one first
   const s = session(); if (!s) return nav("#/login");
   // render() has already dropped the map's layout class, so the old map would show squeezed while this loads
   view().innerHTML = `<div class="loading" role="status" aria-label="…"><i></i></div>`;
@@ -1235,7 +1265,7 @@ async function viewWait() {
       painted = key;
       const title = ready ? (free ? "waitFreeReady" : "waitReady") : failed ? "waitFailed" : free ? (waiting ? "waitFreeQueued" : "waitFreeTitle") : waiting ? "waitQueued" : "waitTitle";
       const sub = ready ? (free ? "waitFreeReadySub" : "waitReadySub") : failed ? "waitFailedSub" : offline ? "waitOfflineSub" : free ? "waitFreeSub" : "waitSub";
-      view().innerHTML = `<div class="ob ob-wait"><div class="ob-top">${langBtn()}</div>
+      view().innerHTML = `<div class="ob ob-wait${free ? " pc-lite" : ""}"><div class="ob-top">${langBtn()}</div>
         <div class="pc-hero ${ready ? "" : "working"}">${tutor ? tutorArt(tutor, "bob") : ""}</div>
         <h1 class="ob-h">${t(title)}</h1><p class="ob-sub">${t(sub)}</p>
         ${failed ? "" : `<div id="pcLive"><div id="pcSteps">${steps()}</div><div id="pcCard">${buildHtml(phase, build, free, offline, shown, seenN)}</div></div>`}

@@ -178,14 +178,23 @@ function quizPlan(a) {
 
 // The bar's width at each screen (Marek, 2026-11-27): it starts with something in it, the first two answers bring it to
 // half, and every step after that adds less, so the start feels quick and the contact step is nearly the end.
-const BAR = { 1: 10, 2: 30, 3: 50, 4: 68, 5: 80, [N + .5]: 95, [N + 1]: 100 };
+// One bar for the whole start (Marek, same day, later): the questions, the contact, then the setup steps in app.js (files,
+// exam date, tutor) all share it. It starts 15 % full and ends at 95 %; each step adds less than the one before.
+const BAR = { 1: 15, 2: 34, 3: 50, 4: 64, 5: 75, [N + .5]: 84, [N + 1]: 90 };
+const SETUP_BAR = { files: 90, date: 94, tutor: 95 };
 let lastBar = BAR[1]; // the bar's width on the screen before, so it grows from there instead of jumping
 function head(step, back) {
   const now = BAR[step] ?? Math.round((step - 1) / N * 100);
-  const h = `<div class="ob-hd"><button class="ob-bk" id="qzBack" aria-label="${t("back")}">${back ? BACK : CLOSE}</button><div class="ob-bar qz-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${now}"><i style="width:${lastBar}%"></i></div><span class="ob-bkpad"></span></div>`;
-  requestAnimationFrame(() => { const i = $(".qz-bar i"); if (i) i.style.width = now + "%"; lastBar = now; });
+  return `<div class="ob-hd"><button class="ob-bk" id="qzBack" aria-label="${t("back")}">${back ? BACK : CLOSE}</button>${barHtml(now)}<span class="ob-bkpad"></span></div>`;
+}
+// The bar itself, growing from where the screen before left it. app.js draws the setup steps' bar with it (setupBar).
+function barHtml(now) {
+  const h = `<div class="ob-bar qz-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${now}"><i style="width:${Math.min(lastBar, now)}%"></i></div>`;
+  requestAnimationFrame(() => { const i = $(".qz-bar i"); if (i) i.style.width = now + "%"; });
+  lastBar = now;
   return h;
 }
+const setupBar = step => SETUP_BAR[step] ? barHtml(SETUP_BAR[step]) : "";
 function say(title, state) {
   const p = puppet({ size: 92, state });
   queueMicrotask(() => $("#qzPenny")?.replaceChildren(p.el)); // right after the caller writes the screen; a frame callback never runs in a background tab
@@ -210,7 +219,7 @@ function viewQuestion(step, ctx) {
     sfx.flip(); s.p.setState("correct");
     const cur = quiz(); store.set("quiz", { ...cur, a: { ...cur.a, [q.k]: picked } });
     // a short beat so the tap shows as picked before the next question comes
-    setTimeout(() => ctx.nav(step < N ? "#/q/" + (step + 1) : contactKnown() ? "#/q/plan" : "#/q/contact"), 420);
+    setTimeout(() => step < N ? ctx.nav("#/q/" + (step + 1)) : !contactKnown() ? ctx.nav("#/q/contact") : quiz().viaMail ? ctx.nav("#/q/plan") : ctx.takeFiles([]).catch(() => ctx.nav("#/q/contact")), 420);
   };
   box.onkeydown = e => {
     const k = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1 }[e.key]; if (!k) return;
@@ -308,7 +317,8 @@ function viewContact(ctx) {
     store.set("quiz", { ...quiz(), contact: { ...c, sent } });
     window.pcHit?.("/app/q/contact-" + c.kind);
     sfx.flip(); s.p.setState("correct");
-    ctx.nav("#/q/plan");
+    // the contact first, then the files (Marek, 2026-11-27): the order opens here and the upload step is next
+    try { await ctx.takeFiles([]); } catch (e3) { busy = false; go.classList.remove("busy"); go.removeAttribute("aria-busy"); ctx.fail(err, e3); }
   };
 }
 
@@ -391,4 +401,4 @@ function quizRoute(parts, ctx) {
   return viewQuestion(step, ctx);
 }
 
-export { quizRoute, quizArrived, campaignFrom, planFrom, contactOf, phoneParts, phoneOf, quizPlan, firstOpen, QUESTIONS };
+export { setupBar, quizRoute, quizArrived, campaignFrom, planFrom, contactOf, phoneParts, phoneOf, quizPlan, firstOpen, QUESTIONS };

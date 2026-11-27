@@ -103,6 +103,12 @@ body.plain .app{padding-bottom:0}
 .ob-drop svg{width:34px; height:34px}
 .ob-drop b{font:700 16px var(--font)}
 .ob-drop.more{min-height:64px; flex-direction:row}
+.ob-kinds{display:flex; gap:8px; margin-bottom:6px}
+.ob-kinds i{display:grid; place-items:center; width:40px; height:40px; border-radius:11px; color:#fff; font:800 12px var(--head); font-style:normal}
+.ob-kinds i svg{width:20px; height:20px}
+.ob-drop.more .ob-kinds{display:none}
+/* the free start's build screen (2026-11-27): one card, no step list, no tips */
+.pc-lite #pcSteps, .pc-lite .pc-tips, .pc-lite .pc-build-files, .pc-lite .pc-build > span{display:none}
 .ob-drop.more svg{width:22px; height:22px}
 .ob-drop.over{background:var(--accent-soft)}
 /* phones: photograph handwritten notes page by page; the shots join into one photo PDF on "Done" */
@@ -1198,7 +1204,7 @@ body.landing .app{max-width:1040px}
 .ld-logo{display:flex; align-items:center; gap:8px; font:800 24px var(--head); letter-spacing:-.01em; color:var(--accent)}
 .ld-gap{flex:1}
 .ld-hero{flex:1; display:grid; grid-template-columns:minmax(0, 1fr); align-items:center; justify-items:center; gap:6px; padding:4px 0 28px; text-align:center}
-.ld-art{position:relative; width:min(100%, 330px); aspect-ratio:1; container-type:inline-size}
+.ld-art{position:relative; width:min(100%, 330px); aspect-ratio:1; container-type:inline-size; margin-bottom:22px}
 /* The picture: the student's files on the left, Penny in the middle, the course as a path of levels round her up to the
    exam trophy. Positions come inline in percent of the square box (moves in cqw; the box is square). The timing is one
    keyframe set per piece, written by app.js next to the picture. Layers so moves don't fight: .fl pops in and bobs,
@@ -1226,6 +1232,94 @@ body.landing .app{max-width:1040px}
 .ld-spk{z-index:5; opacity:0}
 .ld-ping{z-index:2; aspect-ratio:1; border-radius:50%; border:.7cqw solid var(--accent); box-sizing:border-box; opacity:0}
 .cf{z-index:5; aspect-ratio:2; border-radius:1px; opacity:0}
+/* The app in the hero (2026-11-27): a real-looking phone that plays the product in three screens, Penny beside it. Sizes
+   are cqw of the square box, so it scales with the picture. One 12 s round: the files land and the button is tapped
+   (0-3.7 s), the course path grows and its first level is tapped (3.8-7.3 s), the lesson's question is answered right
+   (7.4-11.6 s; tap at 9.2 s, green at 9.5 s). Rows and levels share one keyframe each and start later by --i.
+   Without motion: the answered question. */
+.pv-phone{left:24%; top:0; width:52%; height:100%; z-index:2; box-sizing:border-box; padding:1.5cqw; border-radius:9.5cqw; background:#08080d;
+  box-shadow:0 0 0 .45cqw #4a4d63, 0 0 0 .7cqw #1b1c27}
+.pv-phone::before, .pv-phone::after{content:""; position:absolute; width:.8cqw; border-radius:.4cqw; background:#3a3d50}
+.pv-phone::before{left:-1.4cqw; top:22%; height:7%; box-shadow:0 9cqw 0 #3a3d50}
+.pv-phone::after{right:-1.4cqw; top:28%; height:12%}
+.pv-scr{position:relative; height:100%; box-sizing:border-box; display:flex; flex-direction:column; overflow:hidden; text-align:start; padding:2cqw 3.6cqw 5cqw; border-radius:8cqw; background:var(--surface)}
+.pv-scr::before{content:""; position:absolute; left:50%; top:1.7cqw; width:13cqw; height:3.7cqw; margin-left:-6.5cqw; border-radius:2cqw; background:#08080d}
+.pv-scr::after{content:""; position:absolute; left:50%; bottom:1.5cqw; width:15cqw; height:.8cqw; margin-left:-7.5cqw; border-radius:.4cqw; background:var(--ink-strong); opacity:.55}
+.pv-status{flex:none; display:flex; align-items:center; gap:1cqw; height:3.7cqw; margin:0 1.4cqw 4cqw; color:var(--ink-strong); font:800 2.5cqw var(--head)}
+.pv-status span{flex:1}
+.pv-sig{width:3cqw; height:2cqw; background:linear-gradient(to right, currentColor 0 18%, transparent 18% 27%, currentColor 27% 45%, transparent 45% 54%, currentColor 54% 72%, transparent 72% 81%, currentColor 81%); clip-path:polygon(0 60%, 100% 0, 100% 100%, 0 100%)}
+.pv-bat{position:relative; box-sizing:border-box; width:4.6cqw; height:2.2cqw; border:.3cqw solid currentColor; border-radius:.7cqw; opacity:.9}
+.pv-bat::before{content:""; position:absolute; inset:.25cqw; right:.9cqw; border-radius:.3cqw; background:currentColor}
+.pv-stage{position:relative; flex:1}
+.pv-s{position:absolute; inset:0 0 2cqw; display:flex; flex-direction:column; gap:2.4cqw; opacity:0}
+.pv-s.pv-c{opacity:1}
+.pv-h{margin-bottom:1cqw; font:800 4.6cqw/1.2 var(--head); color:var(--ink-strong)}
+.pv-tap{position:absolute; inset-inline-end:3cqw; top:50%; width:9cqw; aspect-ratio:1; margin-top:-4.5cqw; border-radius:50%; background:color-mix(in srgb, var(--accent) 45%, #fff 15%); opacity:0}
+/* 1: the files */
+.pv-row{display:flex; align-items:center; gap:1.8cqw; padding:2cqw 1.8cqw; border:.5cqw solid var(--line); border-radius:3.2cqw; background:var(--bg); color:var(--ink); font:700 2.8cqw var(--head)}
+.pv-row > i{flex:none; display:grid; place-items:center; width:6.4cqw; height:6.4cqw; border-radius:1.7cqw; color:#fff; font:800 2.1cqw var(--head); font-style:normal}
+.pv-row > i svg{width:4.6cqw}
+.pv-row span{flex:1; min-width:0; overflow:hidden; white-space:nowrap; text-overflow:ellipsis}
+.pv-row em{flex:none; width:3.2cqw; color:var(--green)}
+.pv-btn{position:relative; margin-top:auto; padding:3.2cqw 2cqw; border-radius:3.6cqw; background:var(--accent); color:var(--on-accent); box-shadow:0 1cqw 0 color-mix(in srgb, var(--accent) 66%, #000);
+  font:800 3cqw/1.2 var(--head); letter-spacing:.04em; text-transform:uppercase; text-align:center}
+.pv-btn .pv-tap{inset-inline-end:calc(50% - 4.5cqw); background:#ffffff66}
+/* 2: the course, a path of levels up to the exam */
+.pv-path{position:relative; flex:1}
+.pv-node{position:absolute; left:calc(50% - 5.5cqw + var(--x)); top:calc(1.4cqw + var(--i) * 12cqw); width:11cqw; height:11cqw; border-radius:50%; background:#7B6CF0; box-shadow:0 1.2cqw 0 #5A4BD1}
+.pv-node:nth-child(1), .pv-node:nth-child(5){--x:-7cqw}
+.pv-node:nth-child(2), .pv-node:nth-child(4){--x:4cqw}
+.pv-node:nth-child(3){--x:10cqw}
+/* like the course's own home: a chapter banner, the first level lit with a ring, the next ones waiting, the exam cup last */
+.pv-unit{margin-bottom:2.4cqw; padding:2.6cqw 3cqw 2.8cqw; border-radius:3.4cqw; background:var(--accent); color:var(--on-accent); box-shadow:0 1cqw 0 color-mix(in srgb, var(--accent) 66%, #000); font:800 4cqw/1.2 var(--head)}
+.pv-unit i{display:block; height:1.4cqw; margin-top:1.8cqw; border-radius:1cqw; background:#ffffff40}
+.pv-unit i::after{content:""; display:block; width:14%; height:100%; border-radius:inherit; background:#fff}
+.pv-node:first-child::before{content:""; position:absolute; inset:-1.7cqw; border-radius:50%; border:.8cqw solid color-mix(in srgb, var(--accent) 50%, transparent)}
+.pv-node:nth-child(n+2):not(.pv-cup){background:var(--accent-soft); box-shadow:0 1.2cqw 0 color-mix(in srgb, var(--accent) 30%, var(--line))}
+.pv-node:nth-child(n+2):not(.pv-cup) svg{stroke:var(--accent)}
+.pv-node:nth-child(4) svg path{fill:var(--accent)}
+.pv-node.pv-cup{background:#F5A524; box-shadow:0 1.2cqw 0 #D9890A}
+.pv-node .pv-tap{inset-inline-end:1cqw; background:#ffffff80}
+/* 3: the lesson */
+.pv-top{display:flex; align-items:center; gap:2.4cqw; margin-bottom:1.6cqw}
+.pv-x{position:relative; flex:none; width:3.4cqw; height:3.4cqw; color:var(--hare)}
+.pv-x::before, .pv-x::after{content:""; position:absolute; left:calc(50% - .3cqw); top:0; width:.6cqw; height:100%; border-radius:.3cqw; background:currentColor; rotate:45deg}
+.pv-x::after{rotate:-45deg}
+.pv-bar{flex:1; height:2.6cqw; border-radius:2cqw; background:var(--line); overflow:hidden}
+.pv-bar i{display:block; width:45%; height:100%; border-radius:inherit; background:var(--green)}
+.pv-q{margin-bottom:1cqw; font:800 4.4cqw/1.25 var(--head); color:var(--ink-strong)}
+.pv-opts{display:flex; flex-direction:column; gap:2.6cqw}
+.pv-opt{position:relative; display:flex; align-items:center; gap:2.4cqw; padding:2.6cqw 3cqw; border:.6cqw solid var(--line); border-radius:3.4cqw; background:var(--bg); box-shadow:0 1cqw 0 var(--line); color:var(--ink); font:700 3.6cqw var(--head)}
+.pv-opt span{flex:none; display:grid; place-items:center; box-sizing:border-box; width:6.4cqw; height:6.4cqw; border:.5cqw solid var(--line); border-radius:2cqw; color:var(--hare); font-size:3cqw}
+.pv-opt.pv-ok{background:var(--green-soft); border-color:var(--green); box-shadow:0 1cqw 0 var(--green); color:var(--green-ink)}
+.pv-opt.pv-ok span{border-color:var(--green); color:var(--green-ink)}
+.pv-penny{left:0; bottom:1%; width:22%; z-index:3; transform-origin:50% 92%}
+@media (prefers-reduced-motion:no-preference){
+  .pv-phone{animation:ld-pop .7s cubic-bezier(.2,1.4,.4,1) both}
+  .pv-s.pv-a{animation:pv-a 12s .4s infinite backwards}
+  .pv-s.pv-b{animation:pv-b 12s .4s infinite backwards}
+  .pv-s.pv-c{animation:pv-c 12s .4s infinite backwards}
+  .pv-row{animation:pv-in 12s calc(.7s + var(--i) * .45s) infinite backwards}
+  .pv-btn{animation:pv-press 12s .4s infinite backwards}
+  .pv-btn .pv-tap{animation:pv-tap 12s .4s infinite backwards}
+  .pv-node{animation:pv-in 12s calc(4.6s + var(--i) * .22s) infinite backwards}
+  .pv-node .pv-tap{animation:pv-tap 12s 4.1s infinite backwards}
+  .pv-opt .pv-tap{animation:pv-tap 12s 6.8s infinite backwards}
+  .pv-opt.pv-ok{animation:pv-ok 12s .4s infinite backwards}
+  .pv-opt.pv-ok span{animation:pv-okk 12s .4s infinite backwards}
+  .pv-bar i{animation:pv-bar 12s .4s infinite backwards}
+  .pv-penny{animation:ld-pop .8s cubic-bezier(.2,1.4,.4,1) .15s both, pv-hop 12s .4s infinite}
+}
+@keyframes pv-a{0%{opacity:0; transform:translateX(5cqw)} 3%, 28%{opacity:1; transform:none} 31%, 100%{opacity:0; transform:translateX(-5cqw)}}
+@keyframes pv-b{0%, 30%{opacity:0; transform:translateX(5cqw)} 33%, 58%{opacity:1; transform:none} 61%, 100%{opacity:0; transform:translateX(-5cqw)}}
+@keyframes pv-c{0%, 60%{opacity:0; transform:translateX(5cqw)} 63%, 96%{opacity:1; transform:none} 99%, 100%{opacity:0; transform:none}}
+@keyframes pv-in{0%{opacity:0; transform:translateY(2cqw) scale(.85)} 2.5%{opacity:1; transform:scale(1.04)} 4%, 90%{opacity:1; transform:none} 92%, 100%{opacity:0; transform:none}}
+@keyframes pv-tap{0%, 17%{opacity:0; transform:scale(1.7)} 19.5%{opacity:1; transform:scale(1)} 22%{opacity:1; transform:scale(.75)} 25%, 100%{opacity:0; transform:scale(1.5)}}
+@keyframes pv-press{0%, 21%{transform:none; box-shadow:0 1cqw 0 color-mix(in srgb, var(--accent) 66%, #000)} 22.5%{transform:translateY(1cqw); box-shadow:0 0 0 transparent} 25%, 100%{transform:none; box-shadow:0 1cqw 0 color-mix(in srgb, var(--accent) 66%, #000)}}
+@keyframes pv-ok{0%, 75%{background-color:var(--bg); border-color:var(--line); box-shadow:0 1cqw 0 var(--line); color:var(--ink); transform:none} 77%{transform:scale(1.04)} 79%, 100%{transform:none}}
+@keyframes pv-okk{0%, 75%{border-color:var(--line); color:var(--hare)}}
+@keyframes pv-bar{0%, 75%{width:15%} 79%, 100%{width:45%}}
+@keyframes pv-hop{0%, 76%{translate:0 0} 79%{translate:0 -4cqw} 82%{translate:0 0} 85%{translate:0 -2cqw} 88%, 100%{translate:0 0}}
 .ld-copy{display:flex; flex-direction:column; align-items:center; width:100%; max-width:520px}
 .ld-h{font:800 clamp(30px, 8.4vw, 52px)/1.06 var(--head); letter-spacing:-.02em; margin:0; max-width:16ch; text-wrap:balance}
 .ld-h em{font-style:normal; color:var(--accent)}
@@ -1246,6 +1340,9 @@ html:lang(ko){word-break:keep-all; overflow-wrap:break-word}
 .ld-go:hover{filter:brightness(1.06)}
 .ld-have{border:2px solid var(--edge); background:var(--surface); color:var(--accent-ink); box-shadow:0 4px 0 var(--edge)}
 .ld-have:hover{background:var(--fill)}
+/* on the first page the login is a line of text, not a second button (Marek, 2026-11-27): one job per screen. Still 44 px to tap. */
+.ld-have.ld-txt{display:flex; align-items:center; justify-content:center; min-height:44px; border:0; background:none; box-shadow:none; color:var(--accent-ink); font:800 15px var(--head); letter-spacing:.04em; text-decoration:none}
+.ld-have.ld-txt:hover{background:none; text-decoration:underline}
 .ld-b:active{transform:translateY(4px); box-shadow:0 0 0 transparent}
 .ld-b:focus-visible{outline:3px solid color-mix(in srgb, var(--accent) 60%, transparent); outline-offset:3px}
 .ld-go.busy{pointer-events:none}

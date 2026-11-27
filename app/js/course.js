@@ -1085,7 +1085,7 @@ function finish(st) {
   const stars = !st.answered ? 0 : pct === 100 ? 3 : pct >= 80 ? 2 : 1;
   sfx.done(); if (!st.gold || won) confetti(stars === 3 ? 160 : 70);
   // once, after the first lesson finished all the way: ask the tester what was confusing. Only after the celebration has played out (about 4 s), not on top of it.
-  if (l && !more && !st.gold && !store.get("fbAsked")) setTimeout(() => { if (location.hash.includes("/lesson/") && !store.get("fbAsked")) { store.set("fbAsked", 1); feedbackForm("lesson"); } }, 4500);
+  if (l && !more && !st.gold && !store.get("fbAsked") && !store.get("session")?.guest) setTimeout(() => { if (location.hash.includes("/lesson/") && !store.get("fbAsked")) { store.set("fbAsked", 1); feedbackForm("lesson"); } }, 4500);
   const what = t(st.test != null ? "testDone" : more ? "doneMore" : "doneTitle");
   const head = st.gold ? t(won ? "goldWon" : "goldMiss", { n: GOLD_AT }) : stars === 3 ? t("donePerfect") : stars === 2 ? t("doneGreat") : what;
   const sub = [st.gold || head === what ? "" : what, l || st.test != null || st.gold ? st.title : ""].filter(Boolean).join(" · "); // what was finished still gets said when the headline praises instead
@@ -1097,10 +1097,13 @@ function finish(st) {
   // the next lesson, instead of back to a map with nothing left to open (Marek, 2026-11-17).
   const sell = l && !more && !st.gold && !ACCESS.paid && lockedCount() > 0 && openLessons().every(x => lessonPct(x) >= 1);
   if (sell) TAPPED = allLessons().find(x => x.locked)?.id ?? null;
+  // A new visitor plays the first lesson before making an account (Marek, 2026-11-27): after the reward, Continue asks for
+  // the name and password; the course's home comes after that.
+  const guest = !!store.get("session")?.guest && !!store.get("draft")?.orderToken;
   view().innerHTML = `<div class="done-screen cel"><div class="cel-art">${tutorArt(curTutor(), "jump", "happy")}</div><div class="title">${head}</div>${sub ? `<p class="sub">${esc(sub)}</p>` : ""}
     ${stars ? `<div class="cel-stars" role="img" aria-label="${stars} / 3">${[1, 2, 3].map(i => `<i>${STAR}${i <= stars ? `<b>${STAR}</b>` : ""}</i>`).join("")}</div>` : ""}
     <div class="statboxes">${boxes.map(([h, v, suf, c, d]) => `<div class="sbox ${c}"><div class="h">${esc(h)}</div><div class="v"><span${suf == null ? "" : ` data-to="${v}" data-suf="${suf}"`}>${esc(v + (suf || ""))}</span>${d ? `<small class="gain${d < 0 ? " dn" : ""}">${d > 0 ? "+" : "−"}${Math.abs(d)}</small>` : ""}</div></div>`).join("")}</div></div>
-    ${dock(`<a class="btn block big" href="${sell ? "#/unlock" : st.back}" id="endNext">${t("cont")}</a>`)}`;
+    ${dock(`<a class="btn block big" href="${guest ? "#/new/account" : sell ? "#/unlock" : st.back}" id="endNext">${t("cont")}</a>`)}`;
   countStats(view());
 }
 
