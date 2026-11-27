@@ -1321,11 +1321,11 @@ body.landing .app{max-width:1040px}
 .pv-node:nth-child(1), .pv-node:nth-child(5){--x:-7cqw}
 .pv-node:nth-child(2), .pv-node:nth-child(4){--x:4cqw}
 .pv-node:nth-child(3){--x:10cqw}
-/* like the course's own home: a chapter banner, the first level lit with a ring, the next ones waiting, the exam cup last */
+/* like the course's own home: a chapter banner, the first level lit, the next ones waiting, the exam cup last
+   (no ring round the first level: Marek 2026-11-27 "remove this weird outline") */
 .pv-unit{margin-bottom:2.4cqw; padding:2.6cqw 3cqw 2.8cqw; border-radius:3.4cqw; background:var(--accent); color:var(--on-accent); box-shadow:0 1cqw 0 color-mix(in srgb, var(--accent) 66%, #000); font:800 4cqw/1.2 var(--head)}
 .pv-unit i{display:block; height:1.4cqw; margin-top:1.8cqw; border-radius:1cqw; background:#ffffff40}
 .pv-unit i::after{content:""; display:block; width:14%; height:100%; border-radius:inherit; background:#fff}
-.pv-node:first-child::before{content:""; position:absolute; inset:-1.7cqw; border-radius:50%; border:.8cqw solid color-mix(in srgb, var(--accent) 50%, transparent)}
 .pv-node:nth-child(n+2):not(.pv-cup){background:var(--accent-soft); box-shadow:0 1.2cqw 0 color-mix(in srgb, var(--accent) 30%, var(--line))}
 .pv-node:nth-child(n+2):not(.pv-cup) svg{stroke:var(--accent)}
 .pv-node:nth-child(4) svg path{fill:var(--accent)}
