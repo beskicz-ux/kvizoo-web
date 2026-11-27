@@ -1203,8 +1203,9 @@ body.landing .app{max-width:1040px}
 .ld-top{display:flex; align-items:center; gap:10px; min-height:56px}
 .ld-logo{display:flex; align-items:center; gap:8px; font:800 24px var(--head); letter-spacing:-.01em; color:var(--accent)}
 .ld-gap{flex:1}
-.ld-hero{flex:1; display:grid; grid-template-columns:minmax(0, 1fr); align-items:center; justify-items:center; gap:6px; padding:4px 0 28px; text-align:center}
-.ld-art{position:relative; width:min(100%, 330px); aspect-ratio:1; container-type:inline-size; margin-bottom:22px}
+.ld-hero{flex:1; display:grid; grid-template-columns:minmax(0, 1fr); align-items:center; align-content:center; justify-items:center; gap:6px; padding:4px 0 28px; text-align:center}
+/* 2026-11-27: one centre column like the big study apps: a compact picture, headline, one grey line, the button, the login link */
+.ld-art{position:relative; width:min(100%, 290px); aspect-ratio:1; container-type:inline-size; margin-bottom:18px}
 /* The picture: the student's files on the left, Penny in the middle, the course as a path of levels round her up to the
    exam trophy. Positions come inline in percent of the square box (moves in cqw; the box is square). The timing is one
    keyframe set per piece, written by app.js next to the picture. Layers so moves don't fight: .fl pops in and bobs,
@@ -1293,7 +1294,7 @@ body.landing .app{max-width:1040px}
 .pv-opt span{flex:none; display:grid; place-items:center; box-sizing:border-box; width:6.4cqw; height:6.4cqw; border:.5cqw solid var(--line); border-radius:2cqw; color:var(--hare); font-size:3cqw}
 .pv-opt.pv-ok{background:var(--green-soft); border-color:var(--green); box-shadow:0 1cqw 0 var(--green); color:var(--green-ink)}
 .pv-opt.pv-ok span{border-color:var(--green); color:var(--green-ink)}
-.pv-penny{left:0; bottom:1%; width:22%; z-index:3; transform-origin:50% 92%}
+.pv-penny{left:7%; bottom:0; width:25%; z-index:3; transform-origin:50% 92%}
 @media (prefers-reduced-motion:no-preference){
   .pv-phone{animation:ld-pop .7s cubic-bezier(.2,1.4,.4,1) both}
   .pv-s.pv-a{animation:pv-a 12s .4s infinite backwards}
@@ -1322,7 +1323,7 @@ body.landing .app{max-width:1040px}
 @keyframes pv-hop{0%, 76%{translate:0 0} 79%{translate:0 -4cqw} 82%{translate:0 0} 85%{translate:0 -2cqw} 88%, 100%{translate:0 0}}
 .ld-copy{display:flex; flex-direction:column; align-items:center; width:100%; max-width:520px}
 .ld-h{font:800 clamp(30px, 8.4vw, 52px)/1.06 var(--head); letter-spacing:-.02em; margin:0; max-width:16ch; text-wrap:balance}
-.ld-h em{font-style:normal; color:var(--accent)}
+.ld-h em{display:block; font-style:normal; color:var(--accent)}
 /* Chinese, Japanese and Korean: a character is about 2ch wide, so the 16ch cap split the landing headline mid-word
    ("スライドか / ら、"). Each half of the headline keeps to its own line when it fits; the Japanese one breaks only at
    the zero-width spaces between its phrases (ja.js landTitle1/2), and never runs past the column (.ld clips it).
@@ -1332,7 +1333,7 @@ body.landing .app{max-width:1040px}
 :lang(ja) .ld-h{word-break:keep-all}
 html:lang(ko){word-break:keep-all; overflow-wrap:break-word}
 .ld-sub{color:var(--muted); font-size:17px; line-height:1.45; margin:12px 0 0; max-width:36ch; text-wrap:balance}
-.ld-cta{display:flex; flex-direction:column; gap:12px; width:min(100%, 360px); margin-top:24px}
+.ld-cta{display:flex; flex-direction:column; gap:8px; width:min(100%, 360px); margin-top:22px}
 .ld-b{display:flex; align-items:center; justify-content:center; gap:10px; min-height:54px; padding:0 22px; border-radius:16px; box-sizing:border-box; cursor:pointer;
   font:800 16px var(--head); letter-spacing:.05em; text-transform:uppercase; text-decoration:none; transition:transform .1s var(--ease), box-shadow .1s var(--ease), filter .15s}
 .ld-b svg{width:22px; height:22px; flex:none}
@@ -1349,9 +1350,8 @@ html:lang(ko){word-break:keep-all; overflow-wrap:break-word}
 .ld-go.busy svg{animation:ld-spin .8s linear infinite}
 @keyframes ld-spin{to{transform:rotate(360deg)}}
 .ld-resume{align-self:center}
-.ld-types{color:var(--muted); font-size:14px; margin:14px 0 0; max-width:36ch}
+.ld-types{color:var(--muted); font-size:15px; line-height:1.4; margin:12px 0 0; max-width:36ch; text-wrap:balance}
 .ld-drag{display:none}
-@media (hover:hover) and (pointer:fine){ .ld-drag{display:inline} }
 .ld .ob-err{max-width:360px}
 /* the three steps: a quiet strip under the hero */
 .ld-steps{display:flex; justify-content:center; gap:20px 48px; flex-wrap:wrap; list-style:none; margin:0; padding:22px 0 18px; border-top:2px solid var(--line)}

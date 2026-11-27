@@ -241,14 +241,14 @@ function viewWelcome() {
       <div class="ld-art" id="ldArt" aria-hidden="true">${preview()}</div>
       <div class="ld-copy">
         <h1 class="ld-h">${t("landTitle1")} <em>${t("landTitle2")}</em></h1>
+        ${locked ? "" : `<p class="ld-types" id="dropHint"><span class="ld-drag">${t("landDrag")} · </span>${t("landTypes")}</p>`}
         <div class="ld-cta">
           ${locked ? `<a class="ld-b ld-go" href="#/new/${d.step || "account"}">${t("welcomeResume")}</a>`
             : `<button class="ld-b ld-go" id="drop" type="button" aria-describedby="dropHint"><span id="dropTxt">${t("landMake")}</span>${GO}</button>`}
           <a class="ld-have ld-txt" href="#/login">${t("welcomeHave")}</a>
           ${d && !locked ? `<a class="btn-t sm ld-resume" href="#/new/${d.step || "files"}">${t("welcomeResume")}</a>` : ""}
         </div>
-        ${locked ? "" : `<p class="ld-types" id="dropHint"><span class="ld-drag">${t("landDrag")} · </span>${t("landTypes")}</p>
-        <input type="file" id="pick" accept="${ACCEPT}" multiple hidden>`}
+        ${locked ? "" : `<input type="file" id="pick" accept="${ACCEPT}" multiple hidden>`}
         <p class="ob-err c" id="err" hidden role="alert"></p>
       </div>
     </section>
