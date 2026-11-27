@@ -181,7 +181,7 @@ function quizPlan(a) {
 // One bar for the whole start (Marek, same day, later): the questions, the contact, then the setup steps in app.js (files,
 // exam date, tutor) all share it. It starts 15 % full and ends at 95 %; each step adds less than the one before.
 const BAR = { 1: 15, 2: 34, 3: 50, 4: 64, 5: 75, [N + .5]: 84, [N + 1]: 90 };
-const SETUP_BAR = { files: 90, date: 94, tutor: 95 };
+const SETUP_BAR = { files: 90, date: 92, tutor: 94, source: 95 };
 let lastBar = BAR[1]; // the bar's width on the screen before, so it grows from there instead of jumping
 function head(step, back) {
   const now = BAR[step] ?? Math.round((step - 1) / N * 100);

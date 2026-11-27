@@ -1238,7 +1238,7 @@ body.landing .app{max-width:1040px}
    (0-3.7 s), the course path grows and its first level is tapped (3.8-7.3 s), the lesson's question is answered right
    (7.4-11.6 s; tap at 9.2 s, green at 9.5 s). Rows and levels share one keyframe each and start later by --i.
    Without motion: the answered question. */
-.pv-phone{left:24%; top:0; width:52%; height:100%; z-index:2; box-sizing:border-box; padding:1.5cqw; border-radius:9.5cqw; background:#08080d;
+.pv-phone{left:36%; top:0; width:52%; height:100%; z-index:2; box-sizing:border-box; padding:1.5cqw; border-radius:9.5cqw; background:#08080d;
   box-shadow:0 0 0 .45cqw #4a4d63, 0 0 0 .7cqw #1b1c27}
 .pv-phone::before, .pv-phone::after{content:""; position:absolute; width:.8cqw; border-radius:.4cqw; background:#3a3d50}
 .pv-phone::before{left:-1.4cqw; top:22%; height:7%; box-shadow:0 9cqw 0 #3a3d50}
@@ -1294,7 +1294,8 @@ body.landing .app{max-width:1040px}
 .pv-opt span{flex:none; display:grid; place-items:center; box-sizing:border-box; width:6.4cqw; height:6.4cqw; border:.5cqw solid var(--line); border-radius:2cqw; color:var(--hare); font-size:3cqw}
 .pv-opt.pv-ok{background:var(--green-soft); border-color:var(--green); box-shadow:0 1cqw 0 var(--green); color:var(--green-ink)}
 .pv-opt.pv-ok span{border-color:var(--green); color:var(--green-ink)}
-.pv-penny{left:7%; bottom:0; width:25%; z-index:3; transform-origin:50% 92%}
+/* 2026-11-27: Penny is a third of the picture, beside the phone (the top study apps on ScreensDesign open on their mascot) */
+.pv-penny{left:4%; bottom:0; width:35%; z-index:3; transform-origin:50% 92%}
 @media (prefers-reduced-motion:no-preference){
   .pv-phone{animation:ld-pop .7s cubic-bezier(.2,1.4,.4,1) both}
   .pv-s.pv-a{animation:pv-a 12s .4s infinite backwards}

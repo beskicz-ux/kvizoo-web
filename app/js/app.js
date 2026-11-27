@@ -741,8 +741,9 @@ function viewTutor() {
       const r = await api("queue_free", { orderToken: cur.orderToken });
       if (r.session && r.guest) { // a new visitor (2026-11-27): the course builds and the first lesson is played before the account
         store.set("session", { token: r.session, slug: r.slug, guest: true }); resetCourse();
-        const y = draft(); y.slug = r.slug; y.step = "account"; saveDraft(y); // the order token stays: signup needs it
-        return nav("#/wait");
+        // One more tap while it builds: where they heard about us (7 of 12 study apps on ScreensDesign ask it in onboarding).
+        const y = draft(); y.slug = r.slug; y.step = "source"; saveDraft(y); // the order token stays: signup needs it
+        return nav("#/new/source");
       }
       if (r.session) { // another subject of a signed-in account: no account step
         store.set("session", { token: r.session, slug: r.slug }); store.del("draft"); resetCourse();
@@ -789,6 +790,7 @@ function viewSource() {
   next.onclick = async () => {
     if (!pick) return;
     const x = draft(); x.source = pick;
+    if (session()?.guest) { x.step = "account"; saveDraft(x); return nav("#/wait"); } // a new visitor: the course and the first lesson come before the account
     // the student allowed notifications earlier (another subject, or on this site before): no need to ask, just subscribe
     if (pushState() === "granted" && !x.push) x.push = await subscribe(tutorName(x.tutor)).catch(() => null);
     x.step = showNotify(x) ? "notify" : "account"; saveDraft(x);
