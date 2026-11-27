@@ -183,6 +183,45 @@
   .kz-facts b{color:var(--text); font-weight:700}
   .kz-callout{display:flex; gap:12px; align-items:flex-start; margin-top:14px; padding:12px 16px; border-radius:14px; border:1px solid color-mix(in srgb, var(--gold) 45%, var(--line)); background:var(--gold-soft); font-size:14px; line-height:1.5; color:var(--text)}
   .kz-callout b{font-weight:800}
+
+  /* the quiz start's funnel (2026-11-27): one row per step. The dark bar is who is still there, the pale part who was there a
+     step before, both against the first step. The count and "of the step before" sit above the bar, so a phone needs no columns. */
+  .kz-fn{list-style:none; margin:0; padding:0; display:grid; gap:13px}
+  .kz-fn .kf-t{display:flex; align-items:baseline; justify-content:space-between; gap:12px; font-size:14px; color:var(--text)}
+  .kz-fn .kf-l{font-weight:700}
+  .kz-fn .kf-v{white-space:nowrap; font-size:13px; font-variant-numeric:tabular-nums}
+  .kz-fn .kf-v b{font:800 18px var(--head); color:var(--text)}
+  .kz-fn .kf-b{position:relative; height:14px; margin-top:5px; border-radius:99px; background:var(--fill); overflow:hidden}
+  .kz-fn .kf-b i{position:absolute; left:0; top:0; bottom:0; min-width:3px; background:var(--bar); border-radius:99px}
+  .kz-fn .kf-b i.p{min-width:0; background:color-mix(in srgb, var(--accent) 26%, var(--fill))}
+  .kz-fn .kf-b i.z{min-width:0}
+  .kz-fn .kf-d{margin-top:5px; font-size:12.5px; line-height:1.4; color:var(--muted)}
+  .kz-fn li.leak .kf-d{font-weight:700; color:color-mix(in srgb, var(--wrong) 75%, var(--text))}
+  .kz-stack{display:grid; gap:14px; align-content:start; min-width:0}
+  .kz-days th,.kz-days td{padding:9px 8px} .kz-days th:first-child,.kz-days td:first-child{padding-left:20px} .kz-days th:last-child,.kz-days td:last-child{padding-right:20px}
+  .kz-days th{white-space:normal; line-height:1.25; vertical-align:bottom}
+  .kz-days td:first-child{white-space:nowrap}
+  .kz-leads{list-style:none; margin:0; padding:0}
+  .kz-leads li{padding:11px 20px; border-top:1px solid var(--line); font-size:14px}
+  .kz-leads a{display:inline-block; min-height:24px; font-weight:800; color:var(--text); overflow-wrap:anywhere; text-decoration:underline; text-decoration-color:var(--edge); text-underline-offset:3px}
+  .kz-leads .sub{display:block; margin-top:3px; font-size:12.5px; line-height:1.45; color:var(--muted)}
+  /* today is not over yet: its bar is paler */
+  .kz-col.part i{opacity:.45}
+  /* the long lists: folded on a phone until asked for */
+  .kz-fold{margin-top:22px}
+  .kz-fold > summary{list-style:none; display:flex; align-items:center; justify-content:space-between; gap:12px; min-height:52px; padding:8px 18px; border:1px solid var(--line); border-radius:var(--r); background:var(--surface); font:800 16px var(--head); color:var(--text); cursor:pointer}
+  .kz-fold > summary::-webkit-details-marker{display:none}
+  .kz-fold > summary small{display:block; margin-top:2px; font:600 13px var(--font); color:var(--muted)}
+  .kz-fold > summary::after{content:"Show"; flex:none; font:800 13px var(--head); color:var(--accent-ink)}
+  .kz-fold[open] > summary::after{content:"Hide"}
+  /* a phone: tables drop the columns marked for it, and buttons are big enough for a thumb */
+  @media (max-width:560px){ .kz .kz-hm{display:none} .kz-card{padding:16px} .kz-card.flush{padding:0}
+    .kz-card.flush h3{padding:14px 16px 0} .kz-card.flush .kz-foot{padding:0 16px 14px} .kz-kpi{padding:14px 14px 10px} .kz-kpi .v{font-size:30px} .kz-kpis,.kz-grid,.kz-stack{gap:10px} .kz-grid{margin-top:10px}
+    .kz-leads li{padding:11px 16px}
+    .kz th{font-size:11px; letter-spacing:0} .kz th,.kz td{padding-left:7px; padding-right:7px} .kz th:first-child,.kz td:first-child{padding-left:16px} .kz th:last-child,.kz td:last-child,.kz th:has(+ .kz-hm:last-child),.kz td:has(+ .kz-hm:last-child){padding-right:16px}
+    .kz .kz-days th,.kz .kz-days td{padding-left:3px; padding-right:3px; font-size:13px} .kz .kz-days th{font-size:11px; text-transform:none}
+    .kz .kz-days th:first-child,.kz .kz-days td:first-child{padding-left:14px} .kz .kz-days th:last-child,.kz .kz-days td:last-child{padding-right:14px} }
+  @media (pointer:coarse){ .kz-tabs button,.kz-seg button,.kz-btn{min-height:44px} .kz-chip{min-height:40px} .kz-more summary{padding-top:14px; padding-bottom:14px} }
 </style>
 </head>
 <body>

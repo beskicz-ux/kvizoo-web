@@ -2,6 +2,10 @@
 // Stats tab (2026-11-18, redesigned 2026-11-19): four headline numbers against the period before (each one picks what the big chart
 //   shows), what's true right now, where accounts are now, visit to sale, sources, pages, devices, Stripe payments.
 //   Visits come from web/hit.js (no cookies); sales are paid Stripe invoices, so test clicks and refunds are not in them.
+//   2026-11-27, phone first (Marek reads it on his phone): the headline numbers follow the way in (visitors, contacts, accounts,
+//   revenue), then the quiz start's funnel per bio link (kvizoo.com/klara) with its days and the contacts it brought, then the
+//   chart and sources. The long lists (pages, devices, slides, payments) fold away on a phone. Rules it follows: one bar per
+//   step with the count and "of the step before", no percentage and no "biggest drop" under 30 people, today's bar paler.
 // Users tab (2026-11-19): one row per account: name, phone, email, the step it reached (generating → generated → level 1 started →
 //   level 1 done → more levels), levels done, slides, API cost. pc-api admin users (supabase/functions/pc-api/users.js).
 // Orders & courses tab: orders, courses, students, voice minutes, code reset.
@@ -13,7 +17,9 @@ const pref = (k, ok, dflt) => { try { const v = localStorage.getItem("pc.admin."
 const keep = (k, v) => { try { localStorage.setItem("pc.admin." + k, String(v)); } catch { /* fine */ } };
 let tab = pref("tab", v => ["stats", "users", "orders"].includes(v), "stats");
 let days = +pref("days", v => [1, 7, 30, 90].includes(+v), 30);
-let metric = pref("metric", v => ["visitors", "signups", "uploads", "sales"].includes(v), "visitors");
+let metric = pref("metric", v => ["visitors", "leads", "signups", "sales"].includes(v), "visitors");
+let qLink = pref("qlink", v => /^[a-z0-9._-]{1,40}$/.test(v), "");
+let more = pref("more", v => v === "1" || v === "0", "");
 let stepFilter = "all", query = "", sort = { k: "created_at", dir: -1 }, open = new Set();
 const call = (name, body = {}) => api("admin_" + name, { adminKey: key, ...body });
 const when = v => v ? new Date(v).toLocaleString("cs-CZ", { dateStyle: "short", timeStyle: "short" }) : "–";
@@ -41,6 +47,7 @@ function login(err = "") {
     <input type="text" name="username" autocomplete="username" value="kvizoo-admin" hidden>
     <input class="ob-in" id="k" name="password" type="password" inputmode="numeric" autocomplete="current-password" placeholder="Admin key" aria-label="Admin key">
     <button class="btn-p">Open</button><p class="kz-err" role="alert">${esc(err)}</p></form></div></div>`;
+  document.getElementById("k").focus(); // the page opens ready to type: the key, then Enter (the form's own submit)
   document.getElementById("f").onsubmit = async e => {
     e.preventDefault();
     key = document.getElementById("k").value.trim();
@@ -105,7 +112,7 @@ function barChart(rows, { h = 220 } = {}) {
       <div class="kz-y" aria-hidden="true">${grid.map(t => `<span style="bottom:${t / top * 100}%">${num(t)}</span>`).join("")}</div>
       <div class="kz-plot" data-chart="${id}" role="img" aria-label="${rows.map(r => `${r.label} ${r.off ? "not counted" : r.v}`).join(", ")}">
         ${grid.slice(1).map(t => `<div class="kz-gl" style="bottom:${t / top * 100}%"></div>`).join("")}
-        <div class="kz-cols"${n > 45 ? ' style="gap:1px"' : ""}>${rows.map(r => `<div class="kz-col${r.off ? " off" : ""}"><i style="height:${r.off ? 0 : r.v / top * 100}%"${r.v && !r.off ? "" : ' class="z"'}></i></div>`).join("")}</div>
+        <div class="kz-cols"${n > 45 ? ' style="gap:1px"' : ""}>${rows.map(r => `<div class="kz-col${r.off ? " off" : ""}${r.part ? " part" : ""}"><i style="height:${r.off ? 0 : r.v / top * 100}%"${r.v && !r.off ? "" : ' class="z"'}></i></div>`).join("")}</div>
         <div class="kz-tip" hidden></div>
       </div>
       <div class="kz-x" aria-hidden="true">${xs}</div>
@@ -145,10 +152,13 @@ const hbars = (rows, { pctOf = null } = {}) => {
     <div class="hb"><i style="width:${v / max * 100}%"${v ? "" : ' class="z"'}></i></div><div class="hn">${num(v)}${pctOf ? ` <span class="kz-muted">${Math.round(v / pctOf * 100)}%</span>` : ""}</div>`).join("")}</div>`;
 };
 // A table of counts with a thin share bar in the first number column; past `cap` rows the rest fold away.
-function countTable(head, rows, { share = 1, cap = 0 } = {}) {
+// `narrow` lists the columns a phone leaves out (with the share bar), so the table fits without sideways scrolling.
+function countTable(head, rows, { share = 1, cap = 0, narrow = null } = {}) {
   const max = Math.max(1, ...rows.map(r => +r[share] || 0));
-  const tr = r => `<tr>${r.map((c, i) => `<td${i ? ' class="kz-n"' : ""}>${i ? num(c) : c}</td>`).join("")}${share ? `<td class="kz-sh">${+r[share] ? `<i style="width:${r[share] / max * 100}%"></i>` : ""}</td>` : ""}</tr>`;
-  const headRow = `<tr>${head.map((h, i) => `<th${i ? ' class="kz-n"' : ""}>${h}</th>`).join("")}${share ? "<th></th>" : ""}</tr>`;
+  const cls = i => [i ? "kz-n" : "", narrow?.includes(i) ? "kz-hm" : ""].filter(Boolean).join(" ");
+  const shareCls = `kz-sh${narrow ? " kz-hm" : ""}`;
+  const tr = r => `<tr>${r.map((c, i) => `<td${cls(i) ? ` class="${cls(i)}"` : ""}>${i ? num(c) : c}</td>`).join("")}${share ? `<td class="${shareCls}">${+r[share] ? `<i style="width:${r[share] / max * 100}%"></i>` : ""}</td>` : ""}</tr>`;
+  const headRow = `<tr>${head.map((h, i) => `<th${cls(i) ? ` class="${cls(i)}"` : ""}>${h}</th>`).join("")}${share ? `<th${narrow ? ' class="kz-hm"' : ""}></th>` : ""}</tr>`;
   if (!rows.length) return `<div class="kz-scroll"><table>${headRow}<tr><td colspan="${head.length + 1}" class="kz-muted">Nothing yet in this period.</td></tr></table></div>`;
   const shown = cap && rows.length > cap + 2 ? rows.slice(0, cap) : rows, rest = rows.slice(shown.length);
   return `<div class="kz-scroll"><table>${headRow}${shown.map(tr).join("")}</table></div>
@@ -167,6 +177,11 @@ const PAGE_NAMES = {
   "/app/s/progress": "Progress", "/app/s/settings": "Course settings", "/app/unlock": "Plans and prices", "/app/paid": "After paying", "/app/wait": "Course being made",
   "/app/login": "Sign in", "/app/t": "Tester link", "/priprava-na-zkousky/": "Exam prep: all schools",
   "/app/upload-tap": "Tapped \"Upload slides\"", "/app/upload-cancel": "Closed the picker with no file",
+  "/klara/": "Klára bio link (kvizoo.com/klara)", "/app/q": "Quiz start", "/app/q/1": "Quiz: question 1 (exam date)", "/app/q/2": "Quiz: question 2 (how much)",
+  "/app/q/3": "Quiz: question 3 (how they study)", "/app/q/4": "Quiz: question 4 (time a day)", "/app/q/5": "Quiz: question 5 (what annoys them)",
+  "/app/q/contact": "Quiz: contact step", "/app/q/contact-email": "Quiz: left an email", "/app/q/contact-phone": "Quiz: left a phone number",
+  "/app/q/plan": "Quiz: the plan", "/app/q/upload-tap": "Quiz: tapped \"Upload slides\"", "/app/q/upload-cancel": "Quiz: closed the picker with no file",
+  "/app/q/mail-tap": "Quiz: tapped \"send me the link\"", "/app/q/mail-sent": "Quiz: plan link emailed",
 };
 const pageLabel = p => `${esc(PAGE_NAMES[p] || (p.startsWith("/priprava-na-zkousky/") ? "Exam prep: " + p.split("/")[2].toUpperCase() : p))}<span class="sub">${esc(p)}</span>`;
 const KIND = { new: "new subscription", renewal: "renewal", change: "plan change", other: "other" };
@@ -175,8 +190,55 @@ const vsText = () => days === 1 ? "vs yesterday by this time" : `vs the ${days} 
 function delta(cur, prev) {
   if (prev == null || cur == null) return `<span class="kz-d na" title="Not counted in the period before">no earlier data</span>`;
   if (cur === prev) return `<span class="kz-d same" title="${vsText()}">same</span>`;
-  const up = cur > prev, d = Math.abs(cur - prev), pct = prev ? ` · ${Math.round(d / prev * 100)}%` : "";
+  // No percentage on a small base: from 2 to 5 is "+3", not "150%".
+  const up = cur > prev, d = Math.abs(cur - prev), pct = prev >= 10 ? ` · ${Math.round(d / prev * 100)}%` : "";
   return `<span class="kz-d ${up ? "up" : "down"}" title="${vsText()}: ${num(prev)}">${up ? "▲" : "▼"} ${num(d)}${pct}</span>`;
+}
+
+// ---------- the quiz start: one funnel per bio link (kvizoo.com/klara, or any ?c=<name>) ----------
+// pc_stats (migration 020) follows the same visitors through one day and says how many reached each step; QSTEPS picks
+// the steps worth a row (the five questions are one row, with where people stopped written under it).
+const QSTEPS = [[0, "Opened the link"], [1, "Saw question 1"], [6, "Answered all 5"], [7, "Left a contact"], [8, "Saw the plan"], [9, "Tapped Upload slides"], [10, "Chose slides"], [11, "Made an account"]];
+const ENOUGH = 30; // under this many people a percentage says little: one person moves it by 3 points or more
+const linkName = l => l === "-" ? "no link" : l;
+const ANSWER = {
+  when: { week: "exam within a week", weeks: "exam in 2 to 3 weeks", month: "exam in a month or more", idk: "exam date unknown" },
+  size: { s: "about 80 slides", m: "about 200 slides", l: "about 400 slides", idk: "doesn't know how much" },
+  how: { reread: "rereads", notes: "writes notes", quiz: "tests themself", none: "hasn't started" },
+  time: { 15: "15 min a day", 30: "30 min a day", 60: "an hour a day", var: "time varies" },
+  pain: { forget: "forgets in a week", late: "leaves it to the last night", start: "doesn't know where to start", much: "too much of it" },
+};
+const answerWords = a => Object.keys(ANSWER).map(k => ANSWER[k][a?.[k]]).filter(Boolean).join(" · ");
+function quizFunnel(q) {
+  const st = q.steps || [], first = st[0] || 0, small = first < ENOUGH;
+  const rows = QSTEPS.map(([k, label], i) => ({ label, n: st[k] || 0, prev: i ? st[QSTEPS[i - 1][0]] || 0 : 0 }));
+  let leak = 0; // the step that loses the most people; not named on a small sample
+  if (!small) rows.forEach((r, i) => { if (i && r.prev - r.n > (leak ? rows[leak].prev - rows[leak].n : 0)) leak = i; });
+  const stopped = [1, 2, 3, 4, 5].map(k => [k, (st[k] || 0) - (st[k + 1] || 0)]).filter(([, n]) => n > 0).map(([k, n]) => `Q${k} ${num(n)}`).join(" · ");
+  return `<ol class="kz-fn">${rows.map((r, i) => {
+    const pct = i && r.prev >= ENOUGH ? ` · ${Math.round(r.n / r.prev * 100)}%` : "";
+    const under = [i === leak && leak ? `Biggest drop: ${num(r.prev - r.n)} left here` : "", i === 2 && stopped ? `Stopped at: ${stopped}` : ""].filter(Boolean).join(". ");
+    return `<li${i === leak && leak ? ' class="leak"' : ""}><div class="kf-t"><span class="kf-l">${r.label}</span><span class="kf-v"><b>${num(r.n)}</b>${i ? `<span class="kz-muted"> of ${num(r.prev)}${pct}</span>` : ""}</span></div>
+      <div class="kf-b"><i class="p" style="width:${i && first ? r.prev / first * 100 : 0}%"></i><i style="width:${first ? r.n / first * 100 : 0}%"${r.n ? "" : ' class="z"'}></i></div>${under ? `<div class="kf-d">${under}</div>` : ""}</li>`;
+  }).join("")}</ol>`;
+}
+// The link's days, newest first, from its first day with anything in it.
+function quizDays(q, today) {
+  const all = q.daily || [], from = all.findIndex(d => d.opened || d.leads);
+  const days = (from < 0 ? [] : all.slice(from)).reverse();
+  const z = v => v ? num(v) : `<span class="kz-muted">·</span>`;
+  const tr = d => `<tr><td>${dayLabel(d.day)}${d.day === today ? `<span class="sub">so far</span>` : ""}</td><td class="kz-n"><b>${z(d.opened)}</b></td><td class="kz-n">${z(d.answered)}</td><td class="kz-n">${z(d.leads)}</td><td class="kz-n">${z(d.tapped)}</td><td class="kz-n">${z(d.done)}</td></tr>`;
+  const head = `<tr><th>Day</th><th class="kz-n">Opened</th><th class="kz-n">Quiz done</th><th class="kz-n">Contact</th><th class="kz-n">Upload tap</th><th class="kz-n">Account</th></tr>`;
+  if (!days.length) return `<div class="kz-scroll"><table class="kz-days">${head}<tr><td colspan="6" class="kz-muted">Nobody opened this link in the period.</td></tr></table></div>`;
+  const shown = days.length > 9 ? days.slice(0, 7) : days, rest = days.slice(shown.length);
+  return `<div class="kz-scroll"><table class="kz-days">${head}${shown.map(tr).join("")}</table></div>
+    ${rest.length ? `<details class="kz-more"><summary>Show ${rest.length} more days</summary><div class="kz-scroll"><table class="kz-days">${rest.map(tr).join("")}</table></div></details>` : ""}`;
+}
+// A contact is typed by a visitor: shown as text, and the link only ever gets an email address or digits.
+function leadRow(l) {
+  const c = String(l.contact || ""), href = l.kind === "phone" ? "tel:" + c.replace(/[^\d+]/g, "") : "mailto:" + encodeURIComponent(c);
+  return `<li><a href="${esc(href)}">${esc(c)}</a><span class="sub">${esc(linkName(l.link || "-"))} · ${agoCell(l.at)}${l.mailed ? " · plan link emailed" : ""}${l.lang ? ` · ${esc(l.lang)}` : ""}</span>
+    ${answerWords(l.answers) ? `<span class="sub">${esc(answerWords(l.answers))}</span>` : ""}</li>`;
 }
 
 function paintStats(el) {
@@ -201,17 +263,35 @@ function paintStats(el) {
   const devWords = { mobile: "Phone", tablet: "Tablet", desktop: "Computer", "?": "Unknown" };
   const noPay = !!pay.error;
   const hasCountry = Object.keys(s.countries || {}).some(k => k !== "?");
+  const hasQuiz = Array.isArray(s.quiz); // pc_stats from migration 020; before it the quiz cards say what is missing
 
   const KPI = {
     visitors: { label: "Visitors", v: num(T.visitors), d: delta(T.visitors, prevVisits ? P.visitors : null), sub: `${num(T.views)} page views · ${num(T.visits)} from outside`, of: d => off(d) ? 0 : d.visitors, title: "Visitors per day", foot: "A visitor is one browser on one address on one day; the same person tomorrow counts again." },
-    signups: { label: "New accounts", v: num(T.signups), d: delta(T.signups, P.signups), sub: fullVisits && T.visitors ? `${Math.round(T.signups / T.visitors * 100)}% of visitors` : `${num(now.accounts)} accounts in all`, of: d => d.signups, title: "New accounts per day" },
-    uploads: { label: "Uploads", v: num(T.uploaded), d: delta(T.uploaded, P.uploaded), sub: `${num(T.slides)} slides · ${num(T.started)} setups started`, of: d => d.uploads, title: "Uploads per day" },
+    leads: hasQuiz ? { label: "Contacts", v: num(T.leads), d: delta(T.leads, P.leads), sub: "emails and phones left in the quiz", of: d => d.leads || 0, title: "Contacts per day", foot: "A contact is saved once: the same email or number a second time doesn't count again." }
+      : { label: "Contacts", v: "–", d: "", sub: "needs database update 020", of: () => 0, title: "Contacts per day" },
+    signups: { label: "New accounts", v: num(T.signups), d: delta(T.signups, P.signups), sub: `${num(T.uploaded)} uploads · ${num(T.slides)} slides`, of: d => d.signups, title: "New accounts per day", foot: `${num(T.started)} setups were started and ${num(T.uploaded)} got slides; ${num(now.accounts)} accounts in all.` },
     sales: noPay ? { label: "Revenue", v: "?", d: "", sub: esc(pay.error), of: d => d.sales, title: "Sales per day", foot: esc(pay.error) }
       : { label: "Revenue", v: money(pay.cur.money), d: delta(pay.cur.n, pay.prev.n), sub: `${num(pay.cur.n)} payments · ${num(pay.cur.fresh)} new · before ${money(pay.prev.money)}`, of: d => d.sales, title: "Sales per day", foot: "Paid invoices in Stripe; refunds are not taken off." },
   };
   const M = KPI[metric];
-  const rows = daily.map(d => ({ label: dayLabel(d.day), v: M.of(d), off: metric === "visitors" && off(d), tip: tipFor(d) }));
+  const rows = daily.map(d => ({ label: dayLabel(d.day), v: M.of(d), off: metric === "visitors" && off(d), part: d.day === today && days > 1, tip: tipFor(d) }));
   const sum = rows.reduce((a, r) => a + r.v, 0);
+
+  // The quiz start: the link with the most visitors first; a second link gets its own button.
+  const Q = hasQuiz ? s.quiz : [], q = Q.find(x => x.link === qLink) || Q[0] || { link: "klara", steps: [], daily: [], sources: {}, leads: {} };
+  const qOpened = q.steps?.[0] || 0, L = q.leads || {};
+  const qCard = !hasQuiz ? card("Quiz start", `<p class="kz-muted">This needs database update 020 (supabase/migrations/020_pc_stats_quiz.sql). The rest of the page works without it.</p>`)
+    : card(`Quiz start: ${esc(linkName(q.link))}`, `
+      ${Q.length > 1 ? `<div class="kz-chips" style="margin:0 0 14px">${Q.map(x => `<button class="kz-chip" data-qlink="${esc(x.link)}" aria-pressed="${x.link === q.link}">${esc(linkName(x.link))} <b>${num(x.steps?.[0] || 0)}</b></button>`).join("")}</div>` : ""}
+      ${quizFunnel(q)}
+      <div class="kz-facts" style="margin:14px 0 0"><span>Came from: ${dict(q.sources).map(([k, v]) => `<b>${esc(k)}</b> ${num(v)}`).join(" · ") || "nobody yet"}</span>
+        <span>Contacts saved: <b>${num(L.n)}</b> (${num(L.email)} email, ${num(L.phone)} phone)</span><span>Plan link emailed: <b>${num(L.mailed)}</b></span></div>`,
+      { aside: days === 1 ? "today" : `${days} days`, foot: `${qOpened < ENOUGH ? `Only ${num(qOpened)} ${qOpened === 1 ? "visitor" : "visitors"} so far: read the counts. Percentages and the biggest drop show from ${ENOUGH} visitors. ` : ""}The dark bar is who is still there, the pale part who was there a step before. The same visitor is followed through one day; someone who comes back another day starts again as a new visitor, and your own taps count unless "Don't count my visits" is ticked on that device.` });
+  const qDaysCard = hasQuiz ? card(`${esc(linkName(q.link))} by day`, quizDays(q, today), { flush: true, foot: "One row per day, so each reel's day can be read on its own. Contact is the saved emails and phones." }) : "";
+  const leadsCard = hasQuiz ? card("Contacts from the quiz", (s.leadList || []).length ? `<ul class="kz-leads">${s.leadList.map(leadRow).join("")}</ul>` : `<p class="kz-muted" style="padding:0 20px 16px">No contacts in this period.</p>`,
+    { flush: true, aside: `${num(T.leads)} in ${days === 1 ? "today" : `${days} days`}`, foot: (s.leadList || []).length ? "Tap a contact to write or call. They agreed to be contacted about their plan." : "" }) : "";
+  const wide = typeof matchMedia === "function" && matchMedia("(min-width:760px)").matches;
+  const moreOpen = more ? more === "1" : wide; // the long lists start folded on a phone, open on a computer; a tap is remembered
 
   // Where accounts are now (the Users tab's steps), when pc-api has them.
   const U = users;
@@ -222,50 +302,58 @@ function paintStats(el) {
 
   el.innerHTML = `
   <div class="kz-bar"><div class="kz-seg" role="group" aria-label="Period">${pd("Today", 1)}${pd("7 days", 7)}${pd("30 days", 30)}${pd("90 days", 90)}<button data-refresh title="Load again">Refresh</button></div>
-    <span class="kz-muted">Changes are ${vsText()}</span>
-    <label class="kz-check"><input type="checkbox" id="nt"${notrack() ? " checked" : ""}> Don't count my visits from this browser</label></div>
+    <span class="kz-muted">Changes are ${vsText()}</span></div>
   ${!since ? `<p class="kz-note">Visit counting starts with the first visitor after this update. Accounts, sales and slides below already go back further.</p>` : ""}
   <div class="kz-kpis" role="group" aria-label="Headline numbers: pick one for the chart">
     ${Object.entries(KPI).map(([id, k]) => `<button class="kz-card kz-kpi" data-metric="${id}" aria-pressed="${metric === id}">
       <span class="l">${k.label}</span><span class="v">${k.v}</span><span>${k.d}</span><span class="s">${k.sub}</span>${spark(daily.filter(d => !(id === "visitors" && off(d))).map(k.of))}</button>`).join("")}
   </div>
+  <div class="kz-grid w21">
+    ${qCard}
+    <div class="kz-stack">${qDaysCard}${leadsCard}</div>
+  </div>
+  <div class="kz-grid">${card(M.title, barChart(rows), { aside: `<span class="kz-total">${num(sum)}</span> in ${days === 1 ? "today" : `${days} days`}`,
+    foot: [M.foot, days > 1 ? "The pale bar is today so far." : "", metric === "visitors" && since && !fullVisits ? `Visits are counted from ${dayLabel(since)}; striped days before that have no visit data.` : ""].filter(Boolean).join(" ") })}</div>
   <div class="kz-now">
     <div><b>${num(payingN)}</b>paying now${payingBy ? ` · ${esc(payingBy)}` : ""}</div><div><b>${money(s.mrr)}</b>a month from them</div>
     <div><b>${num(now.accounts)}</b>accounts in all</div><div><b>${num(now.testers)}</b>testers on a free plan</div><div><b>${num(now.studying7)}</b>courses studied, last 7 days</div>
   </div>
-  ${card(M.title, barChart(rows), { aside: `<span class="kz-total">${num(sum)}</span> in ${days === 1 ? "today" : `${days} days`}`,
-    foot: [M.foot, metric === "visitors" && since && !fullVisits ? `Visits are counted from ${dayLabel(since)}; striped days before that have no visit data.` : ""].filter(Boolean).join(" ") })}
-
+  <div class="kz-grid">
+    ${card("Where visitors came from", countTable(["Source", "Visits", "Visitors", "Accounts", "Paying"], (s.sources || []).map(r => [srcLabel(r.source), r.visits, r.visitors, r.signups, r.paying]), { share: 2, cap: 8, narrow: [1] }),
+      { flush: true, foot: `Tag your links so they show up by name: <code>kvizoo.com/?utm_source=tiktok&amp;utm_campaign=bio</code> (or short: <code>?ref=tt</code>). Accounts are matched to the visit from the same browser that day. From 20 Nov, Facebook's own link checks and other scanners aren't counted; before that, a Facebook post showed up as several visits within seconds of posting.` })}
+  </div>
   <div class="kz-grid c2">
     ${flowCard}
     ${card("From visit to sale", hbars(funnel, { pctOf: funnel[0][1] || null }),
       { aside: "this period", foot: `Each step is counted over the same period, not the same people followed one by one. % is of the first step.${!fullVisits && since ? ` Visitors are left out: they're only counted from ${dayLabel(since)}.` : ""}` })}
   </div>
-  <div class="kz-grid w21">
-    ${card("Where visitors came from", countTable(["Source", "Visits", "Visitors", "Accounts", "Paying"], (s.sources || []).map(r => [srcLabel(r.source), r.visits, r.visitors, r.signups, r.paying])),
-      { flush: true, foot: `Tag your links so they show up by name: <code>kvizoo.com/?utm_source=tiktok&amp;utm_campaign=bio</code> (or short: <code>?ref=tt</code>). Accounts are matched to the visit from the same browser that day. From 20 Nov, Facebook's own link checks and other scanners aren't counted; before that, a Facebook post showed up as several visits within seconds of posting.` })}
-    ${card("Slides per upload", hbars([["Up to 20", B[0]], ["21 to 50", B[1]], ["51 to 100", B[2]], ["101 to 250", B[3]], ["Over 250", B[4]]]),
-      { foot: `${num(sl.uploads)} uploads · ${num(sl.files)} files · ${num(sl.total)} slides · average ${num(sl.avg)} · median ${num(sl.median)} · largest ${num(sl.max)}` })}
-  </div>
+
+  <details class="kz-fold"${moreOpen ? " open" : ""}><summary><span>More detail <small>pages, tagged links, devices, slides, payments</small></span></summary>
+  <div class="kz-grid">${card("Pages", countTable(["Page", "Views", "Visitors", "Landed here"], (s.pages || []).map(p => [pageLabel(p.path), p.views, p.visitors, p.entries]), { cap: 8, narrow: [2] }), { flush: true })}</div>
   <div class="kz-grid c2">
-    ${card("What they said at sign-up", countTable(["Answer", "Accounts"], dict(s.said).map(([k, v]) => [esc(k), v])), { flush: true })}
     ${card("Tagged links", countTable(["Campaign", "Visits"], (s.campaigns || []).map(c => [`<b>${esc(c.campaign)}</b><span class="sub">${esc(c.source)}</span>`, c.visits])), { flush: true })}
+    ${card("What they said at sign-up", countTable(["Answer", "Accounts"], dict(s.said).map(([k, v]) => [esc(k), v])), { flush: true })}
   </div>
-  <div class="kz-grid">${card("Pages", countTable(["Page", "Views", "Visitors", "Landed here"], (s.pages || []).map(p => [pageLabel(p.path), p.views, p.visitors, p.entries]), { cap: 8 }), { flush: true })}</div>
   <div class="kz-grid ${hasCountry ? "c3" : "c2"}">
     ${card("Devices", hbars(dict(s.devices).map(([k, v]) => [devWords[k] || esc(k), v]), { pctOf: T.visitors || null }))}
     ${card("Browser languages", hbars(dict(s.langs).slice(0, 6).map(([k, v]) => [esc(k === "?" ? "unknown" : k), v]), { pctOf: T.visitors || null }))}
     ${hasCountry // Supabase's edge sends no country header today, so this stays hidden until it does
     ? card("Countries", hbars(dict(s.countries).slice(0, 6).map(([k, v]) => [esc(k === "?" ? "unknown" : k), v]), { pctOf: T.visitors || null })) : ""}
   </div>
+  <div class="kz-grid">${card("Slides per upload", hbars([["Up to 20", B[0]], ["21 to 50", B[1]], ["51 to 100", B[2]], ["101 to 250", B[3]], ["Over 250", B[4]]]),
+      { foot: `${num(sl.uploads)} uploads · ${num(sl.files)} files · ${num(sl.total)} slides · average ${num(sl.avg)} · median ${num(sl.median)} · largest ${num(sl.max)}` })}</div>
   <div class="kz-grid">${card("Payments in Stripe", noPay ? `<p class="kz-err" style="padding:0 20px 16px">${esc(pay.error)}</p>` : `<div class="kz-scroll"><table><tr><th>Paid</th><th class="kz-n">Amount</th><th>Plan</th><th>What</th><th>Email</th></tr>
     ${(pay.list || []).length ? pay.list.map(p => `<tr><td>${when(p.at)}</td><td class="kz-n">${money({ [p.currency]: p.amount })}</td><td>${esc(p.plan || "–")}</td><td>${KIND[p.kind] || esc(p.kind)}</td><td>${esc(p.email || "–")}</td></tr>`).join("")
     : `<tr><td colspan="5" class="kz-muted">No payments in this period.</td></tr>`}</table></div>`, { flush: true })}</div>
+  </details>
+  <label class="kz-check" style="margin-top:20px"><input type="checkbox" id="nt"${notrack() ? " checked" : ""}> Don't count my visits from this browser</label>
   <p class="kz-foot">Updated ${when(s.to)} · period from ${when(s.from)}</p>`;
 
   el.querySelectorAll("[data-days]").forEach(b => b.onclick = () => period(+b.dataset.days));
   el.querySelector("[data-refresh]").onclick = () => period(days);
   el.querySelector("#nt").onchange = e => setNotrack(e.target.checked);
+  el.querySelectorAll("[data-qlink]").forEach(b => b.onclick = () => { qLink = b.dataset.qlink; keep("qlink", qLink); paintStats(el); });
+  el.querySelector(".kz-fold > summary").onclick = e => { more = e.currentTarget.parentElement.open ? "0" : "1"; keep("more", more); }; // the click comes before it flips
   el.querySelectorAll("[data-metric]").forEach(b => b.onclick = () => { metric = b.dataset.metric; keep("metric", metric); paintStats(el); });
   el.querySelectorAll("[data-goto]").forEach(a => a.onclick = e => { e.preventDefault(); go(a.dataset.goto); });
   wireCharts(el);
