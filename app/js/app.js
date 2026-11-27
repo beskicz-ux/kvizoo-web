@@ -326,6 +326,9 @@ async function googleButton(box, onToken, signup = false) {
   slot.style.transform = `scale(${(box.clientWidth / w).toFixed(3)}, 1.5)`; // Google's button is 40 high and at most 400 wide: stretch it over our 56-high face
 }
 
+// a button that waits for the server: off, with a spinner in place of its label
+const waiting = (b, on) => { if (!b) return; b.disabled = on; b.classList.toggle("busy", on); if (on) b.setAttribute("aria-busy", "true"); else b.removeAttribute("aria-busy"); };
+
 function viewLogin() {
   loginFrame(t("signinTitle"), `${G_BOX()}<form id="f" class="ob-form"><input class="ob-in" id="email" type="email" autocomplete="email" placeholder="${t("accEmail")}" aria-label="${t("accEmail")}" maxlength="200">
     <input class="ob-in" id="pass" type="password" autocomplete="current-password" placeholder="${t("accPass")}" aria-label="${t("accPass")}" maxlength="200">
@@ -337,12 +340,12 @@ function viewLogin() {
     e.preventDefault();
     const email = $("#email").value.trim(), password = $("#pass").value;
     if (!email || !password) return;
-    $("#go").disabled = true; $("#err").hidden = true;
-    try { const r = await api("login", { email, password }); store.set("session", { token: r.session, slug: r.student.slug }); await useInvite(); signedIn(r, email); } catch (er) { fail($("#err"), er); $("#go").disabled = false; }
+    waiting($("#go"), true); $("#err").hidden = true;
+    try { const r = await api("login", { email, password }); store.set("session", { token: r.session, slug: r.student.slug }); await useInvite(); signedIn(r, email); } catch (er) { fail($("#err"), er); waiting($("#go"), false); }
   };
   googleButton($("#gBox"), async token => {
-    $("#err").hidden = true;
-    try { const r = await api("login", { google: token }); store.set("session", { token: r.session, slug: r.student.slug }); await useInvite(); signedIn(r, r.email || tokenClaims(token).email); } catch (er) { fail($("#err"), er); }
+    $("#err").hidden = true; $("#gBox").classList.add("busy"); waiting($("#go"), true);
+    try { const r = await api("login", { google: token }); store.set("session", { token: r.session, slug: r.student.slug }); await useInvite(); signedIn(r, r.email || tokenClaims(token).email); } catch (er) { fail($("#err"), er); $("#gBox")?.classList.remove("busy"); waiting($("#go"), false); }
   });
 }
 
@@ -361,14 +364,14 @@ function viewForgot() {
     e.preventDefault();
     const email = $("#email").value.trim();
     if (!EMAIL_RE.test(email)) return fail($("#err"), { code: "bad_email" });
-    $("#go").disabled = true; $("#err").hidden = true;
+    waiting($("#go"), true); $("#err").hidden = true;
     try {
       await api("reset_request", { email, lang: lang() });
       forgotEmail = email;
       loginFrame(t("forgotSentTitle"), `<p class="ob-sub" id="sent"></p><a class="btn-p" id="toLogin" href="#/login">${t("accLogin")}</a>`, "#/login");
       $("#sent").textContent = t("forgotSent", { email });
     } catch (er) {
-      $("#go").disabled = false;
+      waiting($("#go"), false);
       if (er.code !== "mail_off") return fail($("#err"), er);
       const m = (await storeConfig().catch(() => ({}))).operator?.email;
       if (!m) return fail($("#err"), er);
@@ -391,7 +394,7 @@ function viewReset() {
     e.preventDefault();
     const password = $("#pass").value;
     if (password.length < 8) return fail($("#err"), { code: "bad_password" });
-    $("#go").disabled = true; $("#err").hidden = true;
+    waiting($("#go"), true); $("#err").hidden = true;
     try {
       const r = await api("reset_password", { token: resetToken, password });
       resetToken = "";
@@ -400,7 +403,7 @@ function viewReset() {
       await useInvite();
       signedIn(r, r.email);
     } catch (er) {
-      $("#go").disabled = false;
+      waiting($("#go"), false);
       if (er.code === "bad_reset") { resetToken = ""; return render(); } // the page then says the link is dead and offers a new one
       fail($("#err"), er);
     }
@@ -1043,18 +1046,18 @@ async function viewUnlock() {
   const all = $("#unitsAll"); if (all) all.onclick = () => { $("#units").classList.remove("cut"); all.remove(); };
   const proBtn = $("[data-pro]");
   if (proBtn) proBtn.onclick = async () => {
-    $("#err").hidden = true; proBtn.disabled = true;
+    $("#err").hidden = true; waiting(proBtn, true);
     try { await api("pro_unlock", { session: s.token }); resetCourse(); confetti(); sfx.done(); toast(t("unlockDone")); nav("#/s/" + s.slug); }
-    catch (e) { fail($("#err"), e); proBtn.disabled = false; }
+    catch (e) { fail($("#err"), e); waiting(proBtn, false); }
   };
   const upBtn = $("[data-up]");
   if (upBtn) upBtn.onclick = async () => {
-    $("#err").hidden = true; upBtn.disabled = true;
+    $("#err").hidden = true; waiting(upBtn, true);
     try {
       const r = await api("checkout", { session: s.token, plan: "max", terms: true });
       if (r.url) { location.href = r.url; return; } // the card needs the student (3-D Secure): Stripe's invoice page
       resetCourse(); confetti(); sfx.done(); toast(t("planMaxOn")); nav("#/s/" + s.slug);
-    } catch (e) { fail($("#err"), e); upBtn.disabled = false; }
+    } catch (e) { fail($("#err"), e); waiting(upBtn, false); }
   };
   // "Have a friend code?": the way in when a friend link lost its code (2026-11-19). A code still waiting on this device is filled in.
   // Typed codes count in Stats as /app/code/ok, /bad, /full or /have, apart from the links' /app/t/...

@@ -917,7 +917,8 @@ function answered(st, it, ok, { record: rec = true, answerHtml = "", verdict } =
     step(st);
   };
   $("#fbNext", fb).onclick = go;
-  setTimeout(() => window.onkeydown = e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); } }, 200);
+  // a held key must not skip the verdict: the press that checked the answer is over before this listens, and repeats are ignored
+  setTimeout(() => window.onkeydown = e => { if (e.repeat) return; if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); } }, 60);
 }
 const correctBox = html => `<div class="ans">${html}</div>`;
 
@@ -995,7 +996,7 @@ function optionScreen(st, it, { label, q, opts, isRight, rightHtml }) {
   const check = () => {
     if (sel == null) return;
     const ok = isRight(sel);
-    btns.forEach(b => { b.disabled = true; b.classList.remove("sel"); if (isRight(b.dataset.v)) b.classList.add("right"); else if (b.dataset.v === sel) b.classList.add("wrong"); });
+    btns.forEach(b => { b.disabled = true; b.classList.remove("sel"); if (isRight(b.dataset.v)) { b.classList.add("right"); if (ok) b.classList.add("nailed"); const k = $(".k", b); if (k) k.innerHTML = ic.check; } else if (b.dataset.v === sel) b.classList.add("wrong"); });
     window.onkeydown = null;
     answered(st, it, ok, { answerHtml: ok ? "" : correctBox(rightHtml) });
   };

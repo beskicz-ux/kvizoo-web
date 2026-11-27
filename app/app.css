@@ -44,6 +44,10 @@ body.plain .app{padding-bottom:0}
   font:800 17px var(--head); text-decoration:none; cursor:pointer; padding:0 20px; box-sizing:border-box; transition:transform .12s, opacity .12s}
 .btn-p:active{transform:scale(.98)}
 .btn-p[disabled]{opacity:.45; pointer-events:none}
+/* waiting for the server: the label gives way to a spinner, the button keeps its size and colour */
+.btn-p.busy{position:relative; color:transparent; opacity:.85}
+.btn-p.busy::after{content:""; position:absolute; inset:0; margin:auto; width:22px; height:22px; border-radius:50%; border:3px solid #fff6; border-top-color:#fff; animation:spin .8s linear infinite}
+.ob-g.busy{opacity:.55; pointer-events:none}
 .btn-p + .btn-p{margin-top:10px}
 .btn-t{display:flex; align-items:center; justify-content:center; gap:6px; width:100%; min-height:48px; border:0; background:none; color:var(--accent-ink); font:700 15px var(--font); text-decoration:none; cursor:pointer}
 .btn-t.sm{width:auto; min-height:36px; font-size:14px}
@@ -634,6 +638,9 @@ html[dir=rtl] :is(b, h1, p, small, .tb-name, .md, .q, .opt){unicode-bidi:plainte
   html{scroll-behavior:smooth}
   #view > *{animation:viewIn .24s cubic-bezier(.2,.8,.2,1)}
   :is(.btn, .opt, .sch, .lrow, .nav a, .n .c, .chip){transition:transform .12s ease, box-shadow .12s ease, background-color .2s ease, border-color .2s ease, color .2s ease}
+  /* done on every question, so kept short: the option's colours and the fade to the next question */
+  .opt.opt{transition:transform .08s ease, box-shadow .08s ease, background-color .1s ease, border-color .1s ease, color .1s ease}
+  #view:has(> .qcard) > *{animation-duration:.1s}
   .pc-match.mx .opt{transition:opacity .35s ease, filter .35s ease, transform .12s ease, box-shadow .12s ease, background-color .2s ease, border-color .2s ease}
   :is(.bar, .prog, .goal) i{transition:width .5s cubic-bezier(.2,.8,.2,1)}
 }

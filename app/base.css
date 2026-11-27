@@ -330,11 +330,18 @@ body.focus .app{padding-bottom:calc(140px + env(safe-area-inset-bottom))}
 .opt.wrong{background:var(--red-soft); border-color:var(--red); box-shadow:0 4px 0 var(--red); color:var(--red-ink); animation:shake .35s}
 .opt.wrong .k{border-color:var(--red); color:var(--red-ink)}
 .opt[disabled]{cursor:default}
+/* a right answer: the letter turns into a check; when the student's own pick was right, the option also pulses once */
+.opt.right .k{background:var(--green); color:#fff}
+.opt.right .k svg{width:18px; height:18px; animation:okPop .28s var(--ease) both}
+.opt.nailed{animation:rightPulse .32s var(--ease)}
+.feedback.good .ok-ico svg{animation:okPop .3s var(--ease) .06s both}
+@keyframes rightPulse{40%{transform:scale(1.035)}}
+@keyframes okPop{from{opacity:0; transform:scale(.4)} 60%{transform:scale(1.15)}}
 @keyframes shake{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
 .tf{display:grid; grid-template-columns:1fr 1fr; gap:var(--s3)}
 
 /* feedback sheet */
-.feedback{position:fixed; left:0; right:0; bottom:0; z-index:40; padding:var(--s4) max(var(--gutter), env(safe-area-inset-left)) calc(var(--s4) + env(safe-area-inset-bottom)); animation:up .22s var(--ease)}
+.feedback{position:fixed; left:0; right:0; bottom:0; z-index:40; padding:var(--s4) max(var(--gutter), env(safe-area-inset-left)) calc(var(--s4) + env(safe-area-inset-bottom)); animation:up .14s var(--ease)}
 .feedback .in{max-width:640px; margin:0 auto}
 .feedback.good{background:var(--green-soft)} .feedback.badf{background:var(--red-soft)}
 .feedback h3{display:flex; align-items:center; gap:var(--s3); font-size:22px}

@@ -219,7 +219,7 @@ function viewQuestion(step, ctx) {
     sfx.flip(); s.p.setState("correct");
     const cur = quiz(); store.set("quiz", { ...cur, a: { ...cur.a, [q.k]: picked } });
     // a short beat so the tap shows as picked before the next question comes
-    setTimeout(() => step < N ? ctx.nav("#/q/" + (step + 1)) : !contactKnown() ? ctx.nav("#/q/contact") : quiz().viaMail ? ctx.nav("#/q/plan") : ctx.takeFiles([]).catch(() => ctx.nav("#/q/contact")), 420);
+    setTimeout(() => step < N ? ctx.nav("#/q/" + (step + 1)) : !contactKnown() ? ctx.nav("#/q/contact") : quiz().viaMail ? ctx.nav("#/q/plan") : ctx.takeFiles([]).catch(() => ctx.nav("#/q/contact")), 220);
   };
   box.onkeydown = e => {
     const k = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1 }[e.key]; if (!k) return;
