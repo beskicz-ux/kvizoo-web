@@ -98,3 +98,17 @@ export const ic = {
   star: I('<path d="M12 2l3 7 7 .6-5.3 4.6L18.300 22 12 18l-6.300 4 1.600-7.800L2 9.600 9 9z"/>'),
   copy: I('<rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>'),
 };
+// File-type icons (Marek 2026-11-27: a bare "P" or "W" in a square didn't say PowerPoint or Word): a page with a folded
+// corner in the app's own colour, its mark inside (PowerPoint's pie, lines of text) and the short type at the bottom.
+// Used on the upload step, in its file list and in the landing page's phone. A photo of notes is camIcon instead.
+const KINDS = { pptx: ["#D35230", "PPT"], pdf: ["#E5484D", "PDF"], doc: ["#2B5DB8", "DOC"], txt: ["#5E6B7A", "TXT"] };
+export const fileIcon = kind => {
+  const [colour, label] = KINDS[kind] || KINDS.pdf;
+  const mark = kind === "pptx"
+    ? `<path d="M18 15a6.5 6.5 0 1 0 6.5 6.5H18z" fill="#fff"/><path d="M20 13v6.5h6.5a6.5 6.5 0 0 0-6.5-6.5z" fill="#fff" fill-opacity=".7"/>`
+    : `<path d="M10 16h17M10 21h17M10 26h11" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/>`;
+  return `<svg class="fi" viewBox="0 0 38 46" aria-hidden="true"><path d="M5 1h20l12 12v29a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3V4a3 3 0 0 1 3-3z" fill="${colour}"/>`
+    + `<path d="M25 1v9a3 3 0 0 0 3 3h9z" fill="#fff" fill-opacity=".4"/>${mark}`
+    + `<text x="19.5" y="40" text-anchor="middle" fill="#fff" style="font:800 10px var(--head), sans-serif">${label}</text></svg>`;
+};
+export const camIcon = `<i class="cami">${ic.camera}</i>`;

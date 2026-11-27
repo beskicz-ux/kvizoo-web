@@ -1,8 +1,9 @@
 // Router, welcome, onboarding (slides → date → tutor, then the account), wait page, login, unlock (store), terms and privacy.
-import { $, $$, view, esc, store, api, today, addDays, ic, I, toast, confetti, sfx } from "./util.js";
+import { $, $$, view, esc, store, api, today, addDays, ic, I, toast, confetti, sfx, fileIcon, camIcon } from "./util.js";
 import { t, lang, setLang, courseLang, errText, pages as pagesTxt, fileCount, lessonCount, minutesLeft, inDays, inWeeks, fmtDay, fmtShortMonth } from "./i18n.js";
 import { ham } from "./art.js";
 import { isImage, isPhoto, imagesToPdfs } from "./images.js";
+import { openCamera, canCamera } from "./camera.js";
 import { countPages, validFile, daysBetween, ACCEPT, slidesOf, fileSlides, studyPlan } from "./forecast.js";
 import { phaseOf, QUEUED, stepsHtml, barTarget, phaseStart, clock, stageText } from "./build.js";
 import { courseRoute, tutorArt, TUTORS, tutorWith, resetCourse, storeInfo, snapGoal, money } from "./course.js";
@@ -201,14 +202,13 @@ const crew = (() => { // scoped, so the short names below can't clash with the r
 // Under reduced motion it's one still: the answered question. crew() above is the picture it replaced.
 const preview = () => {
   const s = k => esc(t(k));
-  const FILES = [["P", "#D35230"], ["PDF", "#E5484D"], ["W", "#2B5DB8"], ["", "#3A3E56"]]; // a presentation, a PDF, a document, a photo of handwritten notes
-  const NOTE = `<svg viewBox="0 0 20 20" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round"><path d="M4 6q2-2 4 0t4 0 4 0M4 10q2-2 4 0t4 0M4 14q2-2 4 0t4 0 3 0"/></svg>`;
+  const FILES = ["pptx", "pdf", "doc", "photo"]; // a presentation, a PDF, a document, a photo of handwritten notes (the same icons as the upload step)
   const OK = `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 10.5l3.5 3.5 7.5-8"/></svg>`;
   const GLYPH = [`<path d="M11 14.5q4.5-1.6 9 1 4.5-2.6 9-1v12q-4.5-1.6-9 1-4.5-2.6-9-1z"/><path d="M20 15.5v12"/>`,
     `<rect x="11.5" y="14" width="13" height="15" rx="2.5"/><path d="M16 10.5h10a2.5 2.5 0 0 1 2.5 2.5v12"/>`, `<path d="M12.5 20.5l5 5 10-10"/>`,
     `<path d="M20 11.5l2.5 5.2 5.7.7-4.2 3.9 1.1 5.6L20 24.2l-5.1 2.7 1.1-5.6-4.2-3.9 5.7-.7z" fill="#fff" stroke-width="1.6"/>`,
     `<path d="M14 12h12v5a6 6 0 0 1-12 0zM14 14h-2.6v.8a3.6 3.6 0 0 0 3.6 3.6M26 14h2.6v.8a3.6 3.6 0 0 1-3.6 3.6M20 23v4M15.5 28h9" stroke-width="2.4"/>`];
-  const row = ([badge, color], i) => `<div class="pv-row" style="--i:${i}"><i style="background:${color}">${badge || NOTE}</i><span>${s("pvF" + (i + 1))}</span><em>${OK}</em></div>`;
+  const row = (kind, i) => `<div class="pv-row" style="--i:${i}">${kind === "photo" ? camIcon : fileIcon(kind)}<span>${s("pvF" + (i + 1))}</span><em>${OK}</em></div>`;
   const node = (g, i) => `<div class="pv-node${i === 4 ? " pv-cup" : ""}" style="--i:${i}"><svg viewBox="6 6 28 28" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">${g}</svg>${i ? "" : `<i class="pv-tap"></i>`}</div>`;
   const opt = (l, k, ok) => `<div class="pv-opt${ok ? " pv-ok" : ""}"><span>${l}</span>${s(k)}${ok ? `<i class="pv-tap"></i>` : ""}</div>`;
   return `<div class="pv-phone"><div class="pv-scr"><div class="pv-status"><span>9:41</span><i class="pv-sig"></i><i class="pv-bat"></i></div><div class="pv-stage">
@@ -415,31 +415,37 @@ const uploading = new Map();
 const tooMany = () => Object.assign(new Error("too_many_pages"), { code: "too_many_pages" });
 const fileKind = name => /\.pptx?$/i.test(name) ? "pptx" : /\.(docx?|rtf)$/i.test(name) ? "doc" : /\.(txt|md)$/i.test(name) ? "txt" : "pdf";
 function fileRows(d) {
-  const rows = d.files.map(f => `<div class="ob-file"><span class="ob-fk ${fileKind(f.name)}">${fileKind(f.name).toUpperCase()}</span><div class="t"><b>${esc(f.name)}</b><span>${pagesTxt(f.pages)}${slidesOf(f.name, 1, f.photos) > 1 ? ` ×${slidesOf(f.name, 1, f.photos)}` : ""}${f.estimated ? ` (${t("filesEst")})` : ""}</span></div><button class="ob-x" data-rm="${esc(f.path)}" aria-label="${t("filesRemove")}">${ic.x}</button></div>`).join("");
-  const up = [...uploading.values()].map(u => `<div class="ob-file busy"><span class="ob-fk ${fileKind(u.name)}">${fileKind(u.name).toUpperCase()}</span><div class="t"><b>${esc(u.name)}</b><div class="ob-bar"><i style="width:${u.pct}%"></i></div></div></div>`).join("");
+  const rows = d.files.map(f => `<div class="ob-file"><span class="ob-fk">${f.photos ? camIcon : fileIcon(fileKind(f.name))}</span><div class="t"><b>${esc(f.name)}</b><span>${pagesTxt(f.pages)}${slidesOf(f.name, 1, f.photos) > 1 ? ` ×${slidesOf(f.name, 1, f.photos)}` : ""}${f.estimated ? ` (${t("filesEst")})` : ""}</span></div><button class="ob-x" data-rm="${esc(f.path)}" aria-label="${t("filesRemove")}">${ic.x}</button></div>`).join("");
+  const up = [...uploading.values()].map(u => `<div class="ob-file busy"><span class="ob-fk">${u.photos ? camIcon : fileIcon(fileKind(u.name))}</span><div class="t"><b>${esc(u.name)}</b><div class="ob-bar"><i style="width:${u.pct}%"></i></div></div></div>`).join("");
   return rows + up;
 }
 function viewFiles() {
   // Super simple (Marek, 2026-11-17: "still a lot of text"): the title, the files, add more, the page count and one line on
   // rights. File types and limits are left to the picker and to the error messages, which say them when they matter.
+  // Upload, or take a photo of your notes (Marek 2026-11-27: "show the option to enable camera and take a photo of your
+  // notes", then "it should be like (upload) or Take a photo of your notes"). The camera used to be a picture inside the box.
+  // "Vyfotit zápisky" opens the camera inside the app on every device (camera.js); phone or not only picks the fallback.
+  const phone = matchMedia("(pointer: coarse)").matches;
   view().innerHTML = frame("files", { title: t("filesTitle"), btn: t("next"), say: "penny",
     body: `<div id="list"></div>
-      <label class="ob-drop" id="drop"><span class="ob-kinds" aria-hidden="true"><i style="background:#D35230">P</i><i style="background:#E5484D">PDF</i><i style="background:#2B5DB8">W</i><i style="background:#3A3E56">${ic.camera}</i></span>${ic.upload}<b id="dropTxt"></b><input type="file" id="pick" accept="${ACCEPT}" multiple hidden></label>
-      <div class="ob-cam" id="cam" hidden><button type="button" class="ob-cam-btn" id="camBtn">${ic.camera}<b>${t("filesCamera")}</b></button>
-        <div class="ob-shots" id="shots" hidden><span id="shotsN"></span><button type="button" class="btn-s" id="shotMore">${t("filesShotMore")}</button><button type="button" class="btn-p" id="shotDone">${t("filesShotDone")}</button></div>
-        <input type="file" id="shot" accept="image/*" capture="environment" hidden></div>
+      <div class="ob-src" id="src">
+        <label class="ob-tile ob-tfile" id="drop"><span class="ob-tic">${fileIcon("pptx")}${fileIcon("pdf")}${fileIcon("doc")}</span><b id="dropTxt"></b><small>PowerPoint · PDF · Word</small><input type="file" id="pick" accept="${ACCEPT}" multiple hidden></label>
+        <div class="ob-or" aria-hidden="true">${t("orWord")}</div>
+        <button type="button" class="ob-tile ob-tcam" id="camBtn">${camIcon}<span><b>${t("filesSnap")}</b><small>${t("filesSnapSub")}</small></span><svg class="ob-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      </div>
+      <div class="ob-shots" id="shots" hidden><span id="shotsN"></span><button type="button" class="btn-s" id="shotMore">${t("filesShotMore")}</button><button type="button" class="btn-p" id="shotDone">${t("filesShotDone")}</button></div>
+      <input type="file" id="shot" accept="image/*" ${phone ? `capture="environment"` : "multiple"} hidden>
       <p class="ob-err" id="err" hidden role="alert"></p><div class="ob-sum" id="total" hidden></div>` });
   bindStepBack("files");
-  // Camera shots (phones only: a desktop browser has no camera picker). iOS replaces the input's files on every shot, so the
-  // shots are kept here and become one photo PDF when the student taps Done.
+  // When the in-app camera can't start, a phone falls back to its own camera, page by page. iOS replaces the input's files on
+  // every shot, so the shots are kept here and become one photo PDF when the student taps Done. A computer picks photos of notes.
   const shots = [];
-  $("#cam").hidden = !matchMedia("(pointer: coarse)").matches;
   const refresh = () => {
     const cur = draft();
     $("#list").innerHTML = fileRows(cur);
     $("#dropTxt").textContent = cur.files.length || uploading.size ? t("filesAdd") : t("filesDrop");
-    $("#drop").classList.toggle("more", !!(cur.files.length || uploading.size));
-    $("#shots").hidden = !shots.length; $("#camBtn").hidden = !!shots.length;
+    $("#src").classList.toggle("more", !!(cur.files.length || uploading.size));
+    $("#shots").hidden = !shots.length; $("#src").hidden = !!shots.length;
     $("#shotsN").textContent = t("filesShots", { n: shots.length });
     const n = cur.files.reduce((a, f) => a + fileSlides(f), 0), over = n > MAX_PAGES;
     $("#total").hidden = !cur.files.length;
@@ -462,7 +468,7 @@ function viewFiles() {
       // counts files still uploading too, so several picked at once can't pass the cap together
       const have = draft().files.reduce((a, f) => a + fileSlides(f), 0) + [...uploading.values()].reduce((a, u) => a + (u.slides || 0), 0);
       if (have + slidesOf(file.name, pages, photos) > MAX_PAGES) throw tooMany();
-      uploading.set(key, { name: file.name, pct: 0, slides: slidesOf(file.name, pages, photos) }); refresh();
+      uploading.set(key, { name: file.name, pct: 0, slides: slidesOf(file.name, pages, photos), photos }); refresh();
       const { url, path, mime } = await api("upload_url", { orderToken: draft().orderToken, name: file.name, size: file.size, pages, ...(photos ? { photos } : {}) });
       await new Promise((res, rej) => {
         const x = new XMLHttpRequest(); x.open("PUT", url); x.setRequestHeader("Content-Type", mime);
@@ -479,7 +485,7 @@ function viewFiles() {
   // Photos (JPEG, HEIC) are read as photos of notes and count 3 slides a page; screenshots and saved slides (PNG, WebP) are slides.
   const addImages = async (imgs, nameKey, photos) => {
     const key = crypto.randomUUID();
-    uploading.set(key, { name: t("imagesConverting", { n: imgs.length }), pct: 0 }); refresh();
+    uploading.set(key, { name: t("imagesConverting", { n: imgs.length }), pct: 0, photos }); refresh();
     try {
       const pdfs = await imagesToPdfs(imgs, (part, n) => t(nameKey, { n }) + (part ? ` (${part})` : ""), (done, total) => {
         uploading.get(key).pct = done / total * 100; if ($("#list")) $("#list").innerHTML = fileRows(draft());
@@ -496,13 +502,16 @@ function viewFiles() {
     if (pics.length) addImages(pics, "imagesPdf", false);
   };
   $("#pick").onchange = e => { addAll(e.target.files); e.target.value = ""; };
-  $("#camBtn").onclick = $("#shotMore").onclick = () => $("#shot").click();
+  const photoPick = () => $("#shot").click();
+  $("#camBtn").onclick = () => canCamera() ? openCamera({ onDone: s => { if (!$("#err")) return; $("#err").hidden = true; addImages(s, "photosPdf", true); }, fallback: photoPick, fallbackLabel: t(phone ? "camOpen" : "filesPhotos") }) : photoPick();
+  $("#shotMore").onclick = photoPick;
   $("#shot").onchange = e => { // named in shot order, so the PDF keeps it (iOS calls every shot image.jpg)
+    if (!phone) { addAll(e.target.files); e.target.value = ""; return; }
     for (const f of e.target.files) shots.push(new File([f], `foto-${String(shots.length + 1).padStart(3, "0")}.${/hei[cf]/i.test(f.type) ? "heic" : "jpg"}`, { type: f.type || "image/jpeg" }));
     e.target.value = ""; refresh();
   };
   $("#shotDone").onclick = () => { $("#err").hidden = true; const s = shots.splice(0); refresh(); if (s.length) addImages(s, "photosPdf", true); };
-  const drop = $("#drop");
+  const drop = $("#src");
   drop.ondragover = e => { e.preventDefault(); drop.classList.add("over"); };
   drop.ondragleave = () => drop.classList.remove("over");
   drop.ondrop = e => { e.preventDefault(); drop.classList.remove("over"); addAll(e.dataTransfer.files); };
